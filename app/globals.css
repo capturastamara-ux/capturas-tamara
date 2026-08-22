@@ -12,8 +12,10 @@
   --color-catalog-mid: #6a9a94;
   --color-catalog-gold: #f0d000;
   --color-catalog-ink: #12324a;
+  --color-hero-sand: #c4a06a;
   --font-body: "Inter", sans-serif;
   --font-display: "Cormorant Garamond", serif;
+  --font-hero: "Playfair Display", serif;
 }
 
 @theme inline {
@@ -28,8 +30,10 @@
   --color-catalog-mid: #6a9a94;
   --color-catalog-gold: #f0d000;
   --color-catalog-ink: #12324a;
+  --color-hero-sand: #c4a06a;
   --font-sans: var(--font-body), sans-serif;
   --font-display: var(--font-display), serif;
+  --font-hero: "Playfair Display", serif;
   --animate-marquee: marquee 32s linear infinite;
 }
 

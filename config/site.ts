@@ -26,11 +26,12 @@ export const siteConfig = {
     alt: "Logo CapturasTamara",
   },
   hero: {
-    title: "CAPTURA TU MEJOR IMAGEN",
-    tagline: "FOTOGRAFÍA PROFESIONAL EN MANIZALES Y VILLAMARÍA.",
+    titleLine: "WILL",
+    title: "TAMARA",
+    tagline: "historias que algún día volverás a mirar",
     scrollLabel: "Ir a las categorías",
-    //video: "/images/hero/video-hero-1.mp4",
     poster: "/images/hero/hero-desktop.jpeg",
+    wordmark: "/images/hero/texto-hero-2.png",
     alt: "Sesión fotográfica profesional Capturas Tamara",
   },
   nav: [

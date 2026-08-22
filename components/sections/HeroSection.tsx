@@ -18,28 +18,14 @@ export function HeroSection() {
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 1.4, ease }}
       >
-        {reduceMotion ? (
-          <Image
-            src={siteConfig.hero.poster}
-            alt={siteConfig.hero.alt}
-            fill
-            priority
-            className="object-cover object-center"
-            sizes="100vw"
-          />
-        ) : (
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            poster={siteConfig.hero.poster}
-            className="absolute inset-0 h-full w-full object-cover object-center"
-            aria-label={siteConfig.hero.alt}
-          >
-            <source src={siteConfig.hero.video} type="video/mp4" />
-          </video>
-        )}
+        <Image
+          src={siteConfig.hero.poster}
+          alt={siteConfig.hero.alt}
+          fill
+          priority
+          className="object-cover object-center"
+          sizes="100vw"
+        />
       </motion.div>
       <div
         className="absolute inset-0 bg-black/45"
@@ -50,24 +36,21 @@ export function HeroSection() {
         aria-hidden="true"
       />
 
-      <div className="relative z-10 flex h-full flex-col items-center justify-center px-5 text-center text-white">
-        <motion.h1
-          className="font-display text-[clamp(2.25rem,7.5vw,5.75rem)] font-normal uppercase leading-[0.95] tracking-[0.04em]"
-          initial={reduceMotion ? false : { opacity: 0, y: 36 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.25, ease }}
-        >
-          {siteConfig.hero.title}
-        </motion.h1>
-        <motion.p
-          className="mt-5 max-w-3xl text-[clamp(0.65rem,1.35vw,0.85rem)] font-normal uppercase tracking-[0.22em] text-white/95 sm:mt-6 sm:tracking-[0.28em]"
-          initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5, ease }}
-        >
-          {siteConfig.hero.tagline}
-        </motion.p>
-      </div>
+      <motion.h1
+        className="absolute left-1/2 top-[72%] z-10 w-[120vw] -translate-x-1/2 -translate-y-1/2 sm:top-[70%] sm:w-[min(88vw,62rem)]"
+        initial={reduceMotion ? false : { opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.9, delay: 0.25, ease }}
+      >
+        <Image
+          src={siteConfig.hero.wordmark}
+          alt={`${siteConfig.hero.titleLine} ${siteConfig.hero.title}. ${siteConfig.hero.tagline}`}
+          width={1400}
+          height={700}
+          priority
+          className="h-auto w-full mix-blend-screen"
+        />
+      </motion.h1>
 
       <motion.div
         className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 sm:bottom-10"
