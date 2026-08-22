@@ -93,10 +93,19 @@ export default async function SubcategoryPage({ params }: PageProps) {
             </Reveal>
 
             {!isLeaf ? (
-              <PortfolioLevelView
-                categorySlug={category.slug}
-                nodes={node.children}
-              />
+              <>
+                <PortfolioLevelView
+                  categorySlug={category.slug}
+                  nodes={node.children}
+                />
+                {node.gallery.length > 0 && (
+                  <PlanGallerySection
+                    tone="catalog"
+                    planTitle={node.title}
+                    images={node.gallery}
+                  />
+                )}
+              </>
             ) : hasOwnContent ? (
               <div className="mt-10 sm:mt-12">
                 {node.plans.length > 0 && (
