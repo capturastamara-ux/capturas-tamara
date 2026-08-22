@@ -76,7 +76,7 @@ export function getAvailabilityLabel(
   }
 
   if (isDefaultOpen) {
-    return "Abierto (viernes o sábado)";
+    return "Abierto";
   }
 
   return "Cerrado";

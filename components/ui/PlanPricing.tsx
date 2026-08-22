@@ -5,11 +5,13 @@ type PlanPricingProps = {
   price: number | null | undefined;
   className?: string;
   variant?: "compact" | "full";
+  tone?: "default" | "catalog";
 };
 
 export function PlanPricing({
   price,
   className,
+  tone = "default",
 }: Readonly<PlanPricingProps>) {
-  return <PlanPrice price={price} className={cn(className)} />;
+  return <PlanPrice price={price} tone={tone} className={cn(className)} />;
 }

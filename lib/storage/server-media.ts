@@ -19,6 +19,7 @@ type PlanWithMedia = {
 
 type SubcategoryWithMedia = {
   coverUrl: string | null;
+  gallery?: Array<{ url: string }>;
   plans: PlanWithMedia[];
 };
 
@@ -38,6 +39,7 @@ export function collectPlanMediaUrls(plan: PlanWithMedia) {
 export function collectSubcategoryMediaUrls(subcategory: SubcategoryWithMedia) {
   return collectMediaUrls(
     subcategory.coverUrl,
+    subcategory.gallery?.map((image) => image.url),
     ...subcategory.plans.map((plan) => collectPlanMediaUrls(plan)),
   );
 }

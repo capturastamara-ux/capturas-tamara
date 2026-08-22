@@ -2,12 +2,13 @@ import { Button } from "@/components/ui/Button";
 import { PlanPricing } from "@/components/ui/PlanPricing";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { RichTextContent } from "@/components/ui/RichTextContent";
-import { PlanGalleryCarousel } from "@/components/ui/PlanGalleryCarousel";
 import { PortfolioSplitContent } from "@/components/ui/PortfolioSplitContent";
 import { PortfolioSplitGrid } from "@/components/ui/PortfolioSplitGrid";
 import { PortfolioSplitMedia } from "@/components/ui/PortfolioSplitMedia";
 import { Reveal } from "@/components/ui/Reveal";
+import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/cn";
+import Image from "next/image";
 
 export type PortfolioPlanCard = {
   id: string;
@@ -20,29 +21,33 @@ export type PortfolioPlanCard = {
   sections: Array<{
     id: string;
     title: string;
-  }>;
-  gallery: Array<{
-    id: string;
-    url: string;
+    intro: string | null;
+    note: string | null;
   }>;
 };
 
 type PortfolioPlanSplitsProps = {
-  categorySlug: string;
-  subcategorySlug: string;
   categoryTitle: string;
   plans: PortfolioPlanCard[];
+  tone?: "default" | "catalog";
 };
 
+function reserveHref(planTitle: string) {
+  return `${siteConfig.whatsapp.href}?text=${encodeURIComponent(
+    siteConfig.portfolio.reserveMessage(planTitle),
+  )}`;
+}
+
 export function PortfolioPlanSplits({
-  categorySlug,
-  subcategorySlug,
   categoryTitle,
   plans,
-}: PortfolioPlanSplitsProps) {
+  tone = "default",
+}: Readonly<PortfolioPlanSplitsProps>) {
+  const isCatalog = tone === "catalog";
+
   if (plans.length === 0) {
     return (
-      <p className="text-muted">
+      <p className={isCatalog ? "text-white/70" : "text-muted"}>
         Aún no hay planes publicados en {categoryTitle}.
       </p>
     );
@@ -51,7 +56,6 @@ export function PortfolioPlanSplits({
   return (
     <div className="flex min-w-0 flex-col gap-12 sm:gap-20 lg:gap-24">
       {plans.map((plan, index) => {
-        // Sin hero de categoría: el primer plan inicia con imagen a la izquierda.
         const imageLeft = index % 2 === 0;
         const cover =
           plan.coverUrl ?? "/images/plans/todo-incluido/cover.png";
@@ -71,10 +75,12 @@ export function PortfolioPlanSplits({
                 delay={imageLeft ? 0 : 0.08}
               >
                 <PortfolioSplitMedia>
-                  <PlanGalleryCarousel
-                    images={plan.gallery}
-                    fallbackUrl={cover}
-                    fallbackAlt={plan.title}
+                  <Image
+                    src={cover}
+                    alt={plan.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
                     priority={index === 0}
                   />
                 </PortfolioSplitMedia>
@@ -88,52 +94,99 @@ export function PortfolioPlanSplits({
                 delay={imageLeft ? 0.08 : 0}
               >
                 <PortfolioSplitContent>
-                {plan.tagline && (
-                  <p className="text-[0.65rem] uppercase tracking-[0.18em] text-muted sm:text-xs">
-                    {plan.tagline}
-                  </p>
-                )}
-                <SectionHeading
-                  as="h2"
-                  align="left"
-                  className="mt-2 font-display text-[clamp(1.75rem,4vw,3rem)] italic sm:mt-3"
-                >
-                  {plan.title}
-                </SectionHeading>
-                <PlanPricing
-                  price={plan.price}
-                  variant="compact"
-                  className="mt-4 sm:mt-5"
-                />
-                {plan.description && (
-                  <RichTextContent
-                    html={plan.description}
-                    className="mt-4 max-w-lg text-sm leading-relaxed sm:mt-5 sm:text-base lg:text-[0.95rem] lg:leading-relaxed"
-                  />
-                )}
-
-                {plan.sections.length > 0 && (
-                  <ul className="mt-4 flex flex-wrap gap-2 sm:mt-5">
-                    {plan.sections.map((section) => (
-                      <li
-                        key={section.id}
-                        className="rounded-full border border-primary/15 px-3 py-1 text-[0.65rem] uppercase tracking-[0.12em] text-muted sm:text-xs"
-                      >
-                        {section.title}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-
-                <div className="mt-5 sm:mt-6">
-                  <Button
-                    href={`/portafolio/${categorySlug}/${subcategorySlug}/${plan.slug}`}
-                    variant="filled"
-                    className="w-full sm:w-auto"
+                  {plan.tagline && (
+                    <p
+                      className={cn(
+                        "text-[0.65rem] uppercase tracking-[0.18em] sm:text-xs",
+                        isCatalog ? "text-catalog-gold" : "text-muted",
+                      )}
+                    >
+                      {plan.tagline}
+                    </p>
+                  )}
+                  <SectionHeading
+                    as="h2"
+                    align="left"
+                    className={cn(
+                      "mt-2 font-display text-[clamp(1.75rem,4vw,3rem)] italic sm:mt-3",
+                      isCatalog && "text-white",
+                    )}
                   >
-                    Ver detalle del plan
-                  </Button>
-                </div>
+                    {plan.title}
+                  </SectionHeading>
+                  {isCatalog ? (
+                    <span
+                      className="mt-4 block h-px w-14 bg-catalog-gold/80"
+                      aria-hidden="true"
+                    />
+                  ) : null}
+                  <PlanPricing
+                    price={plan.price}
+                    tone={tone}
+                    variant="compact"
+                    className="mt-4 sm:mt-5"
+                  />
+                  {plan.description && (
+                    <RichTextContent
+                      html={plan.description}
+                      className={cn(
+                        "mt-4 max-w-lg text-sm leading-relaxed sm:mt-5 sm:text-base lg:text-[0.95rem] lg:leading-relaxed",
+                        isCatalog && "text-white/75 [&_a]:text-catalog-gold",
+                      )}
+                    />
+                  )}
+
+                  {plan.sections.length > 0 && (
+                    <ul className="mt-5 space-y-4 sm:mt-6">
+                      {plan.sections.map((section) => (
+                        <li key={section.id}>
+                          <p
+                            className={cn(
+                              "text-[0.65rem] uppercase tracking-[0.16em] sm:text-xs",
+                              isCatalog ? "text-catalog-gold" : "text-muted",
+                            )}
+                          >
+                            {section.title}
+                          </p>
+                          {section.intro ? (
+                            <p
+                              className={cn(
+                                "mt-1 text-sm",
+                                isCatalog ? "text-white/80" : "text-primary",
+                              )}
+                            >
+                              {section.intro}
+                            </p>
+                          ) : null}
+                          {section.note ? (
+                            <RichTextContent
+                              html={section.note}
+                              className={cn(
+                                "mt-1.5 text-sm italic",
+                                isCatalog && "text-white/70 [&_a]:text-catalog-gold",
+                              )}
+                            />
+                          ) : null}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <div className="mt-5 sm:mt-6">
+                    <Button
+                      href={reserveHref(plan.title)}
+                      external
+                      variant="outline"
+                      className={cn(
+                        "w-full sm:w-auto",
+                        isCatalog
+                          ? "border-white/35 text-white hover:border-catalog-gold hover:bg-catalog-gold hover:text-catalog-ink"
+                          : "border-catalog/40 text-catalog hover:border-catalog hover:bg-catalog hover:text-white",
+                      )}
+                    >
+                      {siteConfig.portfolio.reserveLabel}
+                    </Button>
+                  </div>
                 </PortfolioSplitContent>
               </Reveal>
             </PortfolioSplitGrid>

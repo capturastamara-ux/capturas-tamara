@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -20,9 +19,7 @@ import { SectionSortableList } from "@/components/admin/SectionSortableList";
 import { AdminPriceField } from "@/components/admin/AdminPriceField";
 import { PlanFormSaveButton, PlanFormSaveProvider, PlanFormSaveStatusBridge } from "@/components/admin/PlanFormSaveButton";
 import {
-  createGalleryImageAction,
   createSectionAction,
-  deleteGalleryImageAction,
   deletePlanAction,
   updatePlanAction,
 } from "@/app/admin/actions";
@@ -55,12 +52,12 @@ export default async function EditPlanPage({ params, searchParams }: PageProps) 
       <AdminPageHeader
         eyebrow={`${plan.subcategory.category.title} · ${plan.subcategory.title} · Plan`}
         title={plan.title}
-        description="Edita el plan y administra sus secciones y galería."
+        description="Edita el plan y administra sus secciones."
       />
 
       <div className="mb-6 flex flex-wrap gap-3 text-xs uppercase tracking-[0.12em]">
         <Link
-          href={`/portafolio/${plan.subcategory.category.slug}/${plan.subcategory.slug}/${plan.slug}`}
+          href={`/portafolio/${plan.subcategory.category.slug}#${plan.slug}`}
           className="text-primary hover:opacity-70"
         >
           Ver en el sitio
@@ -173,63 +170,6 @@ export default async function EditPlanPage({ params, searchParams }: PageProps) 
               )}
             </section>
 
-            <section className="mt-10 border-t border-primary/10 pt-8">
-              <div>
-                <h2 className="font-display text-2xl italic">Galería</h2>
-                <p className="mt-1 text-sm text-muted">
-                  Sube imágenes del plan a Storage (máx. 5 MB c/u).
-                </p>
-              </div>
-
-              <AdminMediaForm
-                action={createGalleryImageAction}
-                className="mt-5 rounded-sm border border-dashed border-primary/20 p-5"
-              >
-                <input type="hidden" name="planId" value={plan.id} />
-                <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
-                  <MediaUploadField
-                    urlFieldName="url"
-                    kind="image"
-                    scope="gallery"
-                    label="Imagen"
-                  />
-                  <AdminMediaSubmitButton label="Agregar imagen" />
-                </div>
-              </AdminMediaForm>
-
-              {plan.gallery.length > 0 && (
-                <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {plan.gallery.map((image) => (
-                    <div
-                      key={image.id}
-                      className="overflow-hidden rounded-sm border border-primary/10"
-                    >
-                      <div className="relative aspect-[4/3]">
-                        <Image
-                          src={image.url}
-                          alt={plan.title}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 1024px) 50vw, 25vw"
-                        />
-                      </div>
-                      <div className="flex justify-end px-3 py-3">
-                        <AdminConfirmDeleteForm
-                          action={deleteGalleryImageAction}
-                          itemLabel="esta imagen de la galería"
-                          buttonLabel="Quitar"
-                          variant="link"
-                        >
-                          <input type="hidden" name="id" value={image.id} />
-                          <input type="hidden" name="planId" value={plan.id} />
-                        </AdminConfirmDeleteForm>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </section>
-
             <div className="mt-10 border-t border-primary/10 pt-6">
               <PlanFormSaveButton formId="plan-form" />
             </div>
@@ -237,7 +177,7 @@ export default async function EditPlanPage({ params, searchParams }: PageProps) 
 
           <div className="rounded-sm border border-accent/20 bg-background p-5">
             <p className="text-sm text-muted">
-              Eliminar el plan borrará secciones y galería.
+              Eliminar el plan borrará sus secciones.
             </p>
             <div className="mt-4">
               <AdminConfirmDeleteForm

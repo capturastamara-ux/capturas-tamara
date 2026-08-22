@@ -191,7 +191,7 @@ function PlanSortableList({
               Editar
             </Link>
             <Link
-              href={`/portafolio/${plan.categorySlug}/${plan.subcategorySlug}/${plan.slug}`}
+              href={`/portafolio/${plan.categorySlug}#${plan.slug}`}
               className="text-xs uppercase tracking-[0.1em] text-muted hover:opacity-70"
               draggable={false}
             >

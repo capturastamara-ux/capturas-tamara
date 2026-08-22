@@ -1,6 +1,6 @@
 export const reservationConfig = {
-  /** 0 = domingo … 5 = viernes, 6 = sábado */
-  defaultOpenWeekdays: [5, 6] as const,
+  /** 0 = domingo … 6 = sábado. Todos los días abiertos por defecto. */
+  defaultOpenWeekdays: [0, 1, 2, 3, 4, 5, 6] as const,
   weekdayLabels: ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"] as const,
   weekdayLabelsShort: ["D", "L", "M", "M", "J", "V", "S"] as const,
   calendarStatusColors: {

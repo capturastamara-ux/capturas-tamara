@@ -71,9 +71,13 @@ export const siteConfig = {
     pageTitle: "Portafolio",
     pageIntro:
       "Explora nuestras categorías y conoce cómo retratamos cada momento.",
-    planPriceLabel: "Desde",
+    planPriceLabel: "Valor",
     planPriceTiersTitle: "Nuestros precios",
     planGuestSuffix: "invitados",
+    galleryHeading: "Galería",
+    reserveLabel: "Reservar por WhatsApp",
+    reserveMessage: (planTitle: string) =>
+      `Hola, quiero reservar el plan ${planTitle}.`,
     cta: { label: "Explora el portafolio", href: "/portafolio" },
   },
   servicesIntro: {

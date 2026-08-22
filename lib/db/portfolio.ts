@@ -63,6 +63,10 @@ export async function getCategoryBySlug(slug: string) {
         where: { published: true },
         orderBy: { sortOrder: "asc" },
         include: {
+          gallery: {
+            orderBy: { sortOrder: "asc" },
+            select: { id: true, url: true },
+          },
           plans: {
             where: { published: true },
             orderBy: { sortOrder: "asc" },
@@ -87,6 +91,10 @@ export async function getSubcategoryBySlugs(
     include: {
       category: {
         select: { id: true, slug: true, title: true, description: true },
+      },
+      gallery: {
+        orderBy: { sortOrder: "asc" },
+        select: { id: true, url: true },
       },
       plans: {
         where: { published: true },

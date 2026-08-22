@@ -68,6 +68,7 @@ const categories = [
 async function main() {
   console.log("Seeding photography categories...");
 
+  await prisma.subcategoryGalleryImage.deleteMany();
   await prisma.planGalleryImage.deleteMany();
   await prisma.planSection.deleteMany();
   await prisma.planPriceTier.deleteMany();

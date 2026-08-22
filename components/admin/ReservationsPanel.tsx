@@ -525,12 +525,10 @@ export function ReservationsPanel({
                   </p>
                   <p className="mt-2 text-sm text-muted">
                     {selectedAvailability.isOpen
-                      ? selectedAvailability.isDefaultOpen && !selectedAvailability.hasOverride
-                        ? "Este día está abierto por ser viernes o sábado."
-                        : "Este día está disponible para eventos."
+                      ? "Este día está disponible."
                       : selectedAvailability.hasOverride
                         ? "Este día fue cerrado como excepción."
-                        : "Este día está cerrado según la configuración habitual."}
+                        : "Este día está cerrado."}
                   </p>
                   {selectedAvailability.hasOverride && (
                     <p className="mt-3 text-xs uppercase tracking-[0.12em] text-accent">

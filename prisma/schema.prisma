@@ -39,6 +39,7 @@ model Subcategory {
   sortOrder    Int           @default(0)
   published    Boolean       @default(true)
   plans        Plan[]
+  gallery      SubcategoryGalleryImage[]
   reservations Reservation[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
@@ -143,6 +144,18 @@ enum ReservationStatus {
   pending
   confirmed
   cancelled
+}
+
+/// Imágenes de galería asociadas a la subcategoría
+model SubcategoryGalleryImage {
+  id            String      @id @default(cuid())
+  subcategoryId String
+  subcategory   Subcategory @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
+  url           String
+  sortOrder     Int         @default(0)
+  createdAt     DateTime    @default(now())
+
+  @@index([subcategoryId, sortOrder])
 }
 
 /// Imágenes de galería asociadas al plan

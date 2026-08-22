@@ -13,6 +13,7 @@ import {
   nextGallerySortOrder,
   nextPlanSortOrder,
   nextSectionSortOrder,
+  nextSubcategoryGallerySortOrder,
   nextSubcategorySortOrder,
   parseOptionalString,
   parseOptionalPrice,
@@ -154,6 +155,7 @@ export async function deleteCategoryAction(formData: FormData) {
     include: {
       subcategories: {
         include: {
+          gallery: true,
           plans: {
             include: {
               sections: true,
@@ -183,8 +185,9 @@ export async function createSubcategoryAction(formData: FormData) {
   const slug = await uniqueSubcategorySlug(categoryId, title);
   const coverUrl = parseOptionalString(formData.get("coverUrl"));
 
+  let subcategory;
   try {
-    await prisma.subcategory.create({
+    subcategory = await prisma.subcategory.create({
       data: {
         categoryId,
         title,
@@ -202,7 +205,7 @@ export async function createSubcategoryAction(formData: FormData) {
   }
 
   revalidatePortfolio();
-  redirect("/admin/subcategorias");
+  redirect(`/admin/subcategorias/${subcategory.id}`);
 }
 
 export async function updateSubcategoryAction(formData: FormData) {
@@ -278,6 +281,7 @@ export async function deleteSubcategoryAction(formData: FormData) {
   const subcategory = await prisma.subcategory.findUnique({
     where: { id },
     include: {
+      gallery: true,
       plans: {
         include: {
           sections: true,
@@ -524,6 +528,53 @@ export async function deleteSectionAction(formData: FormData) {
   revalidatePortfolio();
   revalidatePath(`/admin/planes/${planId}`);
   redirect(`/admin/planes/${planId}`);
+}
+
+export async function createSubcategoryGalleryImagesAction(formData: FormData) {
+  const subcategoryId = String(formData.get("subcategoryId") ?? "");
+  const urls = formData
+    .getAll("url")
+    .map((value) => String(value).trim())
+    .filter(Boolean);
+
+  if (!subcategoryId || urls.length === 0) return;
+
+  const startOrder = await nextSubcategoryGallerySortOrder(subcategoryId);
+
+  try {
+    await prisma.subcategoryGalleryImage.createMany({
+      data: urls.map((url, index) => ({
+        subcategoryId,
+        url,
+        sortOrder: startOrder + index,
+      })),
+    });
+  } catch (error) {
+    await deleteStoredMedia(urls);
+    throw error;
+  }
+
+  revalidatePortfolio();
+  revalidatePath(`/admin/subcategorias/${subcategoryId}`);
+}
+
+export async function deleteSubcategoryGalleryImageAction(formData: FormData) {
+  const id = String(formData.get("id") ?? "");
+  const subcategoryId = String(formData.get("subcategoryId") ?? "");
+  if (!id || !subcategoryId) return;
+
+  const image = await prisma.subcategoryGalleryImage.findUnique({
+    where: { id },
+    select: { url: true },
+  });
+
+  if (image) {
+    await deleteStoredMedia([image.url]);
+    await prisma.subcategoryGalleryImage.delete({ where: { id } });
+  }
+
+  revalidatePortfolio();
+  revalidatePath(`/admin/subcategorias/${subcategoryId}`);
 }
 
 export async function createGalleryImageAction(formData: FormData) {

@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/cn";
 
 export type GalleryImage = {
@@ -205,26 +206,55 @@ function getGalleryGridClass(count: number) {
 type PlanGallerySectionProps = {
   images: GalleryImage[];
   planTitle: string;
+  heading?: string;
+  tone?: "default" | "catalog";
+  compact?: boolean;
 };
 
 export function PlanGallerySection({
   images,
   planTitle,
+  heading = siteConfig.portfolio.galleryHeading,
+  tone = "default",
+  compact = false,
 }: Readonly<PlanGallerySectionProps>) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const isCatalog = tone === "catalog";
 
   if (images.length === 0) return null;
 
   return (
     <>
-      <section className="mt-16 scroll-mt-28 flex h-[min(calc(100svh-6.5rem),920px)] min-h-[min(560px,calc(100svh-6.5rem))] flex-col justify-center sm:mt-24">
-        <SectionHeading className="shrink-0 font-display italic">
-          Algo de lo que hacemos
+      <section
+        className={cn(
+          "scroll-mt-28",
+          compact
+            ? "mt-10 sm:mt-14"
+            : "mt-16 flex h-[min(calc(100svh-6.5rem),920px)] min-h-[min(560px,calc(100svh-6.5rem))] flex-col justify-center sm:mt-24",
+        )}
+      >
+        <SectionHeading
+          align={isCatalog ? "left" : "center"}
+          className={cn(
+            "shrink-0 font-display italic",
+            isCatalog && "text-[clamp(1.4rem,3vw,2rem)] text-white",
+          )}
+        >
+          {heading}
         </SectionHeading>
+        {isCatalog && (
+          <span
+            className="mt-4 block h-px w-14 bg-catalog-gold/80"
+            aria-hidden="true"
+          />
+        )}
 
         <div
           className={cn(
-            "mt-5 grid min-h-0 flex-1 gap-2 sm:mt-6 sm:gap-3",
+            "mt-5 grid gap-2 sm:mt-6 sm:gap-3",
+            compact
+              ? "auto-rows-[minmax(9rem,16vw)]"
+              : "min-h-0 flex-1",
             getGalleryGridClass(images.length),
           )}
         >

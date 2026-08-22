@@ -25,7 +25,7 @@ export default async function NewSubcategoryPage({ searchParams }: PageProps) {
       <AdminPageHeader
         eyebrow="Subcategorías"
         title="Nueva subcategoría"
-        description="Quedará dentro de una categoría. Después podrás crear planes."
+        description="Quedará dentro de una categoría. Después podrás crear planes y agregar la galería."
       />
 
       {categories.length === 0 ? (

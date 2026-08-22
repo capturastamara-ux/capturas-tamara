@@ -67,6 +67,7 @@ export async function getAdminSubcategoryById(id: string) {
     where: { id },
     include: {
       category: { select: { id: true, title: true, slug: true } },
+      gallery: { orderBy: { sortOrder: "asc" } },
       plans: {
         orderBy: { sortOrder: "asc" },
         include: { _count: { select: { sections: true, gallery: true } } },

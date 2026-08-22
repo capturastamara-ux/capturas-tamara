@@ -28,13 +28,16 @@ type PortfolioCategorySplitsProps = {
   categories: PortfolioCategoryCard[];
   fillViewport?: boolean;
   ctaLabel?: string;
+  tone?: "default" | "catalog";
 };
 
 export function PortfolioCategorySplits({
   categories,
   fillViewport = false,
   ctaLabel = "Ver subcategorías",
+  tone = "default",
 }: PortfolioCategorySplitsProps) {
+  const isCatalog = tone === "catalog";
   return (
     <div className="flex flex-col gap-16 sm:gap-20 lg:gap-24">
       {categories.map((category, index) => {
@@ -96,14 +99,22 @@ export function PortfolioCategorySplits({
               >
                 <PortfolioSplitContent>
                 {category.subtitle && (
-                  <p className="text-[0.65rem] uppercase tracking-[0.18em] text-muted sm:text-xs">
+                  <p
+                    className={cn(
+                      "text-[0.65rem] uppercase tracking-[0.18em] sm:text-xs",
+                      isCatalog ? "text-catalog-gold" : "text-muted",
+                    )}
+                  >
                     {category.subtitle}
                   </p>
                 )}
                 <SectionHeading
                   as="h2"
                   align="left"
-                  className="mt-2 font-display text-[clamp(1.75rem,4vw,3rem)] italic sm:mt-3"
+                  className={cn(
+                    "mt-2 font-display text-[clamp(1.75rem,4vw,3rem)] italic sm:mt-3",
+                    isCatalog && "text-white",
+                  )}
                 >
                   <Link
                     href={href}
@@ -112,10 +123,19 @@ export function PortfolioCategorySplits({
                     {category.title}
                   </Link>
                 </SectionHeading>
+                {isCatalog ? (
+                  <span
+                    className="mt-4 block h-px w-14 bg-catalog-gold/80"
+                    aria-hidden="true"
+                  />
+                ) : null}
                 {category.description && (
                   <RichTextContent
                     html={category.description}
-                    className="mt-4 max-w-lg text-sm leading-relaxed sm:mt-5 sm:text-base lg:text-[0.95rem] lg:leading-relaxed"
+                    className={cn(
+                      "mt-4 max-w-lg text-sm leading-relaxed sm:mt-5 sm:text-base lg:text-[0.95rem] lg:leading-relaxed",
+                      isCatalog && "text-white/75 [&_a]:text-catalog-gold",
+                    )}
                   />
                 )}
 
@@ -125,7 +145,12 @@ export function PortfolioCategorySplits({
                       <li key={subcategory.id}>
                         <Link
                           href={`/portafolio/${category.slug}/${subcategory.slug}`}
-                          className="inline-block rounded-full border border-primary/15 px-3 py-1 text-[0.65rem] uppercase tracking-[0.12em] text-muted transition-colors hover:border-primary/40 hover:text-primary sm:text-xs"
+                          className={cn(
+                            "inline-block rounded-full border px-3 py-1 text-[0.65rem] uppercase tracking-[0.12em] transition-colors sm:text-xs",
+                            isCatalog
+                              ? "border-white/35 text-white/80 hover:border-catalog-gold hover:text-catalog-gold"
+                              : "border-primary/15 text-muted hover:border-primary/40 hover:text-primary",
+                          )}
                         >
                           {subcategory.title}
                         </Link>
@@ -155,7 +180,15 @@ export function PortfolioCategorySplits({
                 )}
 
                 <div className="mt-5 sm:mt-6">
-                  <Button href={href} variant="filled" className="w-full sm:w-auto">
+                  <Button
+                    href={href}
+                    variant={isCatalog ? "outline" : "filled"}
+                    className={cn(
+                      "w-full sm:w-auto",
+                      isCatalog &&
+                        "border-white/35 text-white hover:border-catalog-gold hover:bg-catalog-gold hover:text-catalog-ink",
+                    )}
+                  >
                     {ctaLabel}
                   </Button>
                 </div>

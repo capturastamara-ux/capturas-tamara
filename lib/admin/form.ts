@@ -119,6 +119,14 @@ export async function nextGallerySortOrder(planId: string) {
   return (result._max.sortOrder ?? -1) + 1;
 }
 
+export async function nextSubcategoryGallerySortOrder(subcategoryId: string) {
+  const result = await prisma.subcategoryGalleryImage.aggregate({
+    where: { subcategoryId },
+    _max: { sortOrder: true },
+  });
+  return (result._max.sortOrder ?? -1) + 1;
+}
+
 export function parseOptionalString(value: FormDataEntryValue | null) {
   const text = String(value ?? "").trim();
   return text.length > 0 ? text : null;

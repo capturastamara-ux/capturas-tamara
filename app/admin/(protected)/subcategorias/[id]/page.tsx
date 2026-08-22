@@ -13,6 +13,7 @@ import {
 } from "@/components/admin/UploadFormContext";
 import { AdminRichText } from "@/components/admin/AdminRichText";
 import { MediaUploadField } from "@/components/admin/MediaUploadField";
+import { SubcategoryGalleryField } from "@/components/admin/SubcategoryGalleryField";
 import {
   deleteSubcategoryAction,
   updateSubcategoryAction,
@@ -80,6 +81,10 @@ export default async function EditSubcategoryPage({ params }: PageProps) {
             label="Imagen de portada"
             defaultUrl={subcategory.coverUrl}
           />
+          <SubcategoryGalleryField
+            subcategoryId={subcategory.id}
+            images={subcategory.gallery}
+          />
           <AdminCheckbox
             label="Publicada"
             name="published"
@@ -121,7 +126,7 @@ export default async function EditSubcategoryPage({ params }: PageProps) {
 
           <div className="rounded-sm border border-accent/20 bg-background p-5">
             <p className="text-sm text-muted">
-              Eliminar esta subcategoría también borrará todos sus planes.
+              Eliminar esta subcategoría también borrará todos sus planes y su galería.
             </p>
             <div className="mt-4">
               <AdminConfirmDeleteForm

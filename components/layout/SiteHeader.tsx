@@ -20,7 +20,7 @@ export function SiteHeader({ variant = "overlay" }: SiteHeaderProps) {
       className={cn(
         "z-40",
         isSolid
-          ? "relative border-b border-primary/10 bg-background"
+          ? "relative border-b border-white/10 bg-catalog"
           : "absolute inset-x-0 top-0",
       )}
     >
@@ -28,7 +28,7 @@ export function SiteHeader({ variant = "overlay" }: SiteHeaderProps) {
         <SiteLogo
           priority={pathname === "/"}
           showName
-          nameClassName={isSolid ? "text-primary" : "text-white/95"}
+          nameClassName="text-white/95"
         />
 
         <nav
@@ -53,11 +53,11 @@ export function SiteHeader({ variant = "overlay" }: SiteHeaderProps) {
                 className={cn(
                   "px-2.5 py-2 text-[10px] uppercase tracking-[0.16em] transition-colors xl:px-3.5 xl:text-[11px] 2xl:px-4 2xl:text-xs",
                   isSolid
-                    ? "text-primary hover:bg-primary/5"
+                    ? "text-white/75 hover:bg-white/10 hover:text-white"
                     : "text-white hover:bg-white/10",
                   isActive &&
                     (isSolid
-                      ? "border border-primary/40 bg-primary/5"
+                      ? "bg-catalog-gold text-catalog-ink hover:bg-catalog-gold hover:text-catalog-ink"
                       : "border border-white/55 bg-white/10"),
                 )}
                 aria-current={isActive ? "page" : undefined}
@@ -69,7 +69,7 @@ export function SiteHeader({ variant = "overlay" }: SiteHeaderProps) {
         </nav>
 
         <div className="lg:hidden">
-          <MobileDrawer theme={isSolid ? "dark" : "light"} />
+          <MobileDrawer theme="light" />
         </div>
       </div>
     </header>
