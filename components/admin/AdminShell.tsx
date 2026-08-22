@@ -26,7 +26,7 @@ export function AdminShell({ email, children }: AdminShellProps) {
       <div className="flex min-h-screen flex-col lg:h-full lg:flex-row">
         <aside className="shrink-0 border-b border-primary/10 bg-background lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:flex lg:h-screen lg:w-64 lg:flex-col lg:overflow-hidden lg:border-b-0 lg:border-r">
           <div className="shrink-0 px-6 py-6">
-            <p className="font-display text-lg tracking-[0.12em]">J Montoya</p>
+            <p className="font-display text-lg tracking-[0.12em]">CapturasTamara</p>
             <p className="mt-1 text-xs uppercase tracking-[0.16em] text-muted">
               Administración
             </p>

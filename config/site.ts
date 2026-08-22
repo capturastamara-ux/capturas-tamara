@@ -14,16 +14,16 @@ export type NavItem =
     };
 
 export const siteConfig = {
-  name: "J Montoya Producciones",
-  title: "J Montoya Producciones | Producción de Eventos",
+  name: "CapturasTamara",
+  title: "CapturasTamara | Producción de Eventos",
   description:
     "Producción profesional de bodas, quinceañeras y eventos especiales con rigor operativo y sensibilidad artística.",
-  url: "https://www.jmontoyaproducciones.com",
+  url: "https://www.capturastamara.com",
   logo: {
     main: "/images/logo/logo-1.png",
     isotype: "/images/logo/logo-1.png",
-    wordmark: "Montoya Producciones",
-    alt: "Logo J Montoya Producciones",
+    wordmark: "CapturasTamara",
+    alt: "Logo CapturasTamara",
   },
   hero: {
     title: "PRODUCCIÓN DE EVENTOS",
@@ -86,7 +86,7 @@ export const siteConfig = {
   },
   contact: {
     headline: "Construyamos juntos el evento de tus sueños",
-    email: "contacto@jmontoyaproducciones.com",
+    email: "contacto@capturastamara.com",
     phone: "+57 300 000 0000",
     city: "Colombia",
     eventTypes: [
@@ -96,15 +96,15 @@ export const siteConfig = {
       "Evento social",
       "Otro",
     ],
-    privacyLabel: "Acepto las Políticas de privacidad de J Montoya Producciones.",
+    privacyLabel: "Acepto las Políticas de privacidad de CapturasTamara.",
     submitLabel: "Escribe tu historia",
     image: galleryAssetPaths.gallery01,
     imageAlt: "Detalle de celebración de boda",
   },
   social: {
-    instagram: "https://www.instagram.com/j_montoya_producciones/",
-    tiktok: "https://www.tiktok.com/@j_montoya_1",
-    facebook: "https://www.facebook.com/Jmontoyamanizales/?locale=es_LA",
+    instagram: "https://www.instagram.com/capturastamara/",
+    tiktok: "https://www.tiktok.com/@capturastamara",
+    facebook: "https://www.facebook.com/capturastamara",
   },
   whatsapp: {
     label: "Cotizar evento",
@@ -130,7 +130,7 @@ export const siteConfig = {
   footer: {
     quote:
       "Cada evento es una historia única y mágica, donde los sueños se entrelazan para siempre y cobran vida.",
-    copyright: "J Montoya Producciones",
+    copyright: "CapturasTamara",
     privacyHref: "/politicas-privacidad",
     privacyLabel: "Políticas de privacidad",
     credits: {

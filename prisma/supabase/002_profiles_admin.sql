@@ -1,4 +1,4 @@
--- J Montoya — perfiles admin (mismo patrón que CamilaCordoba)
+-- CapturasTamara — perfiles admin (mismo patrón que CamilaCordoba)
 -- Ejecutar en Supabase: SQL Editor → New query → Run
 --
 -- Después de correr esto:

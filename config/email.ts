@@ -15,7 +15,7 @@ export const emailConfig = {
     byline: "PRODUCCIÓN DE EVENTOS",
     /** Ruta relativa en /public — se incrusta en el correo vía CID (no depende del dominio). */
     logoPublicPath: siteConfig.logo.main,
-    logoContentId: "logo-jmontoya",
+    logoContentId: "logo-capturastamara",
     logoAlt: siteConfig.logo.alt,
     /** PNG sólido #f5f0eb: ayuda a que el fondo no se invierta en dark mode. */
     bgPublicPath: "/images/email/bg-cream-light.png",

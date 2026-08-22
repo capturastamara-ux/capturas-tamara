@@ -1,4 +1,4 @@
--- J Montoya — migración inicial del portafolio
+-- CapturasTamara — migración inicial del portafolio
 -- Ejecutar en Supabase: SQL Editor → New query → pegar todo → Run
 --
 -- Crea: Category, Plan, PlanSection, PlanGalleryImage

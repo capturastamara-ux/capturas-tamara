@@ -70,8 +70,8 @@ export const reservationConfig = {
       "Cualquier modificación al alcance del servicio deberá acordarse por escrito entre las partes.",
       "En caso de cancelación, aplicarán las políticas de la empresa vigentes al momento de la firma.",
     ],
-    signatureProviderName: "Stiven",
-    signatureProviderRole: "J Montoya Producciones",
+    signatureProviderName: "Tamara",
+    signatureProviderRole: "CapturasTamara",
     signatureClientRole: "Cliente",
     signatureLineLabel: "Firma",
     fileNamePrefix: "contrato",
@@ -87,7 +87,7 @@ export const reservationConfig = {
       "Registramos tu reserva con estos datos. Te contactaremos para continuar la planificación.",
     detailsTitle: "Detalles de tu reserva",
     outro: "Pronto te contactaremos para continuar con la planificación de tu evento.",
-    footerNote: "Con cariño, J Montoya Producciones",
+    footerNote: "Con cariño, CapturasTamara",
   },
 } as const;
 

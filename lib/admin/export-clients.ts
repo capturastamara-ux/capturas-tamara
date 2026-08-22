@@ -54,7 +54,7 @@ export function downloadClientsExcel(clients: AdminClientRow[]) {
   const stamp = new Date().toISOString().slice(0, 10);
 
   anchor.href = url;
-  anchor.download = `clientes-jmontoya-${stamp}.csv`;
+  anchor.download = `clientes-capturastamara-${stamp}.csv`;
   anchor.click();
 
   URL.revokeObjectURL(url);
