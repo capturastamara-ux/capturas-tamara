@@ -194,13 +194,11 @@ function GalleryLightbox({
 }
 
 function getGalleryGridClass(count: number) {
-  if (count === 1) return "grid-cols-1 grid-rows-1";
-  if (count === 2) return "grid-cols-2 grid-rows-1";
-  if (count === 3) return "grid-cols-2 grid-rows-2 sm:grid-cols-3 sm:grid-rows-1";
-  if (count === 4) return "grid-cols-2 grid-rows-2";
-  if (count <= 6) return "grid-cols-2 grid-rows-3 sm:grid-cols-3 sm:grid-rows-2";
-  if (count <= 9) return "grid-cols-2 grid-rows-4 sm:grid-cols-3 sm:grid-rows-3";
-  return "grid-cols-2 grid-rows-4 sm:grid-cols-3 sm:grid-rows-4";
+  if (count === 1) return "grid-cols-1";
+  if (count === 2) return "grid-cols-2";
+  if (count === 3) return "grid-cols-2 sm:grid-cols-3";
+  if (count === 4) return "grid-cols-2";
+  return "grid-cols-2 sm:grid-cols-3";
 }
 
 type PlanGallerySectionProps = {
@@ -228,9 +226,7 @@ export function PlanGallerySection({
       <section
         className={cn(
           "scroll-mt-28",
-          compact
-            ? "mt-10 sm:mt-14"
-            : "mt-16 flex h-[min(calc(100svh-6.5rem),920px)] min-h-[min(560px,calc(100svh-6.5rem))] flex-col justify-center sm:mt-24",
+          compact ? "mt-10 sm:mt-14" : "mt-16 sm:mt-24",
         )}
       >
         <SectionHeading
@@ -252,9 +248,6 @@ export function PlanGallerySection({
         <div
           className={cn(
             "mt-5 grid gap-2 sm:mt-6 sm:gap-3",
-            compact
-              ? "auto-rows-[minmax(9rem,16vw)]"
-              : "min-h-0 flex-1",
             getGalleryGridClass(images.length),
           )}
         >
@@ -265,7 +258,8 @@ export function PlanGallerySection({
               onClick={() => setActiveIndex(index)}
               aria-label={`Ver ${galleryImageAlt(planTitle, index)}`}
               className={cn(
-                "media-frame group relative h-full min-h-0 w-full cursor-pointer overflow-hidden border-0 bg-transparent p-0 text-left",
+                "media-frame group relative aspect-[3/4] w-full cursor-pointer overflow-hidden border-0 bg-transparent p-0 text-left",
+                images.length === 1 && "mx-auto max-w-md sm:max-w-lg",
                 images.length === 3 && index === 2 && "col-span-2 sm:col-span-1",
               )}
             >
@@ -277,7 +271,14 @@ export function PlanGallerySection({
                 className="pointer-events-none object-cover transition-transform duration-700 group-hover:scale-105"
                 sizes="(max-width: 640px) 50vw, 33vw"
               />
-              <span className="pointer-events-none absolute inset-0 bg-primary/0 transition-colors group-hover:bg-primary/10 group-active:bg-primary/15" />
+              <span
+                className={cn(
+                  "pointer-events-none absolute inset-0 transition-colors",
+                  isCatalog
+                    ? "bg-catalog/0 group-hover:bg-catalog-ink/20"
+                    : "bg-primary/0 group-hover:bg-primary/10 group-active:bg-primary/15",
+                )}
+              />
             </button>
           ))}
         </div>

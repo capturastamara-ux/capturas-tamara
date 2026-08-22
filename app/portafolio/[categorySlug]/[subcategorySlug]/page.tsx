@@ -99,13 +99,14 @@ export default async function SubcategoryPage({ params }: PageProps) {
               />
             ) : hasOwnContent ? (
               <div className="mt-10 sm:mt-12">
-                <PortfolioPlanSplits
-                  tone="catalog"
-                  categoryTitle={node.title}
-                  plans={node.plans}
-                />
+                {node.plans.length > 0 && (
+                  <PortfolioPlanSplits
+                    tone="catalog"
+                    categoryTitle={node.title}
+                    plans={node.plans}
+                  />
+                )}
                 <PlanGallerySection
-                  compact
                   tone="catalog"
                   planTitle={node.title}
                   images={node.gallery}
