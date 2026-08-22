@@ -2,17 +2,21 @@
 
 import Link from "next/link";
 import { useEffect, useState, useTransition, type DragEvent } from "react";
-import { deleteCategoryAction, reorderCategoriesAction } from "@/app/admin/actions";
+import {
+  deleteSubcategoryAction,
+  reorderSubcategoriesAction,
+} from "@/app/admin/actions";
 import { AdminConfirmDeleteForm } from "@/components/admin/AdminConfirmDeleteForm";
 import { StatusBadge } from "@/components/admin/AdminUi";
 import { cn } from "@/lib/cn";
 
-export type SortableCategory = {
+export type SortableSubcategory = {
   id: string;
   title: string;
   slug: string;
   published: boolean;
-  subcategoryCount: number;
+  planCount: number;
+  categoryTitle: string;
 };
 
 function GripIcon() {
@@ -35,26 +39,26 @@ function GripIcon() {
   );
 }
 
-type CategoriesSortableTableProps = {
-  categories: SortableCategory[];
+type SubcategoriesSortableTableProps = {
+  subcategories: SortableSubcategory[];
 };
 
-export function CategoriesSortableTable({
-  categories: initialCategories,
-}: Readonly<CategoriesSortableTableProps>) {
-  const [categories, setCategories] = useState(initialCategories);
+export function SubcategoriesSortableTable({
+  subcategories: initialSubcategories,
+}: Readonly<SubcategoriesSortableTableProps>) {
+  const [subcategories, setSubcategories] = useState(initialSubcategories);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    setCategories(initialCategories);
-  }, [initialCategories]);
+    setSubcategories(initialSubcategories);
+  }, [initialSubcategories]);
 
-  const persistOrder = (next: SortableCategory[]) => {
-    setCategories(next);
+  const persistOrder = (next: SortableSubcategory[]) => {
+    setSubcategories(next);
     startTransition(async () => {
-      await reorderCategoriesAction(next.map((category) => category.id));
+      await reorderSubcategoriesAction(next.map((item) => item.id));
     });
   };
 
@@ -78,11 +82,11 @@ export function CategoriesSortableTable({
 
     if (!sourceId || sourceId === targetId) return;
 
-    const fromIndex = categories.findIndex((category) => category.id === sourceId);
-    const toIndex = categories.findIndex((category) => category.id === targetId);
+    const fromIndex = subcategories.findIndex((item) => item.id === sourceId);
+    const toIndex = subcategories.findIndex((item) => item.id === targetId);
     if (fromIndex < 0 || toIndex < 0) return;
 
-    const next = [...categories];
+    const next = [...subcategories];
     const [moved] = next.splice(fromIndex, 1);
     if (!moved) return;
     next.splice(toIndex, 0, moved);
@@ -94,10 +98,10 @@ export function CategoriesSortableTable({
     setOverId(null);
   };
 
-  if (categories.length === 0) {
+  if (subcategories.length === 0) {
     return (
-      <p className="rounded-sm border border-primary/10 bg-background px-4 py-8 text-sm text-muted">
-        No hay categorías. Crea la primera.
+      <p className="rounded-sm border border-catalog/15 bg-background px-4 py-8 text-sm text-muted">
+        No hay subcategorías. Crea la primera.
       </p>
     );
   }
@@ -105,40 +109,40 @@ export function CategoriesSortableTable({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-sm border border-primary/10 bg-background",
+        "overflow-hidden rounded-sm border border-catalog/15 bg-background",
         isPending && "opacity-70",
       )}
     >
-      <p className="border-b border-primary/10 px-4 py-3 text-xs text-muted">
-        Arrastra para definir el orden en el portafolio
+      <p className="border-b border-catalog/15 px-4 py-3 text-xs text-muted">
+        Arrastra para definir el orden
       </p>
       <table className="w-full text-left text-sm" aria-busy={isPending}>
-        <thead className="border-b border-primary/10 text-xs uppercase tracking-[0.12em] text-muted">
+        <thead className="border-b border-catalog/15 text-xs uppercase tracking-[0.12em] text-muted">
           <tr>
             <th className="w-12 px-3 py-3 font-normal">
               <span className="sr-only">Reordenar</span>
             </th>
             <th className="px-4 py-3 font-normal">Título</th>
-            <th className="hidden px-4 py-3 font-normal sm:table-cell">Slug</th>
-            <th className="px-4 py-3 font-normal">Subcategorías</th>
+            <th className="hidden px-4 py-3 font-normal sm:table-cell">Categoría</th>
+            <th className="px-4 py-3 font-normal">Planes</th>
             <th className="px-4 py-3 font-normal">Estado</th>
             <th className="px-4 py-3 font-normal">Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {categories.map((category) => (
+          {subcategories.map((subcategory) => (
             <tr
-              key={category.id}
+              key={subcategory.id}
               draggable
-              onDragStart={(event) => onDragStart(event, category.id)}
-              onDragOver={(event) => onDragOver(event, category.id)}
-              onDrop={(event) => onDrop(event, category.id)}
+              onDragStart={(event) => onDragStart(event, subcategory.id)}
+              onDragOver={(event) => onDragOver(event, subcategory.id)}
+              onDrop={(event) => onDrop(event, subcategory.id)}
               onDragEnd={onDragEnd}
               className={cn(
-                "border-b border-primary/5 last:border-0 transition-colors",
-                draggingId === category.id && "opacity-50",
-                overId === category.id &&
-                  draggingId !== category.id &&
+                "border-b border-catalog/5 last:border-0 transition-colors",
+                draggingId === subcategory.id && "opacity-50",
+                overId === subcategory.id &&
+                  draggingId !== subcategory.id &&
                   "bg-surface/60",
               )}
             >
@@ -153,38 +157,42 @@ export function CategoriesSortableTable({
               </td>
               <td className="px-4 py-4">
                 <Link
-                  href={`/admin/categorias/${category.id}`}
+                  href={`/admin/subcategorias/${subcategory.id}`}
                   className="font-medium hover:opacity-70"
                   draggable={false}
                   onClick={(event) => {
                     if (draggingId) event.preventDefault();
                   }}
                 >
-                  {category.title}
+                  {subcategory.title}
                 </Link>
-                <p className="mt-1 text-xs text-muted sm:hidden">/{category.slug}</p>
+                <p className="mt-1 text-xs text-muted sm:hidden">
+                  {subcategory.categoryTitle}
+                </p>
               </td>
-              <td className="hidden px-4 py-4 text-muted sm:table-cell">{category.slug}</td>
-              <td className="px-4 py-4">{category.subcategoryCount}</td>
+              <td className="hidden px-4 py-4 text-muted sm:table-cell">
+                {subcategory.categoryTitle}
+              </td>
+              <td className="px-4 py-4">{subcategory.planCount}</td>
               <td className="px-4 py-4">
-                <StatusBadge published={category.published} />
+                <StatusBadge published={subcategory.published} />
               </td>
               <td className="px-4 py-4">
                 <div className="flex flex-wrap items-center gap-3">
                   <Link
-                    href={`/admin/categorias/${category.id}`}
-                    className="text-xs uppercase tracking-[0.1em] text-primary hover:opacity-70"
+                    href={`/admin/subcategorias/${subcategory.id}`}
+                    className="text-xs uppercase tracking-[0.1em] text-catalog hover:text-catalog-ink"
                     draggable={false}
                   >
                     Editar
                   </Link>
                   <AdminConfirmDeleteForm
-                    action={deleteCategoryAction}
-                    itemLabel={`la categoría "${category.title}"`}
+                    action={deleteSubcategoryAction}
+                    itemLabel={`la subcategoría "${subcategory.title}"`}
                     buttonLabel="Eliminar"
                     variant="link"
                   >
-                    <input type="hidden" name="id" value={category.id} />
+                    <input type="hidden" name="id" value={subcategory.id} />
                   </AdminConfirmDeleteForm>
                 </div>
               </td>

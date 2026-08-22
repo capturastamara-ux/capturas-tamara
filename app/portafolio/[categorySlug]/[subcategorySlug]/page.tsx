@@ -3,42 +3,42 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
+import { PortfolioPlanSplits } from "@/components/sections/PortfolioPlanSplits";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { siteConfig } from "@/config/site";
-import { getCategoryBySlug } from "@/lib/db/portfolio";
+import { getSubcategoryBySlugs } from "@/lib/db/portfolio";
 import { richTextToPlainText } from "@/lib/sanitize-rich-text";
-import { PortfolioCategorySplits } from "@/components/sections/PortfolioCategorySplits";
 
 export const dynamic = "force-dynamic";
 
 type PageProps = {
-  params: Promise<{ categorySlug: string }>;
+  params: Promise<{ categorySlug: string; subcategorySlug: string }>;
 };
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const { categorySlug } = await params;
-  const category = await getCategoryBySlug(categorySlug);
+  const { categorySlug, subcategorySlug } = await params;
+  const subcategory = await getSubcategoryBySlugs(categorySlug, subcategorySlug);
 
-  if (!category) {
+  if (!subcategory) {
     return { title: `Portafolio | ${siteConfig.name}` };
   }
 
   return {
-    title: `${category.title} | Portafolio | ${siteConfig.name}`,
-    description: category.description
-      ? richTextToPlainText(category.description)
+    title: `${subcategory.title} | ${subcategory.category.title} | ${siteConfig.name}`,
+    description: subcategory.description
+      ? richTextToPlainText(subcategory.description)
       : siteConfig.portfolio.pageIntro,
   };
 }
 
-export default async function CategorySubcategoriesPage({ params }: PageProps) {
-  const { categorySlug } = await params;
-  const category = await getCategoryBySlug(categorySlug);
+export default async function SubcategoryPlansPage({ params }: PageProps) {
+  const { categorySlug, subcategorySlug } = await params;
+  const subcategory = await getSubcategoryBySlugs(categorySlug, subcategorySlug);
 
-  if (!category) {
+  if (!subcategory) {
     notFound();
   }
 
@@ -50,10 +50,10 @@ export default async function CategorySubcategoriesPage({ params }: PageProps) {
           <div className="mx-auto min-w-0 max-w-[1400px]">
             <Reveal>
               <Link
-                href="/portafolio"
+                href={`/portafolio/${subcategory.category.slug}`}
                 className="text-[0.65rem] uppercase tracking-[0.14em] text-muted transition-opacity hover:opacity-70 sm:text-xs"
               >
-                ← Portafolio
+                ← {subcategory.category.title}
               </Link>
             </Reveal>
 
@@ -63,27 +63,22 @@ export default async function CategorySubcategoriesPage({ params }: PageProps) {
                 align="left"
                 className="font-display text-[clamp(1.75rem,5vw,3rem)] italic"
               >
-                {category.title}
+                {subcategory.title}
               </SectionHeading>
             </Reveal>
 
-            {category.subcategories.length > 0 ? (
+            {subcategory.plans.length > 0 ? (
               <div className="mt-10 sm:mt-12 lg:mt-14">
-                <PortfolioCategorySplits
-                  ctaLabel="Ver planes"
-                  categories={category.subcategories.map((subcategory) => ({
-                    slug: `${category.slug}/${subcategory.slug}`,
-                    title: subcategory.title,
-                    subtitle: subcategory.subtitle,
-                    description: subcategory.description,
-                    coverUrl: subcategory.coverUrl,
-                    subcategories: [],
-                  }))}
+                <PortfolioPlanSplits
+                  categorySlug={subcategory.category.slug}
+                  subcategorySlug={subcategory.slug}
+                  categoryTitle={subcategory.title}
+                  plans={subcategory.plans}
                 />
               </div>
             ) : (
               <p className="mt-10 text-muted">
-                Aún no hay subcategorías publicadas en {category.title}.
+                Aún no hay planes publicados en {subcategory.title}.
               </p>
             )}
           </div>

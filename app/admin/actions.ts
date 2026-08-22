@@ -13,6 +13,7 @@ import {
   nextGallerySortOrder,
   nextPlanSortOrder,
   nextSectionSortOrder,
+  nextSubcategorySortOrder,
   parseOptionalString,
   parseOptionalPrice,
   parsePriceTiersJson,
@@ -21,11 +22,13 @@ import {
   parseSortOrder,
   uniqueCategorySlug,
   uniquePlanSlug,
+  uniqueSubcategorySlug,
 } from "@/lib/admin/form";
 import { removedStorageUrls } from "@/lib/storage/media";
 import {
   collectCategoryMediaUrls,
   collectPlanMediaUrls,
+  collectSubcategoryMediaUrls,
   deleteStoredMedia,
 } from "@/lib/storage/server-media";
 import {
@@ -51,6 +54,7 @@ function revalidatePortfolio() {
   revalidatePath("/cotizador");
   revalidatePath("/admin");
   revalidatePath("/admin/categorias");
+  revalidatePath("/admin/subcategorias");
   revalidatePath("/admin/planes");
   revalidatePath("/admin/reservas");
   revalidatePath("/admin/cotizador");
@@ -153,10 +157,14 @@ export async function deleteCategoryAction(formData: FormData) {
   const category = await prisma.category.findUnique({
     where: { id },
     include: {
-      plans: {
+      subcategories: {
         include: {
-          sections: true,
-          gallery: true,
+          plans: {
+            include: {
+              sections: true,
+              gallery: true,
+            },
+          },
         },
       },
     },
@@ -170,14 +178,136 @@ export async function deleteCategoryAction(formData: FormData) {
   redirect("/admin/categorias");
 }
 
-export async function createPlanAction(formData: FormData) {
+export async function createSubcategoryAction(formData: FormData) {
   const categoryId = String(formData.get("categoryId") ?? "");
   const title = String(formData.get("title") ?? "").trim();
   if (!categoryId || !title) {
     throw new Error("Categoría y título son obligatorios.");
   }
 
-  const slug = await uniquePlanSlug(categoryId, title);
+  const slug = await uniqueSubcategorySlug(categoryId, title);
+  const coverUrl = parseOptionalString(formData.get("coverUrl"));
+
+  try {
+    await prisma.subcategory.create({
+      data: {
+        categoryId,
+        title,
+        slug,
+        subtitle: parseOptionalString(formData.get("subtitle")),
+        description: parseRichTextOptional(formData.get("description")),
+        coverUrl,
+        sortOrder: await nextSubcategorySortOrder(categoryId),
+        published: parsePublished(formData.get("published")),
+      },
+    });
+  } catch (error) {
+    await deleteStoredMedia([coverUrl]);
+    throw error;
+  }
+
+  revalidatePortfolio();
+  redirect("/admin/subcategorias");
+}
+
+export async function updateSubcategoryAction(formData: FormData) {
+  const id = String(formData.get("id") ?? "");
+  const categoryId = String(formData.get("categoryId") ?? "");
+  const title = String(formData.get("title") ?? "").trim();
+  if (!id || !categoryId || !title) {
+    throw new Error("Datos incompletos.");
+  }
+
+  const slug = await uniqueSubcategorySlug(categoryId, title, id);
+  const existing = await prisma.subcategory.findUnique({
+    where: { id },
+    select: { coverUrl: true, categoryId: true },
+  });
+  const coverUrl = parseOptionalString(formData.get("coverUrl"));
+  const categoryChanged = existing?.categoryId !== categoryId;
+  const sortOrder = categoryChanged
+    ? await nextSubcategorySortOrder(categoryId)
+    : undefined;
+
+  await prisma.subcategory.update({
+    where: { id },
+    data: {
+      categoryId,
+      title,
+      slug,
+      subtitle: parseOptionalString(formData.get("subtitle")),
+      description: parseRichTextOptional(formData.get("description")),
+      coverUrl,
+      published: parsePublished(formData.get("published")),
+      ...(sortOrder != null ? { sortOrder } : {}),
+    },
+  });
+
+  await deleteStoredMedia(removedStorageUrls(existing?.coverUrl, coverUrl));
+
+  revalidatePortfolio();
+  redirect(`/admin/subcategorias/${id}`);
+}
+
+export async function reorderSubcategoriesAction(orderedIds: string[]) {
+  if (orderedIds.length === 0) return;
+
+  const existing = await prisma.subcategory.findMany({
+    select: { id: true },
+  });
+  const existingIds = new Set(existing.map((subcategory) => subcategory.id));
+  if (
+    orderedIds.length !== existingIds.size ||
+    orderedIds.some((id) => !existingIds.has(id))
+  ) {
+    throw new Error("El orden de subcategorías no es válido.");
+  }
+
+  await prisma.$transaction(
+    orderedIds.map((id, index) =>
+      prisma.subcategory.update({
+        where: { id },
+        data: { sortOrder: index },
+      }),
+    ),
+  );
+
+  revalidatePortfolio();
+  revalidatePath("/admin/subcategorias");
+}
+
+export async function deleteSubcategoryAction(formData: FormData) {
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+
+  const subcategory = await prisma.subcategory.findUnique({
+    where: { id },
+    include: {
+      plans: {
+        include: {
+          sections: true,
+          gallery: true,
+        },
+      },
+    },
+  });
+
+  if (subcategory) {
+    await deleteStoredMedia(collectSubcategoryMediaUrls(subcategory));
+    await prisma.subcategory.delete({ where: { id } });
+  }
+  revalidatePortfolio();
+  redirect("/admin/subcategorias");
+}
+
+export async function createPlanAction(formData: FormData) {
+  const subcategoryId = String(formData.get("subcategoryId") ?? "");
+  const title = String(formData.get("title") ?? "").trim();
+  if (!subcategoryId || !title) {
+    throw new Error("Subcategoría y título son obligatorios.");
+  }
+
+  const slug = await uniquePlanSlug(subcategoryId, title);
 
   const coverUrl = parseOptionalString(formData.get("coverUrl"));
   const priceTiers = normalizePriceTiers(
@@ -189,14 +319,14 @@ export async function createPlanAction(formData: FormData) {
   try {
     plan = await prisma.plan.create({
       data: {
-        categoryId,
+        subcategoryId,
         title,
         slug,
         tagline: parseOptionalString(formData.get("tagline")),
         price: planPrice,
         description: parseRichTextOptional(formData.get("description")),
         coverUrl,
-        sortOrder: await nextPlanSortOrder(categoryId),
+        sortOrder: await nextPlanSortOrder(subcategoryId),
         published: parsePublished(formData.get("published")),
         priceTiers: {
           create: priceTiers.map((tier, index) => ({
@@ -218,25 +348,25 @@ export async function createPlanAction(formData: FormData) {
 
 export async function updatePlanAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
-  const categoryId = String(formData.get("categoryId") ?? "");
+  const subcategoryId = String(formData.get("subcategoryId") ?? "");
   const title = String(formData.get("title") ?? "").trim();
-  if (!id || !categoryId || !title) {
+  if (!id || !subcategoryId || !title) {
     throw new Error("Datos incompletos.");
   }
 
-  const slug = await uniquePlanSlug(categoryId, title, id);
+  const slug = await uniquePlanSlug(subcategoryId, title, id);
   const existing = await prisma.plan.findUnique({
     where: { id },
-    select: { coverUrl: true, categoryId: true },
+    select: { coverUrl: true, subcategoryId: true },
   });
   const coverUrl = parseOptionalString(formData.get("coverUrl"));
   const priceTiers = normalizePriceTiers(
     parsePriceTiersJson(formData.get("priceTiers")),
   );
   const planPrice = getMinPriceFromTiers(priceTiers);
-  const categoryChanged = existing?.categoryId !== categoryId;
-  const sortOrder = categoryChanged
-    ? await nextPlanSortOrder(categoryId)
+  const subcategoryChanged = existing?.subcategoryId !== subcategoryId;
+  const sortOrder = subcategoryChanged
+    ? await nextPlanSortOrder(subcategoryId)
     : undefined;
 
   await prisma.$transaction([
@@ -254,7 +384,7 @@ export async function updatePlanAction(formData: FormData) {
     prisma.plan.update({
       where: { id },
       data: {
-        categoryId,
+        subcategoryId,
         title,
         slug,
         tagline: parseOptionalString(formData.get("tagline")),
@@ -320,11 +450,11 @@ export async function createSectionAction(formData: FormData) {
   revalidatePath(`/admin/planes/${planId}`);
 }
 
-export async function reorderPlansAction(categoryId: string, orderedIds: string[]) {
-  if (!categoryId || orderedIds.length === 0) return;
+export async function reorderPlansAction(subcategoryId: string, orderedIds: string[]) {
+  if (!subcategoryId || orderedIds.length === 0) return;
 
   const existing = await prisma.plan.findMany({
-    where: { categoryId },
+    where: { subcategoryId },
     select: { id: true },
   });
   const existingIds = new Set(existing.map((plan) => plan.id));
@@ -537,6 +667,7 @@ async function createReservationFromFormData(formData: FormData) {
   const clientEmail = String(formData.get("clientEmail") ?? "").trim();
   const clientIdNumber = String(formData.get("clientIdNumber") ?? "").trim();
   const categoryId = String(formData.get("categoryId") ?? "").trim();
+  const subcategoryId = String(formData.get("subcategoryId") ?? "").trim();
   const planId = String(formData.get("planId") ?? "").trim();
 
   return prisma.reservation.create({
@@ -555,6 +686,7 @@ async function createReservationFromFormData(formData: FormData) {
       amountRemaining: parseOptionalPrice(formData.get("amountRemaining")),
       status: parseReservationStatus(formData.get("status")),
       categoryId,
+      subcategoryId,
       planId,
     },
     include: {
@@ -667,6 +799,7 @@ export async function updateReservationAction(formData: FormData) {
       amountRemaining: parseOptionalPrice(formData.get("amountRemaining")),
       status: parseReservationStatus(formData.get("status")),
       categoryId: parseOptionalId(formData.get("categoryId")),
+      subcategoryId: parseOptionalId(formData.get("subcategoryId")),
       planId: parseOptionalId(formData.get("planId")),
     },
   });

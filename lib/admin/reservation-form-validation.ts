@@ -10,6 +10,7 @@ export type ReservationFormField =
   | "clientPhone"
   | "clientEmail"
   | "categoryId"
+  | "subcategoryId"
   | "planId"
   | "guestCount"
   | "eventDate";
@@ -67,6 +68,11 @@ export function validateReservationFormData(
   const categoryId = String(formData.get("categoryId") ?? "").trim();
   if (!categoryId) {
     errors.categoryId = validation.category;
+  }
+
+  const subcategoryId = String(formData.get("subcategoryId") ?? "").trim();
+  if (!subcategoryId) {
+    errors.subcategoryId = validation.subcategory;
   }
 
   const planId = String(formData.get("planId") ?? "").trim();

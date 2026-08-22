@@ -73,7 +73,7 @@ export async function uploadPortfolioMedia(
   supabase: SupabaseClient,
   file: File,
   kind: MediaKind,
-  scope: "categories" | "plans" | "sections" | "gallery" = "plans",
+  scope: "categories" | "subcategories" | "plans" | "sections" | "gallery" = "plans",
 ): Promise<UploadResult> {
   const validationError = validateMediaFile(file, kind);
   if (validationError) {

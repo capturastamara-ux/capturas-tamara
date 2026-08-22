@@ -10,21 +10,25 @@ import { richTextToPlainText } from "@/lib/sanitize-rich-text";
 export const dynamic = "force-dynamic";
 
 type PageProps = {
-  params: Promise<{ categorySlug: string; planSlug: string }>;
+  params: Promise<{
+    categorySlug: string;
+    subcategorySlug: string;
+    planSlug: string;
+  }>;
 };
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const { categorySlug, planSlug } = await params;
-  const plan = await getPlanBySlugs(categorySlug, planSlug);
+  const { categorySlug, subcategorySlug, planSlug } = await params;
+  const plan = await getPlanBySlugs(categorySlug, subcategorySlug, planSlug);
 
   if (!plan) {
     return { title: `Plan | ${siteConfig.name}` };
   }
 
   return {
-    title: `${plan.title} | ${plan.category.title} | ${siteConfig.name}`,
+    title: `${plan.title} | ${plan.subcategory.category.title} | ${siteConfig.name}`,
     description: plan.description
       ? richTextToPlainText(plan.description)
       : siteConfig.description,
@@ -32,8 +36,8 @@ export async function generateMetadata({
 }
 
 export default async function PlanDetailPage({ params }: PageProps) {
-  const { categorySlug, planSlug } = await params;
-  const plan = await getPlanBySlugs(categorySlug, planSlug);
+  const { categorySlug, subcategorySlug, planSlug } = await params;
+  const plan = await getPlanBySlugs(categorySlug, subcategorySlug, planSlug);
 
   if (!plan) {
     notFound();

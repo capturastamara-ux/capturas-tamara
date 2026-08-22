@@ -20,18 +20,20 @@ export default async function AdminDashboardPage() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[
           { label: "Categorías", value: stats.categories },
+          { label: "Subcategorías", value: stats.subcategories },
           { label: "Planes", value: stats.plans },
-          { label: "Planes publicados", value: stats.publishedPlans },
           { label: "Reservas", value: stats.reservations },
         ].map((item) => (
           <div
             key={item.label}
-            className="rounded-sm border border-primary/10 bg-background px-5 py-6"
+            className="rounded-sm border border-catalog/15 bg-background px-5 py-6"
           >
             <p className="text-xs uppercase tracking-[0.14em] text-muted">
               {item.label}
             </p>
-            <p className="mt-3 font-display text-4xl italic">{item.value}</p>
+            <p className="mt-3 font-display text-4xl italic text-catalog-ink">
+              {item.value}
+            </p>
           </div>
         ))}
       </div>
@@ -39,27 +41,29 @@ export default async function AdminDashboardPage() {
       <div className="mt-10 grid gap-4 sm:grid-cols-2">
         <Link
           href="/admin/reservas"
-          className="rounded-sm border border-primary/10 bg-background p-5 transition-colors hover:bg-surface"
+          className="rounded-sm border border-catalog/15 bg-background p-5 transition-colors hover:border-catalog/30 hover:bg-cream"
         >
-          <p className="font-display text-2xl italic">Reservas</p>
+          <p className="font-display text-2xl italic text-catalog-ink">Reservas</p>
           <p className="mt-2 text-sm text-muted">Agenda de eventos y clientes.</p>
         </Link>
         <Link
           href="/admin/cotizador"
-          className="rounded-sm border border-primary/10 bg-background p-5 transition-colors hover:bg-surface"
+          className="rounded-sm border border-catalog/15 bg-background p-5 transition-colors hover:border-catalog/30 hover:bg-cream"
         >
-          <p className="font-display text-2xl italic">Cotizador</p>
+          <p className="font-display text-2xl italic text-catalog-ink">Cotizador</p>
           <p className="mt-2 text-sm text-muted">Compara planes por categoría.</p>
         </Link>
       </div>
 
       <div className="mt-10 grid gap-8 lg:grid-cols-2">
-        <section className="rounded-sm border border-primary/10 bg-background p-5">
+        <section className="rounded-sm border border-catalog/15 bg-background p-5">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-display text-2xl italic">Categorías</h2>
+            <h2 className="font-display text-2xl italic text-catalog-ink">
+              Categorías
+            </h2>
             <Link
               href="/admin/categorias"
-              className="text-xs uppercase tracking-[0.12em] text-muted hover:text-primary"
+              className="text-xs uppercase tracking-[0.12em] text-catalog hover:text-catalog-ink"
             >
               Ver todas
             </Link>
@@ -73,7 +77,7 @@ export default async function AdminDashboardPage() {
                 >
                   <span>{category.title}</span>
                   <span className="text-muted">
-                    {category._count.plans} planes
+                    {category._count.subcategories} subcategorías
                   </span>
                 </Link>
               </li>
@@ -84,12 +88,14 @@ export default async function AdminDashboardPage() {
           </ul>
         </section>
 
-        <section className="rounded-sm border border-primary/10 bg-background p-5">
+        <section className="rounded-sm border border-catalog/15 bg-background p-5">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-display text-2xl italic">Planes recientes</h2>
+            <h2 className="font-display text-2xl italic text-catalog-ink">
+              Planes recientes
+            </h2>
             <Link
               href="/admin/planes"
-              className="text-xs uppercase tracking-[0.12em] text-muted hover:text-primary"
+              className="text-xs uppercase tracking-[0.12em] text-catalog hover:text-catalog-ink"
             >
               Ver todos
             </Link>
@@ -103,7 +109,9 @@ export default async function AdminDashboardPage() {
                 >
                   <span>
                     {plan.title}{" "}
-                    <span className="text-muted">· {plan.category.title}</span>
+                    <span className="text-muted">
+                      · {plan.subcategory.category.title} / {plan.subcategory.title}
+                    </span>
                   </span>
                   <span className="text-muted">
                     {plan.published ? "Publicado" : "Borrador"}

@@ -70,7 +70,7 @@ export function CatalogConditionsSection() {
             className="mt-12 grid gap-4 sm:grid-cols-2 sm:gap-5"
           >
             {payments.accounts.map((account) => (
-              <RevealItem key={account.number}>
+              <RevealItem key={account.id}>
                 <article className="border border-white/15 bg-white/[0.04] px-6 py-8 text-center backdrop-blur-[2px]">
                   <p className="text-[0.62rem] uppercase tracking-[0.26em] text-catalog-gold">
                     {account.label}

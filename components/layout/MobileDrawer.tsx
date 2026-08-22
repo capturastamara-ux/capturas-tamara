@@ -92,9 +92,9 @@ export function MobileDrawer({ theme = "light" }: MobileDrawerProps) {
         onClick={() => setOpen(!open)}
         className={cn(
           "relative z-[60] flex h-11 w-11 items-center justify-center rounded-full transition-all duration-300 active:scale-[0.94]",
-          theme === "light" && !open
+          open || theme === "light"
             ? "text-white/95 hover:bg-white/10"
-            : "text-primary hover:bg-primary/8",
+            : "text-catalog-ink hover:bg-catalog/10",
         )}
       >
         <MenuToggleIcon open={open} />
@@ -113,7 +113,7 @@ export function MobileDrawer({ theme = "light" }: MobileDrawerProps) {
         id="mobile-drawer"
         aria-label="Menú principal"
         className={cn(
-          "fixed right-0 top-0 z-[55] flex h-full w-[min(360px,88vw)] flex-col bg-cream px-8 pb-8 pt-24 shadow-xl transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          "fixed right-0 top-0 z-[55] flex h-full w-[min(360px,88vw)] flex-col bg-catalog px-8 pb-8 pt-24 shadow-xl transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
           open ? "translate-x-0" : "pointer-events-none invisible translate-x-full",
         )}
       >
@@ -123,7 +123,7 @@ export function MobileDrawer({ theme = "light" }: MobileDrawerProps) {
               <Link
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className="text-sm uppercase tracking-[0.14em] text-primary transition-opacity hover:opacity-60"
+                className="text-sm uppercase tracking-[0.14em] text-white transition-colors hover:text-catalog-gold"
               >
                 {item.label}
               </Link>
@@ -132,7 +132,11 @@ export function MobileDrawer({ theme = "light" }: MobileDrawerProps) {
         </ul>
 
         <div className="mt-auto flex justify-center pt-10">
-          <SiteLogo size="md" onClick={() => setOpen(false)} />
+          <SiteLogo
+            size="md"
+            onClick={() => setOpen(false)}
+            nameClassName="text-white"
+          />
         </div>
       </nav>
     </>

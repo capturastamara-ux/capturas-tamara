@@ -19,22 +19,36 @@ const planInclude = {
   },
 };
 
+const publishedHierarchy = {
+  published: true,
+  subcategory: {
+    published: true,
+    category: { published: true },
+  },
+} as const;
+
 export async function getPublishedCategories() {
   return prisma.category.findMany({
     where: { published: true },
     orderBy: { sortOrder: "asc" },
     include: {
-      plans: {
+      subcategories: {
         where: { published: true },
         orderBy: { sortOrder: "asc" },
-        select: {
-          id: true,
-          slug: true,
-          title: true,
-          tagline: true,
-          coverUrl: true,
-          description: true,
-          sortOrder: true,
+        include: {
+          plans: {
+            where: { published: true },
+            orderBy: { sortOrder: "asc" },
+            select: {
+              id: true,
+              slug: true,
+              title: true,
+              tagline: true,
+              coverUrl: true,
+              description: true,
+              sortOrder: true,
+            },
+          },
         },
       },
     },
@@ -45,6 +59,35 @@ export async function getCategoryBySlug(slug: string) {
   return prisma.category.findFirst({
     where: { slug, published: true },
     include: {
+      subcategories: {
+        where: { published: true },
+        orderBy: { sortOrder: "asc" },
+        include: {
+          plans: {
+            where: { published: true },
+            orderBy: { sortOrder: "asc" },
+            include: planInclude,
+          },
+        },
+      },
+    },
+  });
+}
+
+export async function getSubcategoryBySlugs(
+  categorySlug: string,
+  subcategorySlug: string,
+) {
+  return prisma.subcategory.findFirst({
+    where: {
+      slug: subcategorySlug,
+      published: true,
+      category: { slug: categorySlug, published: true },
+    },
+    include: {
+      category: {
+        select: { id: true, slug: true, title: true, description: true },
+      },
       plans: {
         where: { published: true },
         orderBy: { sortOrder: "asc" },
@@ -54,15 +97,27 @@ export async function getCategoryBySlug(slug: string) {
   });
 }
 
-export async function getPlanBySlugs(categorySlug: string, planSlug: string) {
+export async function getPlanBySlugs(
+  categorySlug: string,
+  subcategorySlug: string,
+  planSlug: string,
+) {
   return prisma.plan.findFirst({
     where: {
       slug: planSlug,
       published: true,
-      category: { slug: categorySlug, published: true },
+      subcategory: {
+        slug: subcategorySlug,
+        published: true,
+        category: { slug: categorySlug, published: true },
+      },
     },
     include: {
-      category: true,
+      subcategory: {
+        include: {
+          category: true,
+        },
+      },
       ...planInclude,
     },
   });
@@ -70,11 +125,20 @@ export async function getPlanBySlugs(categorySlug: string, planSlug: string) {
 
 export async function getAllPublishedPlans() {
   return prisma.plan.findMany({
-    where: { published: true, category: { published: true } },
-    orderBy: [{ category: { sortOrder: "asc" } }, { sortOrder: "asc" }],
+    where: publishedHierarchy,
+    orderBy: [
+      { subcategory: { category: { sortOrder: "asc" } } },
+      { subcategory: { sortOrder: "asc" } },
+      { sortOrder: "asc" },
+    ],
     include: {
-      category: {
-        select: { id: true, slug: true, title: true },
+      subcategory: {
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          category: { select: { id: true, slug: true, title: true } },
+        },
       },
     },
   });
@@ -82,8 +146,12 @@ export async function getAllPublishedPlans() {
 
 export async function getLandingGalleryImages() {
   const plans = await prisma.plan.findMany({
-    where: { published: true, category: { published: true } },
-    orderBy: [{ category: { sortOrder: "asc" } }, { sortOrder: "asc" }],
+    where: publishedHierarchy,
+    orderBy: [
+      { subcategory: { category: { sortOrder: "asc" } } },
+      { subcategory: { sortOrder: "asc" } },
+      { sortOrder: "asc" },
+    ],
     select: {
       title: true,
       coverUrl: true,
@@ -161,8 +229,12 @@ function shuffle<T>(items: T[]) {
 
 export async function getPublishedPlanImages(): Promise<PlanMediaImage[]> {
   const plans = await prisma.plan.findMany({
-    where: { published: true, category: { published: true } },
-    orderBy: [{ category: { sortOrder: "asc" } }, { sortOrder: "asc" }],
+    where: publishedHierarchy,
+    orderBy: [
+      { subcategory: { category: { sortOrder: "asc" } } },
+      { subcategory: { sortOrder: "asc" } },
+      { sortOrder: "asc" },
+    ],
     select: {
       title: true,
       coverUrl: true,
@@ -229,31 +301,53 @@ export function pickRandomPlanImages(
 }
 
 export async function getPublicComparisonCategories() {
-  return prisma.category.findMany({
+  const categories = await prisma.category.findMany({
     where: { published: true },
     orderBy: { sortOrder: "asc" },
     include: {
-      plans: {
+      subcategories: {
         where: { published: true },
-        orderBy: { sortOrder: "asc" },
-        select: { id: true },
-      },
-    },
-  });
-}
-
-export async function getPublicComparisonBySlug(slug: string) {
-  return prisma.category.findFirst({
-    where: { slug, published: true },
-    include: {
-      plans: {
-        where: { published: true },
-        orderBy: { sortOrder: "asc" },
         include: {
-          sections: { orderBy: { sortOrder: "asc" } },
-          priceTiers: { orderBy: { sortOrder: "asc" } },
+          plans: {
+            where: { published: true },
+            select: { id: true },
+          },
         },
       },
     },
   });
+
+  return categories.map((category) => ({
+    ...category,
+    plans: category.subcategories.flatMap((subcategory) => subcategory.plans),
+  }));
+}
+
+export async function getPublicComparisonBySlug(slug: string) {
+  const category = await prisma.category.findFirst({
+    where: { slug, published: true },
+    include: {
+      subcategories: {
+        where: { published: true },
+        orderBy: { sortOrder: "asc" },
+        include: {
+          plans: {
+            where: { published: true },
+            orderBy: { sortOrder: "asc" },
+            include: {
+              sections: { orderBy: { sortOrder: "asc" } },
+              priceTiers: { orderBy: { sortOrder: "asc" } },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!category) return null;
+
+  return {
+    ...category,
+    plans: category.subcategories.flatMap((subcategory) => subcategory.plans),
+  };
 }

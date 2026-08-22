@@ -18,7 +18,7 @@ export default async function AdminPlansPage({ searchParams }: Readonly<PageProp
       <AdminPageHeader
         eyebrow="Portafolio"
         title="Planes"
-        description="Cada plan pertenece a una categoría. Arrastra dentro de cada grupo para definir el orden en el portafolio."
+        description="Cada plan pertenece a una subcategoría. Arrastra dentro de cada grupo para definir el orden."
         action={{ href: "/admin/planes/nuevo", label: "Nuevo plan" }}
       />
 

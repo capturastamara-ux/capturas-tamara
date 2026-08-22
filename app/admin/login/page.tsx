@@ -20,16 +20,22 @@ export default async function AdminLoginPage() {
   return (
     <>
       <SiteHeader variant="solid" />
-      <main className="bg-surface px-5 py-16 sm:px-8 sm:py-24 lg:px-12">
-        <div className="mx-auto max-w-lg text-center">
-          <p className="text-xs uppercase tracking-[0.18em] text-muted">
+      <main className="relative overflow-x-clip bg-catalog px-5 py-16 sm:px-8 sm:py-24 lg:px-12">
+        <div
+          className="catalog-grain pointer-events-none absolute inset-0"
+          aria-hidden="true"
+        />
+        <div className="relative z-10 mx-auto max-w-lg text-center">
+          <p className="text-xs uppercase tracking-[0.18em] text-catalog-gold">
             Administración
           </p>
-          <SectionHeading className="mt-3 font-display italic">
+          <SectionHeading className="mt-3 font-display italic text-white">
             {siteConfig.login.title}
           </SectionHeading>
-          <p className="mt-4 text-base text-muted">{siteConfig.login.subtitle}</p>
-          <div className="mt-12 text-left">
+          <p className="mt-4 text-base text-white/70">
+            {siteConfig.login.subtitle}
+          </p>
+          <div className="admin-app mt-12 rounded-sm border border-white/15 bg-white/95 p-6 text-left text-catalog-ink sm:p-8">
             <LoginForm />
           </div>
         </div>

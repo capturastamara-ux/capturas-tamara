@@ -18,12 +18,14 @@ export type SortablePlan = {
   published: boolean;
   sectionCount: number;
   categorySlug: string;
+  subcategorySlug: string;
 };
 
 export type PlanCategoryGroup = {
   id: string;
   title: string;
   slug: string;
+  categoryTitle: string;
   plans: SortablePlan[];
 };
 
@@ -48,12 +50,12 @@ function GripIcon() {
 }
 
 type PlanSortableListProps = {
-  categoryId: string;
+  subcategoryId: string;
   plans: SortablePlan[];
 };
 
 function PlanSortableList({
-  categoryId,
+  subcategoryId,
   plans: initialPlans,
 }: Readonly<PlanSortableListProps>) {
   const [plans, setPlans] = useState(initialPlans);
@@ -69,7 +71,7 @@ function PlanSortableList({
     setPlans(next);
     startTransition(async () => {
       await reorderPlansAction(
-        categoryId,
+        subcategoryId,
         next.map((plan) => plan.id),
       );
     });
@@ -189,7 +191,7 @@ function PlanSortableList({
               Editar
             </Link>
             <Link
-              href={`/portafolio/${plan.categorySlug}/${plan.slug}`}
+              href={`/portafolio/${plan.categorySlug}/${plan.subcategorySlug}/${plan.slug}`}
               className="text-xs uppercase tracking-[0.1em] text-muted hover:opacity-70"
               draggable={false}
             >
@@ -235,7 +237,7 @@ export function PlansByCategorySortable({
           <div className="flex flex-wrap items-end justify-between gap-3 border-b border-primary/10 pb-4">
             <div>
               <p className="text-xs uppercase tracking-[0.12em] text-muted">
-                Categoría
+                {group.categoryTitle}
               </p>
               <h2 className="mt-1 font-display text-2xl italic">{group.title}</h2>
             </div>
@@ -245,7 +247,7 @@ export function PlansByCategorySortable({
           </div>
 
           <div className="mt-4">
-            <PlanSortableList categoryId={group.id} plans={group.plans} />
+            <PlanSortableList subcategoryId={group.id} plans={group.plans} />
           </div>
         </section>
       ))}

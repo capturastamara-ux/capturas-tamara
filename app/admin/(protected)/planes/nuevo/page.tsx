@@ -10,16 +10,20 @@ import {
 import { AdminRichText } from "@/components/admin/AdminRichText";
 import { MediaUploadField } from "@/components/admin/MediaUploadField";
 import { AdminPriceTierList } from "@/components/admin/AdminPriceTierList";
+import { CategorySubcategorySelect } from "@/components/admin/CategorySubcategorySelect";
 import { createPlanAction } from "@/app/admin/actions";
-import { getAdminCategoryOptions } from "@/lib/db/admin";
+import { getAdminCategoryOptions, getAdminSubcategoryOptions } from "@/lib/db/admin";
 
 type PageProps = {
-  searchParams: Promise<{ categoryId?: string }>;
+  searchParams: Promise<{ categoryId?: string; subcategoryId?: string }>;
 };
 
 export default async function NewPlanPage({ searchParams }: PageProps) {
-  const { categoryId } = await searchParams;
-  const categories = await getAdminCategoryOptions();
+  const { categoryId, subcategoryId } = await searchParams;
+  const [categories, subcategories] = await Promise.all([
+    getAdminCategoryOptions(),
+    getAdminSubcategoryOptions(),
+  ]);
 
   return (
     <>
@@ -37,28 +41,25 @@ export default async function NewPlanPage({ searchParams }: PageProps) {
           </a>
           .
         </p>
+      ) : subcategories.length === 0 ? (
+        <p className="text-sm text-muted">
+          Primero crea una subcategoría en{" "}
+          <a href="/admin/subcategorias/nueva" className="underline">
+            Subcategorías
+          </a>
+          .
+        </p>
       ) : (
         <AdminMediaForm
           action={createPlanAction}
           className="max-w-2xl space-y-5 rounded-sm border border-primary/10 bg-background p-5 sm:p-6"
         >
-          <label className="flex flex-col gap-2">
-            <span className="text-xs uppercase tracking-[0.12em] text-muted">
-              Categoría *
-            </span>
-            <select
-              name="categoryId"
-              required
-              defaultValue={categoryId ?? categories[0]?.id}
-              className="rounded-sm border border-primary/15 bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
-            >
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.title}
-                </option>
-              ))}
-            </select>
-          </label>
+          <CategorySubcategorySelect
+            categories={categories}
+            subcategories={subcategories}
+            defaultCategoryId={categoryId}
+            defaultSubcategoryId={subcategoryId}
+          />
 
           <AdminField
             label="Pre título"

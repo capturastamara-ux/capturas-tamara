@@ -11,6 +11,7 @@ import { PrintReservationContractButton } from "@/components/admin/PrintReservat
 import {
   type ReservationCategoryOption,
   type ReservationPlanOption,
+  type ReservationSubcategoryOption,
 } from "@/components/admin/ReservationFormFields";
 import { getCategoryColor, reservationConfig } from "@/config/reservations";
 import {
@@ -54,6 +55,7 @@ type ReservationsPanelProps = {
   overrides: AvailabilityOverride[];
   categories: CalendarCategory[];
   categoryOptions: ReservationCategoryOption[];
+  subcategoryOptions: ReservationSubcategoryOption[];
   planOptions: ReservationPlanOption[];
   clients: AdminClientRow[];
   initialNewReservationDate?: string;
@@ -77,6 +79,7 @@ export function ReservationsPanel({
   overrides,
   categories,
   categoryOptions,
+  subcategoryOptions,
   planOptions,
   clients,
   initialNewReservationDate,
@@ -563,6 +566,7 @@ export function ReservationsPanel({
         open={reservationModalOpen}
         eventDate={reservationModalDate}
         categories={categoryOptions}
+        subcategories={subcategoryOptions}
         plans={planOptions}
         onClose={closeReservationModal}
         onSuccess={setSuccessMessage}

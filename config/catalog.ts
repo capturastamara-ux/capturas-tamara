@@ -126,8 +126,8 @@ export const catalogConfig = {
     eyebrow: "Reserva",
     title: "Medios de pago",
     accounts: [
-      { label: "Cuenta de ahorros", number: "0852-7005-8044" },
-      { label: "Cuenta de ahorros", number: "373-699651-24" },
+      { id: "nequi", label: "Nequi", number: "3044711872" },
+      { id: "llave", label: "Llave", number: "3044711872" },
     ],
   },
 } as const;

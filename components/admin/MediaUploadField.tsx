@@ -12,7 +12,7 @@ import { useUploadFormTrack } from "@/components/admin/UploadFormContext";
 import { useNotifyUploadingChange } from "@/components/admin/useUploadProgressTracker";
 import { cn } from "@/lib/cn";
 
-type MediaScope = "categories" | "plans" | "sections" | "gallery";
+type MediaScope = "categories" | "subcategories" | "plans" | "sections" | "gallery";
 
 type MediaUploadFieldProps = {
   urlFieldName: string;

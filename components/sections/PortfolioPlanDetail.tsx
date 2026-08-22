@@ -33,9 +33,13 @@ type PlanDetail = {
     id: string;
     url: string;
   }>;
-  category: {
+  subcategory: {
     slug: string;
     title: string;
+    category: {
+      slug: string;
+      title: string;
+    };
   };
 };
 
@@ -61,10 +65,10 @@ export function PortfolioPlanDetail({ plan }: PortfolioPlanDetailProps) {
     <div className="mx-auto max-w-[1400px]">
       <Reveal y={16} className="mb-6">
         <Link
-          href={`/portafolio/${plan.category.slug}`}
+          href={`/portafolio/${plan.subcategory.category.slug}/${plan.subcategory.slug}`}
           className="text-xs uppercase tracking-[0.14em] text-muted transition-opacity hover:opacity-70"
         >
-          ← {plan.category.title}
+          ← {plan.subcategory.title}
         </Link>
       </Reveal>
 

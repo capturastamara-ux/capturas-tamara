@@ -21,10 +21,17 @@ export type ReservationCategoryOption = {
   slug: string;
 };
 
+export type ReservationSubcategoryOption = {
+  id: string;
+  title: string;
+  categoryId: string;
+};
+
 export type ReservationPlanOption = {
   id: string;
   title: string;
   categoryId: string;
+  subcategoryId: string;
   category: { title: string };
   priceTiers: Array<{ guestCount: number; price: number }>;
 };
@@ -36,6 +43,7 @@ export type ReservationFormDefaults = {
   clientEmail?: string;
   clientIdNumber?: string;
   categoryId?: string;
+  subcategoryId?: string;
   planId?: string;
   guestCount?: number | null;
   location?: string;
@@ -47,6 +55,7 @@ export type ReservationFormDefaults = {
 
 type ReservationFormFieldsProps = {
   categories: ReservationCategoryOption[];
+  subcategories: ReservationSubcategoryOption[];
   plans: ReservationPlanOption[];
   defaults?: ReservationFormDefaults;
   fieldErrors?: ReservationFormErrors;
@@ -63,6 +72,7 @@ function FieldError({ message }: { message?: string }) {
 
 export function ReservationFormFields({
   categories,
+  subcategories,
   plans,
   defaults = {},
   fieldErrors,
@@ -76,6 +86,7 @@ export function ReservationFormFields({
     "rounded-sm border border-primary/15 bg-background px-3 py-2.5 text-sm outline-none transition-colors focus:border-primary";
 
   const [categoryId, setCategoryId] = useState(defaults.categoryId ?? "");
+  const [subcategoryId, setSubcategoryId] = useState(defaults.subcategoryId ?? "");
   const [planId, setPlanId] = useState(defaults.planId ?? "");
   const [guestCount, setGuestCount] = useState<number | "">(
     defaults.guestCount ?? "",
@@ -84,9 +95,20 @@ export function ReservationFormFields({
     defaults.amountPaid != null ? String(defaults.amountPaid) : "",
   );
 
+  const filteredSubcategories = useMemo(
+    () =>
+      categoryId
+        ? subcategories.filter((item) => item.categoryId === categoryId)
+        : [],
+    [categoryId, subcategories],
+  );
+
   const filteredPlans = useMemo(
-    () => (categoryId ? plans.filter((plan) => plan.categoryId === categoryId) : []),
-    [categoryId, plans],
+    () =>
+      subcategoryId
+        ? plans.filter((plan) => plan.subcategoryId === subcategoryId)
+        : [],
+    [plans, subcategoryId],
   );
 
   const selectedPlan = useMemo(
@@ -114,10 +136,21 @@ export function ReservationFormFields({
   }, [amountPaidDigits, selectedPlanPrice]);
 
   useEffect(() => {
-    if (planId && categoryId && !filteredPlans.some((plan) => plan.id === planId)) {
+    if (
+      subcategoryId &&
+      categoryId &&
+      !filteredSubcategories.some((item) => item.id === subcategoryId)
+    ) {
+      setSubcategoryId("");
       setPlanId("");
     }
-  }, [categoryId, filteredPlans, planId]);
+  }, [categoryId, filteredSubcategories, subcategoryId]);
+
+  useEffect(() => {
+    if (planId && subcategoryId && !filteredPlans.some((plan) => plan.id === planId)) {
+      setPlanId("");
+    }
+  }, [filteredPlans, planId, subcategoryId]);
 
   useEffect(() => {
     if (guestCountOptions.length === 0) {
@@ -133,6 +166,12 @@ export function ReservationFormFields({
 
   function handleCategoryChange(nextCategoryId: string) {
     setCategoryId(nextCategoryId);
+    setSubcategoryId("");
+    setPlanId("");
+  }
+
+  function handleSubcategoryChange(nextSubcategoryId: string) {
+    setSubcategoryId(nextSubcategoryId);
     setPlanId("");
   }
 
@@ -222,17 +261,39 @@ export function ReservationFormFields({
       </label>
 
       <label className="flex flex-col gap-2">
+        <span className="text-xs uppercase tracking-[0.12em] text-muted">Subcategoría *</span>
+        <select
+          name="subcategoryId"
+          required
+          value={subcategoryId}
+          disabled={!categoryId}
+          onChange={(event) => handleSubcategoryChange(event.target.value)}
+          className={cn(inputClassName, fieldErrors?.subcategoryId && "border-accent/50")}
+        >
+          <option value="" disabled>
+            {categoryId ? "Selecciona una subcategoría" : "Primero elige una categoría"}
+          </option>
+          {filteredSubcategories.map((subcategory) => (
+            <option key={subcategory.id} value={subcategory.id}>
+              {subcategory.title}
+            </option>
+          ))}
+        </select>
+        <FieldError message={fieldErrors?.subcategoryId} />
+      </label>
+
+      <label className="flex flex-col gap-2">
         <span className="text-xs uppercase tracking-[0.12em] text-muted">Plan *</span>
         <select
           name="planId"
           required
           value={planId}
-          disabled={!categoryId}
+          disabled={!subcategoryId}
           onChange={(event) => setPlanId(event.target.value)}
           className={cn(inputClassName, fieldErrors?.planId && "border-accent/50")}
         >
           <option value="" disabled>
-            {categoryId ? "Selecciona un plan" : "Primero elige una categoría"}
+            {subcategoryId ? "Selecciona un plan" : "Primero elige una subcategoría"}
           </option>
           {filteredPlans.map((plan) => (
             <option key={plan.id} value={plan.id}>

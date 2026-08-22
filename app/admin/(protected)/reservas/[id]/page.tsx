@@ -17,6 +17,7 @@ import {
   getAdminCategoryOptions,
   getAdminPlanOptions,
   getAdminReservationById,
+  getAdminSubcategoryOptions,
 } from "@/lib/db/admin";
 
 type PageProps = {
@@ -25,9 +26,10 @@ type PageProps = {
 
 export default async function EditReservationPage({ params }: Readonly<PageProps>) {
   const { id } = await params;
-  const [reservation, categories, plans] = await Promise.all([
+  const [reservation, categories, subcategories, plans] = await Promise.all([
     getAdminReservationById(id),
     getAdminCategoryOptions(),
+    getAdminSubcategoryOptions(),
     getAdminPlanOptions(),
   ]);
 
@@ -71,7 +73,15 @@ export default async function EditReservationPage({ params }: Readonly<PageProps
             <input type="hidden" name="id" value={reservation.id} />
             <ReservationFormFields
               categories={categories}
-              plans={plans}
+              subcategories={subcategories}
+              plans={plans.map((plan) => ({
+                id: plan.id,
+                title: plan.title,
+                categoryId: plan.subcategory.categoryId,
+                subcategoryId: plan.subcategoryId,
+                category: plan.subcategory.category,
+                priceTiers: plan.priceTiers,
+              }))}
               defaults={{
                 eventDate: toDateInputValue(reservation.eventDate),
                 clientName: reservation.clientName,
@@ -79,6 +89,7 @@ export default async function EditReservationPage({ params }: Readonly<PageProps
                 clientEmail: reservation.clientEmail ?? "",
                 clientIdNumber: reservation.clientIdNumber ?? "",
                 categoryId: reservation.categoryId ?? "",
+                subcategoryId: reservation.subcategoryId ?? "",
                 planId: reservation.planId ?? "",
                 guestCount: reservation.guestCount,
                 location: reservation.location ?? "",

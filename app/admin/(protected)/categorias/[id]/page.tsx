@@ -4,7 +4,6 @@ import {
   AdminCheckbox,
   AdminField,
   AdminPageHeader,
-  StatusBadge,
 } from "@/components/admin/AdminUi";
 import { AdminConfirmDeleteForm } from "@/components/admin/AdminConfirmDeleteForm";
 import {
@@ -33,7 +32,7 @@ export default async function EditCategoryPage({ params }: PageProps) {
       <AdminPageHeader
         eyebrow="Categorías"
         title={category.title}
-        description="Edita la categoría y revisa sus planes."
+        description="Edita la categoría y revisa sus subcategorías."
       />
 
       <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
@@ -73,35 +72,37 @@ export default async function EditCategoryPage({ params }: PageProps) {
         <div className="space-y-6">
           <section className="rounded-sm border border-primary/10 bg-background p-5">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-display text-2xl italic">Planes</h2>
+              <h2 className="font-display text-2xl italic">Subcategorías</h2>
               <Link
-                href={`/admin/planes/nuevo?categoryId=${category.id}`}
+                href={`/admin/subcategorias/nueva?categoryId=${category.id}`}
                 className="text-xs uppercase tracking-[0.12em] text-primary hover:opacity-70"
               >
-                Nuevo plan
+                Nueva subcategoría
               </Link>
             </div>
             <ul className="space-y-3">
-              {category.plans.map((plan) => (
-                <li key={plan.id} className="flex items-center justify-between gap-3 text-sm">
+              {category.subcategories.map((subcategory) => (
+                <li key={subcategory.id} className="flex items-center justify-between gap-3 text-sm">
                   <Link
-                    href={`/admin/planes/${plan.id}`}
+                    href={`/admin/subcategorias/${subcategory.id}`}
                     className="hover:opacity-70"
                   >
-                    {plan.title}
+                    {subcategory.title}
                   </Link>
-                  <StatusBadge published={plan.published} />
+                  <span className="text-muted">
+                    {subcategory._count.plans} planes
+                  </span>
                 </li>
               ))}
-              {category.plans.length === 0 && (
-                <li className="text-sm text-muted">Sin planes todavía.</li>
+              {category.subcategories.length === 0 && (
+                <li className="text-sm text-muted">Sin subcategorías todavía.</li>
               )}
             </ul>
           </section>
 
           <div className="rounded-sm border border-accent/20 bg-background p-5">
             <p className="text-sm text-muted">
-              Eliminar esta categoría también borrará todos sus planes.
+              Eliminar esta categoría también borrará sus subcategorías y planes.
             </p>
             <div className="mt-4">
               <AdminConfirmDeleteForm

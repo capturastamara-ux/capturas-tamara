@@ -8,6 +8,7 @@ import {
   ReservationFormFields,
   type ReservationCategoryOption,
   type ReservationPlanOption,
+  type ReservationSubcategoryOption,
 } from "@/components/admin/ReservationFormFields";
 import { reservationConfig } from "@/config/reservations";
 import { formatDayLabel } from "@/lib/admin/availability";
@@ -23,6 +24,7 @@ type NewReservationModalProps = {
   open: boolean;
   eventDate: string | null;
   categories: ReservationCategoryOption[];
+  subcategories: ReservationSubcategoryOption[];
   plans: ReservationPlanOption[];
   onClose: () => void;
   onSuccess?: (message: string) => void;
@@ -88,6 +90,7 @@ export function NewReservationModal({
   open,
   eventDate,
   categories,
+  subcategories,
   plans,
   onClose,
   onSuccess,
@@ -265,6 +268,7 @@ export function NewReservationModal({
         >
           <ReservationFormFields
             categories={categories}
+            subcategories={subcategories}
             plans={plans}
             defaults={{ eventDate: eventDate ?? "" }}
             hideEventDateField

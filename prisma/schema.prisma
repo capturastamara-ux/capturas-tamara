@@ -10,44 +10,65 @@ datasource db {
   provider = "postgresql"
 }
 
-/// Categoría del portafolio: Bodas o 15 años
+/// Categoría del portafolio (Retratos, 15 años, etc.)
 model Category {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  title       String
-  subtitle    String?
-  description String?
-  coverUrl    String?
-  sortOrder   Int      @default(0)
-  published   Boolean  @default(true)
-  plans       Plan[]
-  reservations Reservation[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String        @id @default(cuid())
+  slug          String        @unique
+  title         String
+  subtitle      String?
+  description   String?
+  coverUrl      String?
+  sortOrder     Int           @default(0)
+  published     Boolean       @default(true)
+  subcategories Subcategory[]
+  reservations  Reservation[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }
 
-/// Plan ofrecido dentro de una categoría (ej. Todo Incluido)
-model Plan {
-  id          String   @id @default(cuid())
-  categoryId  String
-  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  slug        String
-  title       String
-  tagline     String?
-  price       Int?
-  coverUrl    String?
-  description String?
-  sortOrder   Int      @default(0)
-  published   Boolean  @default(false)
-  sections    PlanSection[]
-  gallery     PlanGalleryImage[]
-  priceTiers  PlanPriceTier[]
+/// Subcategoría dentro de una categoría (ej. Retratos → Estudio)
+model Subcategory {
+  id           String        @id @default(cuid())
+  categoryId   String
+  category     Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  slug         String
+  title        String
+  subtitle     String?
+  description  String?
+  coverUrl     String?
+  sortOrder    Int           @default(0)
+  published    Boolean       @default(true)
+  plans        Plan[]
   reservations Reservation[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   @@unique([categoryId, slug])
   @@index([categoryId, published, sortOrder])
+}
+
+/// Plan ofrecido dentro de una subcategoría
+model Plan {
+  id            String           @id @default(cuid())
+  subcategoryId String
+  subcategory   Subcategory      @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
+  slug          String
+  title         String
+  tagline       String?
+  price         Int?
+  coverUrl      String?
+  description   String?
+  sortOrder     Int              @default(0)
+  published     Boolean          @default(false)
+  sections      PlanSection[]
+  gallery       PlanGalleryImage[]
+  priceTiers    PlanPriceTier[]
+  reservations  Reservation[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@unique([subcategoryId, slug])
+  @@index([subcategoryId, published, sortOrder])
 }
 
 /// Bloque de contenido del plan (Banquetería, Decoración, etc.)
@@ -96,10 +117,12 @@ model Reservation {
   amountPaid  Int?
   amountRemaining Int?
   status      ReservationStatus @default(pending)
-  categoryId  String?
-  category    Category?         @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  planId      String?
-  plan        Plan?             @relation(fields: [planId], references: [id], onDelete: SetNull)
+  categoryId     String?
+  category       Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  subcategoryId  String?
+  subcategory    Subcategory?  @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
+  planId         String?
+  plan           Plan?         @relation(fields: [planId], references: [id], onDelete: SetNull)
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
 

@@ -32,8 +32,33 @@ export async function uniqueCategorySlug(title: string, excludeId?: string) {
   }
 }
 
-export async function uniquePlanSlug(
+export async function uniqueSubcategorySlug(
   categoryId: string,
+  title: string,
+  excludeId?: string,
+) {
+  const base = slugify(title) || "subcategoria";
+  let candidate = base;
+  let suffix = 2;
+
+  while (true) {
+    const existing = await prisma.subcategory.findFirst({
+      where: {
+        categoryId,
+        slug: candidate,
+        ...(excludeId ? { NOT: { id: excludeId } } : {}),
+      },
+      select: { id: true },
+    });
+
+    if (!existing) return candidate;
+    candidate = `${base}-${suffix}`;
+    suffix += 1;
+  }
+}
+
+export async function uniquePlanSlug(
+  subcategoryId: string,
   title: string,
   excludeId?: string,
 ) {
@@ -44,7 +69,7 @@ export async function uniquePlanSlug(
   while (true) {
     const existing = await prisma.plan.findFirst({
       where: {
-        categoryId,
+        subcategoryId,
         slug: candidate,
         ...(excludeId ? { NOT: { id: excludeId } } : {}),
       },
@@ -62,9 +87,17 @@ export async function nextCategorySortOrder() {
   return (result._max.sortOrder ?? -1) + 1;
 }
 
-export async function nextPlanSortOrder(categoryId: string) {
-  const result = await prisma.plan.aggregate({
+export async function nextSubcategorySortOrder(categoryId: string) {
+  const result = await prisma.subcategory.aggregate({
     where: { categoryId },
+    _max: { sortOrder: true },
+  });
+  return (result._max.sortOrder ?? -1) + 1;
+}
+
+export async function nextPlanSortOrder(subcategoryId: string) {
+  const result = await prisma.plan.aggregate({
+    where: { subcategoryId },
     _max: { sortOrder: true },
   });
   return (result._max.sortOrder ?? -1) + 1;

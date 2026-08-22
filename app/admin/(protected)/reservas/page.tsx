@@ -8,10 +8,11 @@ type PageProps = {
 
 export default async function AdminReservationsPage({ searchParams }: Readonly<PageProps>) {
   const { nueva } = await searchParams;
-  const [{ reservations, overrides, categories, plans }, clients] = await Promise.all([
-    getAdminCalendarData(),
-    getAdminClients(),
-  ]);
+  const [{ reservations, overrides, categories, subcategories, plans }, clients] =
+    await Promise.all([
+      getAdminCalendarData(),
+      getAdminClients(),
+    ]);
 
   const serializedReservations = reservations.map((reservation) => ({
     id: reservation.id,
@@ -35,7 +36,15 @@ export default async function AdminReservationsPage({ searchParams }: Readonly<P
       overrides={serializedOverrides}
       categories={categories}
       categoryOptions={categories}
-      planOptions={plans}
+      subcategoryOptions={subcategories}
+      planOptions={plans.map((plan) => ({
+        id: plan.id,
+        title: plan.title,
+        categoryId: plan.subcategory.categoryId,
+        subcategoryId: plan.subcategoryId,
+        category: plan.subcategory.category,
+        priceTiers: plan.priceTiers,
+      }))}
       clients={clients}
       initialNewReservationDate={nueva}
     />

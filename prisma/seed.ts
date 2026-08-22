@@ -72,6 +72,7 @@ async function main() {
   await prisma.planSection.deleteMany();
   await prisma.planPriceTier.deleteMany();
   await prisma.plan.deleteMany();
+  await prisma.subcategory.deleteMany();
   await prisma.category.deleteMany();
 
   for (const category of categories) {

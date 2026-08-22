@@ -1,13 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --color-primary: #1a1a1a;
-  --color-accent: #8b2635;
-  --color-muted: #6b6560;
-  --color-cream: #f5f0eb;
-  --color-surface: #faf8f5;
-  --color-background: #ffffff;
-  --color-foreground: #1a1a1a;
+  --app-primary: #1a1a1a;
+  --app-accent: #8b2635;
+  --app-muted: #6b6560;
+  --app-cream: #f5f0eb;
+  --app-surface: #faf8f5;
+  --app-background: #ffffff;
+  --app-foreground: #1a1a1a;
+  --color-primary: var(--app-primary);
+  --color-accent: var(--app-accent);
+  --color-muted: var(--app-muted);
+  --color-cream: var(--app-cream);
+  --color-surface: var(--app-surface);
+  --color-background: var(--app-background);
+  --color-foreground: var(--app-foreground);
   --color-catalog: #3d6e75;
   --color-catalog-mid: #6a9a94;
   --color-catalog-gold: #f0d000;
@@ -19,13 +26,13 @@
 }
 
 @theme inline {
-  --color-primary: #1a1a1a;
-  --color-accent: #8b2635;
-  --color-muted: #6b6560;
-  --color-cream: #f5f0eb;
-  --color-surface: #faf8f5;
-  --color-background: #ffffff;
-  --color-foreground: #1a1a1a;
+  --color-primary: var(--app-primary);
+  --color-accent: var(--app-accent);
+  --color-muted: var(--app-muted);
+  --color-cream: var(--app-cream);
+  --color-surface: var(--app-surface);
+  --color-background: var(--app-background);
+  --color-foreground: var(--app-foreground);
   --color-catalog: #3d6e75;
   --color-catalog-mid: #6a9a94;
   --color-catalog-gold: #f0d000;
@@ -93,13 +100,22 @@
 }
 
 body {
-  background: var(--color-background);
-  color: var(--color-foreground);
+  background: var(--app-background);
+  color: var(--app-foreground);
   font-family: var(--font-sans);
 }
 
+.admin-app {
+  --app-primary: var(--color-catalog-ink);
+  --app-muted: #4d6f74;
+  --app-cream: #e8f2f1;
+  --app-surface: #dce8e7;
+  --app-background: #ffffff;
+  --app-foreground: var(--color-catalog-ink);
+}
+
 ::selection {
-  background: color-mix(in srgb, var(--color-accent) 20%, transparent);
+  background: color-mix(in srgb, var(--app-accent) 20%, transparent);
 }
 
 .cotizador-comparison-scroll {

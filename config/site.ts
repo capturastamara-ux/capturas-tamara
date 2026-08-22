@@ -39,7 +39,6 @@ export const siteConfig = {
     { type: "link", label: "Categorías", href: "/#categorias" },
     { type: "link", label: "Productos", href: "/#productos" },
     { type: "link", label: "Condiciones", href: "/#condiciones" },
-    { type: "link", label: "Portafolio", href: "/portafolio" },
     { type: "link", label: "Iniciar sesión", href: "/admin/login" },
   ] satisfies NavItem[],
   login: {
@@ -109,8 +108,7 @@ export const siteConfig = {
   },
   social: {
     instagram: "https://www.instagram.com/capturastamara/",
-    tiktok: "https://www.tiktok.com/@capturastamara",
-    facebook: "https://www.facebook.com/capturastamara",
+    facebook: "https://www.facebook.com/capturastamara/",
   },
   whatsapp: {
     label: "Agendar sesión",

@@ -42,6 +42,7 @@ export const reservationConfig = {
       email: "Ingresa un correo electrónico válido.",
       clientIdNumber: "La cédula debe contener solo números (6 a 12 dígitos).",
       category: "Selecciona una categoría.",
+      subcategory: "Selecciona una subcategoría.",
       plan: "Selecciona un plan.",
       guestCount: "Selecciona la cantidad de personas.",
     },

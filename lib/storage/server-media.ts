@@ -17,9 +17,14 @@ type PlanWithMedia = {
   gallery: Array<{ url: string }>;
 };
 
-type CategoryWithMedia = {
+type SubcategoryWithMedia = {
   coverUrl: string | null;
   plans: PlanWithMedia[];
+};
+
+type CategoryWithMedia = {
+  coverUrl: string | null;
+  subcategories: SubcategoryWithMedia[];
 };
 
 export function collectPlanMediaUrls(plan: PlanWithMedia) {
@@ -30,9 +35,18 @@ export function collectPlanMediaUrls(plan: PlanWithMedia) {
   );
 }
 
+export function collectSubcategoryMediaUrls(subcategory: SubcategoryWithMedia) {
+  return collectMediaUrls(
+    subcategory.coverUrl,
+    ...subcategory.plans.map((plan) => collectPlanMediaUrls(plan)),
+  );
+}
+
 export function collectCategoryMediaUrls(category: CategoryWithMedia) {
   return collectMediaUrls(
     category.coverUrl,
-    ...category.plans.map((plan) => collectPlanMediaUrls(plan)),
+    ...category.subcategories.map((subcategory) =>
+      collectSubcategoryMediaUrls(subcategory),
+    ),
   );
 }

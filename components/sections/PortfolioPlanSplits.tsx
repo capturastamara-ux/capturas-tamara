@@ -34,12 +34,14 @@ export type PortfolioPlanCard = {
 
 type PortfolioPlanSplitsProps = {
   categorySlug: string;
+  subcategorySlug: string;
   categoryTitle: string;
   plans: PortfolioPlanCard[];
 };
 
 export function PortfolioPlanSplits({
   categorySlug,
+  subcategorySlug,
   categoryTitle,
   plans,
 }: PortfolioPlanSplitsProps) {
@@ -131,7 +133,7 @@ export function PortfolioPlanSplits({
 
                 <div className="mt-5 sm:mt-6">
                   <Button
-                    href={`/portafolio/${categorySlug}/${plan.slug}`}
+                    href={`/portafolio/${categorySlug}/${subcategorySlug}/${plan.slug}`}
                     variant="filled"
                     className="w-full sm:w-auto"
                   >

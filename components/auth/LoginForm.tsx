@@ -44,7 +44,7 @@ export function LoginForm() {
         type="submit"
         disabled={pending}
         className={cn(
-          "inline-flex w-full items-center justify-center rounded-full bg-primary px-8 py-3 text-xs uppercase tracking-[0.14em] text-white transition-all hover:-translate-y-0.5 hover:bg-primary/90 sm:text-sm",
+          "inline-flex w-full items-center justify-center rounded-full bg-catalog px-8 py-3 text-xs uppercase tracking-[0.14em] text-white transition-all hover:-translate-y-0.5 hover:bg-catalog-ink sm:text-sm",
           pending && "cursor-wait opacity-70",
         )}
       >

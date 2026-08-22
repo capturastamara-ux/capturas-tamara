@@ -20,7 +20,7 @@ export default async function AdminCategoriesPage() {
           title: category.title,
           slug: category.slug,
           published: category.published,
-          planCount: category._count.plans,
+          subcategoryCount: category._count.subcategories,
         }))}
       />
     </>

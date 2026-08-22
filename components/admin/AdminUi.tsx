@@ -18,13 +18,19 @@ export function AdminPageHeader({
     <div className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
       <div>
         {eyebrow && (
-          <p className="text-xs uppercase tracking-[0.16em] text-muted">
+          <p className="text-xs uppercase tracking-[0.16em] text-catalog">
             {eyebrow}
           </p>
         )}
-        <h1 className="mt-2 font-display text-3xl italic sm:text-4xl">{title}</h1>
+        <h1 className="mt-2 font-display text-3xl italic text-catalog-ink sm:text-4xl">
+          {title}
+        </h1>
+        <span
+          className="mt-4 block h-px w-14 bg-catalog-gold/80"
+          aria-hidden="true"
+        />
         {description && (
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
             {description}
           </p>
         )}
@@ -32,7 +38,7 @@ export function AdminPageHeader({
       {action && (
         <Link
           href={action.href}
-          className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-xs uppercase tracking-[0.12em] text-white transition-transform hover:-translate-y-0.5"
+          className="inline-flex items-center justify-center rounded-full bg-catalog px-5 py-2.5 text-xs uppercase tracking-[0.12em] text-white transition-transform hover:-translate-y-0.5 hover:bg-catalog-ink"
         >
           {action.label}
         </Link>
@@ -51,7 +57,7 @@ export function StatusBadge({ published }: StatusBadgeProps) {
       className={cn(
         "inline-flex rounded-full px-2.5 py-1 text-[10px] uppercase tracking-[0.12em]",
         published
-          ? "bg-primary/10 text-primary"
+          ? "bg-catalog/15 text-catalog"
           : "bg-muted/15 text-muted",
       )}
     >
@@ -89,7 +95,7 @@ export function AdminField({
         required={required}
         defaultValue={defaultValue ?? ""}
         placeholder={placeholder}
-        className="rounded-sm border border-primary/15 bg-background px-3 py-2.5 text-sm outline-none transition-colors focus:border-primary"
+        className="rounded-sm border border-catalog/20 bg-background px-3 py-2.5 text-sm outline-none transition-colors focus:border-catalog"
       />
       {hint && <span className="text-xs text-muted">{hint}</span>}
     </label>
@@ -120,7 +126,7 @@ export function AdminTextarea({
         required={required}
         rows={rows}
         defaultValue={defaultValue ?? ""}
-        className="resize-y rounded-sm border border-primary/15 bg-background px-3 py-2.5 text-sm outline-none transition-colors focus:border-primary"
+        className="resize-y rounded-sm border border-catalog/20 bg-background px-3 py-2.5 text-sm outline-none transition-colors focus:border-catalog"
       />
     </label>
   );
@@ -136,12 +142,12 @@ export function AdminCheckbox({
   defaultChecked?: boolean;
 }) {
   return (
-    <label className="flex items-center gap-3 text-sm text-primary">
+    <label className="flex items-center gap-3 text-sm text-catalog-ink">
       <input
         type="checkbox"
         name={name}
         defaultChecked={defaultChecked}
-        className="accent-primary"
+        className="accent-catalog"
       />
       <span>{label}</span>
     </label>
@@ -157,11 +163,11 @@ export function AdminSubmitButton({
 }) {
   const styles = {
     primary:
-      "bg-primary text-white hover:bg-primary/90",
+      "bg-catalog text-white hover:bg-catalog-ink",
     danger:
       "border border-accent/40 text-accent hover:bg-accent hover:text-white",
     ghost:
-      "border border-primary/20 text-primary hover:bg-primary hover:text-white",
+      "border border-catalog/25 text-catalog hover:bg-catalog hover:text-white",
   };
 
   return (

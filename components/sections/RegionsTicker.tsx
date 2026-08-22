@@ -4,10 +4,10 @@ import { useReducedMotion } from "motion/react";
 import { siteConfig } from "@/config/site";
 
 const itemClassName =
-  "shrink-0 whitespace-nowrap px-10 font-display text-lg italic text-primary/75 sm:px-14 sm:text-xl md:px-16 md:text-2xl";
+  "shrink-0 whitespace-nowrap px-10 font-display text-lg italic text-hero-sand/75 sm:px-14 sm:text-xl md:px-16 md:text-2xl";
 
 const staticItemClassName =
-  "whitespace-nowrap font-display text-lg italic text-primary/75 sm:text-xl md:text-2xl";
+  "whitespace-nowrap font-display text-lg italic text-hero-sand/75 sm:text-xl md:text-2xl";
 
 export function RegionsTicker() {
   const reduceMotion = useReducedMotion();
@@ -16,7 +16,7 @@ export function RegionsTicker() {
   return (
     <section
       aria-label="Zonas de la región"
-      className="border-y border-primary/10 bg-background py-5"
+      className="border-y border-black bg-black py-4"
     >
       {reduceMotion ? (
         <ul className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-center gap-x-8 gap-y-3 px-5 sm:gap-x-12 sm:px-8 md:gap-x-16">

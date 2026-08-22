@@ -26,7 +26,8 @@ import {
   deletePlanAction,
   updatePlanAction,
 } from "@/app/admin/actions";
-import { getAdminCategoryOptions, getAdminPlanById } from "@/lib/db/admin";
+import { CategorySubcategorySelect } from "@/components/admin/CategorySubcategorySelect";
+import { getAdminCategoryOptions, getAdminPlanById, getAdminSubcategoryOptions } from "@/lib/db/admin";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -36,9 +37,10 @@ type PageProps = {
 export default async function EditPlanPage({ params, searchParams }: PageProps) {
   const { id } = await params;
   const { saved } = await searchParams;
-  const [plan, categories] = await Promise.all([
+  const [plan, categories, subcategories] = await Promise.all([
     getAdminPlanById(id),
     getAdminCategoryOptions(),
+    getAdminSubcategoryOptions(),
   ]);
 
   if (!plan) notFound();
@@ -51,23 +53,23 @@ export default async function EditPlanPage({ params, searchParams }: PageProps) 
       />
 
       <AdminPageHeader
-        eyebrow={`${plan.category.title} · Plan`}
+        eyebrow={`${plan.subcategory.category.title} · ${plan.subcategory.title} · Plan`}
         title={plan.title}
         description="Edita el plan y administra sus secciones y galería."
       />
 
       <div className="mb-6 flex flex-wrap gap-3 text-xs uppercase tracking-[0.12em]">
         <Link
-          href={`/portafolio/${plan.category.slug}/${plan.slug}`}
+          href={`/portafolio/${plan.subcategory.category.slug}/${plan.subcategory.slug}/${plan.slug}`}
           className="text-primary hover:opacity-70"
         >
           Ver en el sitio
         </Link>
         <Link
-          href={`/admin/categorias/${plan.categoryId}`}
+          href={`/admin/subcategorias/${plan.subcategoryId}`}
           className="text-muted hover:opacity-70"
         >
-          Ir a categoría
+          Ir a subcategoría
         </Link>
       </div>
 
@@ -79,23 +81,12 @@ export default async function EditPlanPage({ params, searchParams }: PageProps) 
               <h2 className="font-display text-2xl italic">Datos del plan</h2>
               <input type="hidden" name="id" value={plan.id} />
 
-              <label className="flex flex-col gap-2">
-                <span className="text-xs uppercase tracking-[0.12em] text-muted">
-                  Categoría *
-                </span>
-                <select
-                  name="categoryId"
-                  required
-                  defaultValue={plan.categoryId}
-                  className="rounded-sm border border-primary/15 bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
-                >
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.title}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <CategorySubcategorySelect
+                categories={categories}
+                subcategories={subcategories}
+                defaultCategoryId={plan.subcategory.categoryId}
+                defaultSubcategoryId={plan.subcategoryId}
+              />
 
               <AdminField label="Pre título" name="tagline" defaultValue={plan.tagline} />
               <AdminField label="Título" name="title" required defaultValue={plan.title} />

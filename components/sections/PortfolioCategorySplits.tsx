@@ -15,37 +15,42 @@ export type PortfolioCategoryCard = {
   subtitle: string | null;
   description: string | null;
   coverUrl: string | null;
-  plans: Array<{
+  subcategories: Array<{
     id: string;
     slug: string;
     title: string;
     coverUrl: string | null;
+    plans: Array<{ coverUrl: string | null }>;
   }>;
 };
 
 type PortfolioCategorySplitsProps = {
   categories: PortfolioCategoryCard[];
   fillViewport?: boolean;
+  ctaLabel?: string;
 };
 
 export function PortfolioCategorySplits({
   categories,
   fillViewport = false,
+  ctaLabel = "Ver subcategorías",
 }: PortfolioCategorySplitsProps) {
   return (
     <div className="flex flex-col gap-16 sm:gap-20 lg:gap-24">
       {categories.map((category, index) => {
         const imageLeft = index % 2 === 0;
         const href = `/portafolio/${category.slug}`;
+        const firstSubcategory = category.subcategories[0];
         const cover =
           category.coverUrl ??
-          category.plans[0]?.coverUrl ??
+          firstSubcategory?.coverUrl ??
+          firstSubcategory?.plans[0]?.coverUrl ??
           "/images/plans/todo-incluido/cover.png";
-        const thumbs = category.plans
-          .map((plan) => ({
-            id: plan.id,
-            src: plan.coverUrl ?? cover,
-            alt: plan.title,
+        const thumbs = category.subcategories
+          .map((subcategory) => ({
+            id: subcategory.id,
+            src: subcategory.coverUrl ?? subcategory.plans[0]?.coverUrl ?? cover,
+            alt: subcategory.title,
           }))
           .slice(0, 4);
 
@@ -114,15 +119,15 @@ export function PortfolioCategorySplits({
                   />
                 )}
 
-                {category.plans.length > 0 && (
+                {category.subcategories.length > 0 && (
                   <ul className="mt-4 flex flex-wrap gap-2 sm:mt-5">
-                    {category.plans.map((plan) => (
-                      <li key={plan.id}>
+                    {category.subcategories.map((subcategory) => (
+                      <li key={subcategory.id}>
                         <Link
-                          href={`/portafolio/${category.slug}/${plan.slug}`}
+                          href={`/portafolio/${category.slug}/${subcategory.slug}`}
                           className="inline-block rounded-full border border-primary/15 px-3 py-1 text-[0.65rem] uppercase tracking-[0.12em] text-muted transition-colors hover:border-primary/40 hover:text-primary sm:text-xs"
                         >
-                          {plan.title}
+                          {subcategory.title}
                         </Link>
                       </li>
                     ))}
@@ -151,7 +156,7 @@ export function PortfolioCategorySplits({
 
                 <div className="mt-5 sm:mt-6">
                   <Button href={href} variant="filled" className="w-full sm:w-auto">
-                    Ver planes
+                    {ctaLabel}
                   </Button>
                 </div>
                 </PortfolioSplitContent>

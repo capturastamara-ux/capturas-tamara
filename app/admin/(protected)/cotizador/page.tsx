@@ -11,7 +11,7 @@ export default async function AdminCotizadorPage() {
         <AdminPageHeader
           eyebrow="Herramientas"
           title="Cotizador"
-          description="Compara los planes de cada categoría para armar propuestas y cotizaciones."
+          description="Compara los planes de cada categoría (todas sus subcategorías) para armar propuestas."
         />
       </div>
 
