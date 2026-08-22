@@ -3,7 +3,6 @@ import { parseTimeRange } from "@/lib/admin/time-slots";
 
 const PHONE_PATTERN = /^\d{1,10}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const CLIENT_ID_PATTERN = /^\d{6,12}$/;
 
 export type ReservationFormField =
   | "clientName"
@@ -52,13 +51,6 @@ export function validateReservationFormData(
     errors.startTime = reservationConfig.hours.invalidError;
   }
   requiredField(formData.get("clientName"), "clientName", "El nombre es obligatorio.", errors);
-
-  const clientIdNumber = String(formData.get("clientIdNumber") ?? "").trim();
-  if (!clientIdNumber) {
-    errors.clientIdNumber = "La cédula es obligatoria.";
-  } else if (!CLIENT_ID_PATTERN.test(clientIdNumber)) {
-    errors.clientIdNumber = validation.clientIdNumber;
-  }
 
   const clientPhone = String(formData.get("clientPhone") ?? "").trim();
   if (!clientPhone) {

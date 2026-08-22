@@ -413,7 +413,6 @@ export function NewReservationModal({
               value={formatTimeRangeLabel(summary.startTime) || summary.startTime}
             />
             <SummaryRow label="Cliente" value={summary.clientName} />
-            <SummaryRow label="Cédula" value={summary.clientIdNumber} />
             <SummaryRow label="Teléfono" value={summary.clientPhone} />
             <SummaryRow label="Correo" value={summary.clientEmail} />
             <SummaryRow label="Categoría" value={summary.categoryTitle} />

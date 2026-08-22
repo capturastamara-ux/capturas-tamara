@@ -200,17 +200,6 @@ export function ReservationFormFields({
         <FieldError message={fieldErrors?.clientName} />
       </div>
 
-      <div>
-        <AdminField
-          label={reservationConfig.form.clientIdNumberLabel}
-          name="clientIdNumber"
-          required
-          defaultValue={defaults.clientIdNumber}
-          placeholder="Ej. 1234567890"
-        />
-        <FieldError message={fieldErrors?.clientIdNumber} />
-      </div>
-
       <label className="flex flex-col gap-2">
         <span className="text-xs uppercase tracking-[0.12em] text-muted">Teléfono *</span>
         <AdminPhoneField
