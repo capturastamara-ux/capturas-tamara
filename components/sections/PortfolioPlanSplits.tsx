@@ -176,12 +176,11 @@ export function PortfolioPlanSplits({
                     <Button
                       href={reserveHref(plan.title)}
                       external
-                      variant="outline"
+                      variant={isCatalog ? "catalog" : "outline"}
                       className={cn(
                         "w-full sm:w-auto",
-                        isCatalog
-                          ? "border-white/35 text-white hover:border-catalog-gold hover:bg-catalog-gold hover:text-catalog-ink"
-                          : "border-catalog/40 text-catalog hover:border-catalog hover:bg-catalog hover:text-white",
+                        !isCatalog &&
+                          "border-catalog/40 text-catalog hover:border-catalog hover:bg-catalog hover:text-white",
                       )}
                     >
                       {siteConfig.portfolio.reserveLabel}

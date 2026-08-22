@@ -20,8 +20,7 @@ export function AboutIntro() {
         <div className="mt-10">
           <Button
             href={siteConfig.about.cta.href}
-            variant="outline"
-            className="border-white/35 text-white hover:border-catalog-gold hover:bg-catalog-gold hover:text-catalog-ink"
+            variant="catalog"
           >
             {siteConfig.about.cta.label}
           </Button>

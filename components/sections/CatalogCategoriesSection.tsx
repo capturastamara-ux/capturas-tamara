@@ -55,8 +55,7 @@ export function CatalogCategoriesSection({
           <Reveal className="mt-10 flex justify-center sm:mt-12">
             <Button
               href={moreHref}
-              variant="outline"
-              className="border-white/35 text-white hover:border-catalog-gold hover:bg-catalog-gold hover:text-catalog-ink"
+              variant="catalog"
             >
               {moreLabel}
             </Button>

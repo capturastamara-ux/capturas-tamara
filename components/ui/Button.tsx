@@ -4,7 +4,7 @@ import { cn } from "@/lib/cn";
 type ButtonProps = {
   href: string;
   children: React.ReactNode;
-  variant?: "outline" | "filled" | "ghost";
+  variant?: "outline" | "filled" | "ghost" | "catalog";
   className?: string;
   external?: boolean;
 };
@@ -17,13 +17,15 @@ export function Button({
   external,
 }: ButtonProps) {
   const base =
-    "inline-flex items-center justify-center rounded-full px-7 py-3 text-xs font-medium uppercase tracking-[0.12em] transition-all duration-200 hover:-translate-y-0.5 sm:text-sm";
+    "inline-flex w-fit max-w-full items-center justify-center rounded-full px-5 py-3 text-center text-xs font-medium uppercase leading-snug tracking-[0.08em] transition-all duration-200 hover:-translate-y-0.5 sm:px-7 sm:text-sm sm:tracking-[0.12em]";
 
   const variants = {
     outline:
       "border border-primary/30 bg-transparent text-primary hover:border-primary hover:bg-primary hover:text-white",
     filled: "bg-primary text-white hover:bg-primary/90",
     ghost: "text-primary underline-offset-4 hover:underline",
+    catalog:
+      "border border-catalog-gold bg-catalog-gold text-catalog-ink lg:border-white/35 lg:bg-transparent lg:text-white lg:hover:border-catalog-gold lg:hover:bg-catalog-gold lg:hover:text-catalog-ink",
   };
 
   if (external) {

@@ -46,9 +46,8 @@ export function CatalogConditionsSection() {
           <Reveal className="mt-14 flex justify-center">
             <Button
               href={siteConfig.whatsapp.href}
-              variant="outline"
+              variant="catalog"
               external
-              className="border-white/35 text-white hover:border-catalog-gold hover:bg-catalog-gold hover:text-catalog-ink"
             >
               Enviar reserva por WhatsApp
             </Button>

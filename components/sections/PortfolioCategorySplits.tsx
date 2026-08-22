@@ -182,12 +182,8 @@ export function PortfolioCategorySplits({
                 <div className="mt-5 sm:mt-6">
                   <Button
                     href={href}
-                    variant={isCatalog ? "outline" : "filled"}
-                    className={cn(
-                      "w-full sm:w-auto",
-                      isCatalog &&
-                        "border-white/35 text-white hover:border-catalog-gold hover:bg-catalog-gold hover:text-catalog-ink",
-                    )}
+                    variant={isCatalog ? "catalog" : "filled"}
+                    className="w-full sm:w-auto"
                   >
                     {ctaLabel}
                   </Button>
