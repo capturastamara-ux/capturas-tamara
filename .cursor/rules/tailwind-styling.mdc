@@ -1,0 +1,14 @@
+---
+description: Tailwind and brand styling conventions
+globs: "**/*.{tsx,css}"
+alwaysApply: false
+---
+
+# Styling
+
+- Brand colors via CSS variables in `app/globals.css` (`--color-primary`, `--color-accent`).
+- Display font for hero headings; sans for body copy.
+- CTAs: pill shape (`rounded-full`), hover lift (`-translate-y-0.5`).
+- Responsive type with `clamp()` or Tailwind responsive utilities.
+- Avoid magic hex in components — use `bg-primary`, `text-accent`, etc.
+- Respect `@media (prefers-reduced-motion: reduce)`.

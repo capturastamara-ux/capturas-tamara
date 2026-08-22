@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+:root {
+  --color-primary: #1a1a1a;
+  --color-accent: #8b2635;
+  --color-muted: #6b6560;
+  --color-cream: #f5f0eb;
+  --color-surface: #faf8f5;
+  --color-background: #ffffff;
+  --color-foreground: #1a1a1a;
+  --font-body: "Inter", sans-serif;
+  --font-display: "Cormorant Garamond", serif;
+}
+
+@theme inline {
+  --color-primary: #1a1a1a;
+  --color-accent: #8b2635;
+  --color-muted: #6b6560;
+  --color-cream: #f5f0eb;
+  --color-surface: #faf8f5;
+  --color-background: #ffffff;
+  --color-foreground: #1a1a1a;
+  --font-sans: var(--font-body), sans-serif;
+  --font-display: var(--font-display), serif;
+  --animate-marquee: marquee 32s linear infinite;
+}
+
+@utility media-frame {
+  border-radius: 20px;
+  box-shadow:
+    0 4px 14px rgb(26 26 26 / 0.08),
+    0 18px 42px -18px rgb(26 26 26 / 0.22);
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.regions-ticker-mask {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    transparent 18%,
+    black 34%,
+    black 66%,
+    transparent 82%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    transparent 18%,
+    black 34%,
+    black 66%,
+    transparent 82%,
+    transparent 100%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 20%, transparent);
+}
+
+.cotizador-comparison-scroll {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(26 26 26 / 0.22) transparent;
+}
+
+@media (max-width: 639px) {
+  .cotizador-comparison-scroll {
+    mask-image: linear-gradient(
+      to right,
+      black 0,
+      black calc(100% - 22px),
+      transparent 100%
+    );
+  }
+}
+
+@media print {
+  body[data-cotizador-print] aside,
+  body[data-cotizador-print] header,
+  body[data-cotizador-print] footer,
+  body[data-cotizador-print] .cotizador-admin-only,
+  body[data-cotizador-print] .cotizador-public-actions {
+    display: none !important;
+  }
+
+  body[data-cotizador-print] thead {
+    display: table-row-group;
+  }
+
+  body[data-cotizador-print] .lg\:ml-64 {
+    margin-left: 0 !important;
+  }
+
+  body[data-cotizador-print] .cotizador-print-area {
+    border: none !important;
+    padding: 0 !important;
+    background: white !important;
+    margin-top: 0 !important;
+    box-shadow: none !important;
+  }
+
+  body[data-cotizador-print] .cotizador-print-area .cotizador-comparison-scroll {
+    overflow: visible !important;
+    mask-image: none !important;
+  }
+
+  body[data-cotizador-print] main {
+    padding: 0 !important;
+    background: white !important;
+  }
+}

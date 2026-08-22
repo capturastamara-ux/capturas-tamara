@@ -1,0 +1,14 @@
+---
+description: React component architecture
+globs: components/**/*.tsx
+alwaysApply: false
+---
+
+# Components
+
+- `components/layout/` — Header, Footer, MobileDrawer, page shells.
+- `components/sections/` — Hero, ServicesGrid, Gallery, Testimonials, ContactCTA.
+- `components/ui/` — Reusable primitives (Button, Marquee, SectionHeading).
+- Props must be typed; export named functions, not default where possible.
+- Sections receive data from `config/` — never duplicate service/event JSX inline.
+- Reuse one split-hero or card pattern via config objects, not copy-paste.

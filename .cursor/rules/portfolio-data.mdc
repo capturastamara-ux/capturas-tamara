@@ -1,0 +1,14 @@
+---
+description: Prisma portfolio data model for categories and plans
+globs: prisma/**/*.{prisma,ts}
+alwaysApply: false
+---
+
+# Portfolio Data Model
+
+- `Category` — Bodas / 15 años (`slug`, `title`, `published`, `sortOrder`).
+- `Plan` — belongs to one category (`@@unique([categoryId, slug])`).
+- `PlanSection` — bloques de contenido del plan (título, intro, nota, imagen).
+- `PlanGalleryImage` — plan gallery assets.
+- Never hardcode plan copy in components when reading from DB — use `lib/db/portfolio.ts`.
+- Seed with `npm run db:seed`; migrate with `npm run db:migrate`.

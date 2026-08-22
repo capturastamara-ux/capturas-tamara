@@ -1,0 +1,14 @@
+---
+description: Config-driven content for event production landing
+globs: config/**/*.ts
+alwaysApply: false
+---
+
+# Landing Content
+
+- `config/site.ts`: brand, nav, contact, WhatsApp, social, footer.
+- `config/services.ts`: typed catalog (boda, quinceañera, corporativo, social) with slug, title, description, image.
+- `config/gallery.ts`: portfolios grouped by event category.
+- `config/testimonials.ts`: client quotes with event type, date, optional photo.
+- All commercial copy lives in config; components only render.
+- Use `as const` and exported types for nav items and service entries.

@@ -1,0 +1,14 @@
+---
+description: Auth and Supabase login conventions
+globs: "{app/login/**,app/admin/**,app/auth/**,lib/supabase/**,lib/auth/**,middleware.ts}"
+alwaysApply: false
+---
+
+# Auth (patrón CamilaCordoba)
+
+- Login: `/admin/login` → Server Action `signInAdmin` (`app/auth/actions.ts`).
+- Session: cookies vía `@supabase/ssr` (`lib/supabase/{client,server,middleware}.ts`).
+- Middleware solo refresca sesión; **no** protege rutas.
+- Protección: `app/admin/(protected)/layout.tsx` con `isAdmin()` (`profiles.role === 'admin'`).
+- Env: `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` (publishable o anon JWT).
+- SQL: `prisma/supabase/002_profiles_admin.sql` + `insert into profiles (id, role) values ('UUID', 'admin');`

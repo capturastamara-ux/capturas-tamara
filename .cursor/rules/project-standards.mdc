@@ -1,0 +1,15 @@
+---
+description: Core standards for J Montoya event production landing
+alwaysApply: true
+---
+
+# Project Standards
+
+- UI copy and labels in **Spanish** (locale `es_CO`).
+- TypeScript strict mode; no `any` unless unavoidable.
+- Never hardcode URLs, copy, phones, or asset paths in components — use `config/`.
+- One section = one component in `components/sections/`.
+- Use `next/image` for event photos and `next/font` for typography.
+- Accessibility: ARIA on nav, modals, accordions; keyboard Escape closes overlays.
+- Primary CTAs toward WhatsApp or contact form from `siteConfig`.
+- Prefer minimal diffs; match existing patterns before adding abstractions.

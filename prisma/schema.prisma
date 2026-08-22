@@ -1,0 +1,135 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Categoría del portafolio: Bodas o 15 años
+model Category {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  subtitle    String?
+  description String?
+  coverUrl    String?
+  sortOrder   Int      @default(0)
+  published   Boolean  @default(true)
+  plans       Plan[]
+  reservations Reservation[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+/// Plan ofrecido dentro de una categoría (ej. Todo Incluido)
+model Plan {
+  id          String   @id @default(cuid())
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  slug        String
+  title       String
+  tagline     String?
+  price       Int?
+  coverUrl    String?
+  description String?
+  sortOrder   Int      @default(0)
+  published   Boolean  @default(false)
+  sections    PlanSection[]
+  gallery     PlanGalleryImage[]
+  priceTiers  PlanPriceTier[]
+  reservations Reservation[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([categoryId, slug])
+  @@index([categoryId, published, sortOrder])
+}
+
+/// Bloque de contenido del plan (Banquetería, Decoración, etc.)
+model PlanSection {
+  id        String   @id @default(cuid())
+  planId    String
+  plan      Plan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+  title     String
+  intro     String?
+  note      String?
+  imageUrl  String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([planId, sortOrder])
+}
+
+/// Precio del plan según número de invitados (ej. 50 invitados → 10.100.000)
+model PlanPriceTier {
+  id         String   @id @default(cuid())
+  planId     String
+  plan       Plan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+  guestCount Int
+  price      Int
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([planId, sortOrder])
+}
+
+/// Reserva / evento en la agenda del negocio
+model Reservation {
+  id          String            @id @default(cuid())
+  eventDate   DateTime          @db.Date
+  startTime   String?
+  clientName      String
+  clientPhone     String
+  clientEmail     String?
+  clientIdNumber  String?
+  guestCount      Int?
+  eventTitle  String?
+  location    String?
+  notes       String?
+  amountPaid  Int?
+  amountRemaining Int?
+  status      ReservationStatus @default(pending)
+  categoryId  String?
+  category    Category?         @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  planId      String?
+  plan        Plan?             @relation(fields: [planId], references: [id], onDelete: SetNull)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([eventDate, status])
+}
+
+/// Excepción de disponibilidad para un día concreto (abrir o cerrar fuera del horario habitual)
+model AvailabilityOverride {
+  id        String   @id @default(cuid())
+  date      DateTime @unique @db.Date
+  isOpen    Boolean
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ReservationStatus {
+  pending
+  confirmed
+  cancelled
+}
+
+/// Imágenes de galería asociadas al plan
+model PlanGalleryImage {
+  id        String   @id @default(cuid())
+  planId    String
+  plan      Plan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+  url       String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([planId, sortOrder])
+}

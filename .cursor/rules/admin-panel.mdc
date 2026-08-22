@@ -1,0 +1,14 @@
+---
+description: Admin panel conventions for portfolio CRUD
+globs: "{app/admin/**,components/admin/**,lib/db/admin.ts,lib/admin/**}"
+alwaysApply: false
+---
+
+# Admin Panel
+
+- Routes under `/admin` use `AdminShell` (not the public header/footer).
+- CRUD via server actions in `app/admin/actions.ts` + `revalidatePath`.
+- Data access for admin: `lib/db/admin.ts` (includes unpublished).
+- UI copy in Spanish; forms use `components/admin/AdminUi.tsx`.
+- Image fields store public paths/URLs (e.g. `/images/plans/...`) until upload exists.
+- After create/update, keep public `/portafolio` in sync via revalidation.

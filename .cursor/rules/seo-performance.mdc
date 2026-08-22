@@ -1,0 +1,14 @@
+---
+description: SEO and performance for commercial landing pages
+globs: app/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# SEO & Performance
+
+- Full metadata: title, description, OpenGraph, Twitter cards from `siteConfig`.
+- `lang="es"` on `<html>`; add JSON-LD `LocalBusiness` when real contact data exists.
+- Hero LCP image: `priority` + correct `sizes`; gallery images lazy-loaded.
+- Avoid client JS above the fold unless required (nav, carousel).
+- Semantic HTML: one `<h1>` per page, section headings in order.
+- Alt text on all event photos; describe the event, not "imagen 1".
