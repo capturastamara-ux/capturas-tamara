@@ -40,6 +40,7 @@ import {
 import { sendReservationConfirmationEmail } from "@/lib/email/send-reservation-confirmation";
 import { buildReservationContractData } from "@/lib/admin/reservation-contract";
 import { getAdminReservationById } from "@/lib/db/admin";
+import { redirectAfterSave } from "@/lib/admin/return-to";
 
 export type CreateReservationModalResult =
   | { ok: true; emailSent: boolean; emailSentTo?: string; emailError?: string }
@@ -85,7 +86,7 @@ export async function createCategoryAction(formData: FormData) {
   }
 
   revalidatePortfolio();
-  redirect("/admin/categorias");
+  redirectAfterSave(formData, "/admin/categorias", "created");
 }
 
 export async function updateCategoryAction(formData: FormData) {
@@ -117,7 +118,7 @@ export async function updateCategoryAction(formData: FormData) {
   await deleteStoredMedia(removedStorageUrls(existing?.coverUrl, coverUrl));
 
   revalidatePortfolio();
-  redirect(`/admin/categorias/${id}`);
+  redirectAfterSave(formData, "/admin/categorias", "updated");
 }
 
 export async function reorderCategoriesAction(orderedIds: string[]) {
@@ -247,7 +248,7 @@ export async function createSubcategoryAction(formData: FormData) {
   }
 
   revalidatePortfolio();
-  redirect(`/admin/subcategorias/${subcategory.id}`);
+  redirectAfterSave(formData, "/admin/subcategorias", "created");
 }
 
 export async function updateSubcategoryAction(formData: FormData) {
@@ -307,7 +308,7 @@ export async function updateSubcategoryAction(formData: FormData) {
   await deleteStoredMedia(removedStorageUrls(existing?.coverUrl, coverUrl));
 
   revalidatePortfolio();
-  redirect(`/admin/subcategorias/${id}`);
+  redirectAfterSave(formData, "/admin/subcategorias", "updated");
 }
 
 export async function reorderSubcategoriesAction(orderedIds: string[]) {
@@ -411,7 +412,7 @@ export async function createPlanAction(formData: FormData) {
   }
 
   revalidatePortfolio();
-  redirect(`/admin/planes/${plan.id}`);
+  redirectAfterSave(formData, "/admin/planes", "created");
 }
 
 export async function updatePlanAction(formData: FormData) {
@@ -455,7 +456,7 @@ export async function updatePlanAction(formData: FormData) {
   await deleteStoredMedia(removedStorageUrls(existing?.coverUrl, coverUrl));
 
   revalidatePortfolio();
-  redirect("/admin/planes?saved=plan");
+  redirectAfterSave(formData, "/admin/planes", "updated");
 }
 
 export async function deletePlanAction(formData: FormData) {
@@ -867,7 +868,7 @@ export async function createReservationAction(formData: FormData) {
     });
   }
 
-  redirect("/admin/reservas");
+  redirectAfterSave(formData, "/admin/reservas", "created");
 }
 
 export async function updateReservationAction(formData: FormData) {
@@ -907,7 +908,7 @@ export async function updateReservationAction(formData: FormData) {
   });
 
   revalidatePortfolio();
-  redirect(`/admin/reservas/${id}`);
+  redirectAfterSave(formData, "/admin/reservas", "updated");
 }
 
 export async function deleteReservationAction(formData: FormData) {

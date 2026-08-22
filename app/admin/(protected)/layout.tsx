@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import { AdminSavedToast } from "@/components/admin/AdminSavedToast";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { getSessionUser, isAdmin } from "@/lib/auth/admin";
 
@@ -17,5 +19,12 @@ export default async function ProtectedAdminLayout({
 
   const user = await getSessionUser();
 
-  return <AdminShell email={user?.email ?? null}>{children}</AdminShell>;
+  return (
+    <AdminShell email={user?.email ?? null}>
+      <Suspense fallback={null}>
+        <AdminSavedToast />
+      </Suspense>
+      {children}
+    </AdminShell>
+  );
 }

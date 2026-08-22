@@ -16,6 +16,7 @@ import {
   deleteCategoryAction,
   updateCategoryAction,
 } from "@/app/admin/actions";
+import { AdminReturnToField } from "@/components/admin/AdminReturnToField";
 import { flattenTree, nestByParent } from "@/lib/admin/subcategory-tree";
 import { getAdminCategoryById } from "@/lib/db/admin";
 
@@ -42,6 +43,7 @@ export default async function EditCategoryPage({ params }: PageProps) {
           className="space-y-5 rounded-sm border border-primary/10 bg-background p-5 sm:p-6"
         >
           <input type="hidden" name="id" value={category.id} />
+          <AdminReturnToField fallback="/admin/categorias" />
           <AdminField label="Título" name="title" required defaultValue={category.title} />
           <AdminField
             label="Subtítulo"

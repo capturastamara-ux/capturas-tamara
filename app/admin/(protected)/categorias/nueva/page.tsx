@@ -9,6 +9,7 @@ import {
 } from "@/components/admin/UploadFormContext";
 import { AdminRichText } from "@/components/admin/AdminRichText";
 import { MediaUploadField } from "@/components/admin/MediaUploadField";
+import { AdminReturnToField } from "@/components/admin/AdminReturnToField";
 import { createCategoryAction } from "@/app/admin/actions";
 
 export default function NewCategoryPage() {
@@ -24,6 +25,7 @@ export default function NewCategoryPage() {
         action={createCategoryAction}
         className="max-w-2xl space-y-5 rounded-sm border border-primary/10 bg-background p-5 sm:p-6"
       >
+        <AdminReturnToField fallback="/admin/categorias" />
         <AdminField label="Título" name="title" required placeholder="Bodas" />
         <AdminField
           label="Subtítulo"

@@ -6,6 +6,7 @@ import {
 import { AdminConfirmDeleteForm } from "@/components/admin/AdminConfirmDeleteForm";
 import { AdminForm } from "@/components/admin/AdminForm";
 import { PrintReservationContractButton } from "@/components/admin/PrintReservationContractButton";
+import { AdminReturnToField } from "@/components/admin/AdminReturnToField";
 import { ReservationFormFields } from "@/components/admin/ReservationFormFields";
 import {
   deleteReservationAction,
@@ -72,6 +73,7 @@ export default async function EditReservationPage({ params }: Readonly<PageProps
         <div className="rounded-sm border border-primary/10 bg-background p-5 sm:p-6">
           <AdminForm action={updateReservationAction} className="grid gap-4 sm:grid-cols-2">
             <input type="hidden" name="id" value={reservation.id} />
+            <AdminReturnToField fallback="/admin/reservas" />
             <ReservationFormFields
               categories={categories}
               subcategories={withPathLabels(subcategories)}

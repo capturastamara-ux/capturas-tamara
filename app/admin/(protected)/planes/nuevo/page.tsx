@@ -10,6 +10,7 @@ import {
 import { AdminRichText } from "@/components/admin/AdminRichText";
 import { MediaUploadField } from "@/components/admin/MediaUploadField";
 import { AdminPriceField } from "@/components/admin/AdminPriceField";
+import { AdminReturnToField } from "@/components/admin/AdminReturnToField";
 import { CategorySubcategorySelect } from "@/components/admin/CategorySubcategorySelect";
 import { createPlanAction } from "@/app/admin/actions";
 import { withPathLabels } from "@/lib/admin/subcategory-tree";
@@ -55,6 +56,7 @@ export default async function NewPlanPage({ searchParams }: PageProps) {
           action={createPlanAction}
           className="max-w-2xl space-y-5 rounded-sm border border-primary/10 bg-background p-5 sm:p-6"
         >
+          <AdminReturnToField fallback="/admin/planes" />
           <CategorySubcategorySelect
             categories={categories}
             subcategories={withPathLabels(subcategories)}

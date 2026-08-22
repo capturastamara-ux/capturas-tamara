@@ -9,6 +9,7 @@ import {
 } from "@/components/admin/UploadFormContext";
 import { AdminRichText } from "@/components/admin/AdminRichText";
 import { MediaUploadField } from "@/components/admin/MediaUploadField";
+import { AdminReturnToField } from "@/components/admin/AdminReturnToField";
 import { SubcategoryPlacementFields } from "@/components/admin/SubcategoryPlacementFields";
 import { createSubcategoryAction } from "@/app/admin/actions";
 import { getAdminCategoryOptions, getAdminSubcategoryOptions } from "@/lib/db/admin";
@@ -48,6 +49,7 @@ export default async function NewSubcategoryPage({ searchParams }: PageProps) {
           action={createSubcategoryAction}
           className="max-w-2xl space-y-5 rounded-sm border border-catalog/15 bg-background p-5 sm:p-6"
         >
+          <AdminReturnToField fallback="/admin/subcategorias" />
           <SubcategoryPlacementFields
             categories={categories}
             subcategories={subcategories}

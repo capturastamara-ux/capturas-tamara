@@ -14,6 +14,7 @@ import {
 import { AdminRichText } from "@/components/admin/AdminRichText";
 import { MediaUploadField } from "@/components/admin/MediaUploadField";
 import { SubcategoryGalleryField } from "@/components/admin/SubcategoryGalleryField";
+import { AdminReturnToField } from "@/components/admin/AdminReturnToField";
 import { SubcategoryPlacementFields } from "@/components/admin/SubcategoryPlacementFields";
 import {
   deleteSubcategoryAction,
@@ -58,6 +59,7 @@ export default async function EditSubcategoryPage({ params }: PageProps) {
           className="space-y-5 rounded-sm border border-catalog/15 bg-background p-5 sm:p-6"
         >
           <input type="hidden" name="id" value={subcategory.id} />
+          <AdminReturnToField fallback="/admin/subcategorias" />
           <SubcategoryPlacementFields
             categories={categories}
             subcategories={allSubcategories}

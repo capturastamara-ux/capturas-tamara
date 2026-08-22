@@ -14,7 +14,6 @@ import {
 } from "@/components/admin/UploadFormContext";
 import { AdminRichText } from "@/components/admin/AdminRichText";
 import { MediaUploadField } from "@/components/admin/MediaUploadField";
-import { AdminFlashToast } from "@/components/admin/AdminFlashToast";
 import { SectionSortableList } from "@/components/admin/SectionSortableList";
 import { AdminPriceField } from "@/components/admin/AdminPriceField";
 import { PlanFormSaveButton, PlanFormSaveProvider, PlanFormSaveStatusBridge } from "@/components/admin/PlanFormSaveButton";
@@ -23,18 +22,17 @@ import {
   deletePlanAction,
   updatePlanAction,
 } from "@/app/admin/actions";
+import { AdminReturnToField } from "@/components/admin/AdminReturnToField";
 import { CategorySubcategorySelect } from "@/components/admin/CategorySubcategorySelect";
 import { withPathLabels } from "@/lib/admin/subcategory-tree";
 import { getAdminCategoryOptions, getAdminPlanById, getAdminSubcategoryOptions } from "@/lib/db/admin";
 
 type PageProps = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ saved?: string }>;
 };
 
-export default async function EditPlanPage({ params, searchParams }: PageProps) {
+export default async function EditPlanPage({ params }: PageProps) {
   const { id } = await params;
-  const { saved } = await searchParams;
   const [plan, categories, subcategories] = await Promise.all([
     getAdminPlanById(id),
     getAdminCategoryOptions(),
@@ -45,11 +43,6 @@ export default async function EditPlanPage({ params, searchParams }: PageProps) 
 
   return (
     <>
-      <AdminFlashToast
-        message={saved === "section" ? "Guardado correctamente." : null}
-        clearPath={`/admin/planes/${id}`}
-      />
-
       <AdminPageHeader
         eyebrow={`${plan.subcategory.category.title} · ${plan.subcategory.title} · Plan`}
         title={plan.title}
@@ -78,6 +71,7 @@ export default async function EditPlanPage({ params, searchParams }: PageProps) 
             <AdminForm id="plan-form" action={updatePlanAction} className="space-y-5">
               <h2 className="font-display text-2xl italic">Datos del plan</h2>
               <input type="hidden" name="id" value={plan.id} />
+              <AdminReturnToField fallback="/admin/planes" />
 
               <CategorySubcategorySelect
                 categories={categories}
