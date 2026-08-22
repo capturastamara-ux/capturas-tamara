@@ -1,6 +1,7 @@
 import { emailConfig } from "@/config/email";
 import { reservationConfig } from "@/config/reservations";
 import { formatReservationDate } from "@/lib/admin/reservations";
+import { formatTimeRangeLabel } from "@/lib/admin/time-slots";
 import { escapeHtml } from "@/lib/email/escape-html";
 import { formatPlanPrice } from "@/lib/format/price";
 
@@ -8,6 +9,7 @@ export type ReservationConfirmationEmailData = {
   clientName: string;
   clientEmail: string;
   eventDate: Date;
+  startTime?: string | null;
   categoryTitle: string;
   planTitle: string;
   location: string | null;
@@ -48,6 +50,10 @@ export function renderReservationConfirmationEmail(
   const brand = emailConfig.brand;
   const name = firstName(data.clientName);
   const eventDateLabel = formatReservationDate(data.eventDate);
+  const timeLabel = formatTimeRangeLabel(data.startTime);
+  const timeLine = timeLabel
+    ? `<p class="email-text" style="margin:0 0 8px;font-size:14px;line-height:1.5;color:${colors.text};">🕐 ${escapeHtml(timeLabel)}</p>`
+    : "";
   const locationLine = data.location
     ? `<p class="email-text" style="margin:0 0 8px;font-size:14px;line-height:1.5;color:${colors.text};">📍 ${escapeHtml(data.location)}</p>`
     : `<p class="email-text" style="margin:0 0 8px;font-size:14px;line-height:1.5;color:${colors.muted};">📍 Por confirmar</p>`;
@@ -162,6 +168,7 @@ export function renderReservationConfirmationEmail(
                     <p class="email-text" style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:${colors.text};">
                       🗓 ${escapeHtml(eventDateLabel)}
                     </p>
+                    ${timeLine}
                     ${locationLine}
                     <p class="email-text" style="margin:12px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:${colors.text};">
                       <strong>Precio que abona:</strong> ${escapeHtml(formatOptionalPrice(data.amountPaid))}
@@ -205,6 +212,7 @@ export function renderReservationConfirmationText(
   const brand = emailConfig.brand;
   const name = firstName(data.clientName);
   const eventDateLabel = formatReservationDate(data.eventDate);
+  const timeLabel = formatTimeRangeLabel(data.startTime);
 
   return [
     copy.noReplyNotice,
@@ -223,6 +231,7 @@ export function renderReservationConfirmationText(
     "",
     `${data.categoryTitle} · ${data.planTitle}`,
     `Fecha: ${eventDateLabel}`,
+    timeLabel ? `Horario: ${timeLabel}` : null,
     `Lugar: ${data.location ?? "Por confirmar"}`,
     `Precio que abona: ${formatOptionalPrice(data.amountPaid)}`,
     `Lo que resta: ${formatOptionalPrice(data.amountRemaining)}`,

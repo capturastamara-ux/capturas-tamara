@@ -1,4 +1,5 @@
 import { reservationConfig } from "@/config/reservations";
+import { parseTimeRange } from "@/lib/admin/time-slots";
 
 const PHONE_PATTERN = /^\d{1,10}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -13,7 +14,8 @@ export type ReservationFormField =
   | "subcategoryId"
   | "planId"
   | "guestCount"
-  | "eventDate";
+  | "eventDate"
+  | "startTime";
 
 export type ReservationFormErrors = Partial<Record<ReservationFormField, string>>;
 
@@ -42,6 +44,13 @@ export function validateReservationFormData(
   const { validation } = reservationConfig.form;
 
   requiredField(formData.get("eventDate"), "eventDate", "La fecha es obligatoria.", errors);
+
+  const startTime = String(formData.get("startTime") ?? "").trim();
+  if (!startTime) {
+    errors.startTime = reservationConfig.hours.requiredError;
+  } else if (!parseTimeRange(startTime)) {
+    errors.startTime = reservationConfig.hours.invalidError;
+  }
   requiredField(formData.get("clientName"), "clientName", "El nombre es obligatorio.", errors);
 
   const clientIdNumber = String(formData.get("clientIdNumber") ?? "").trim();

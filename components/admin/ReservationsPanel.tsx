@@ -7,6 +7,7 @@ import { toggleDayAvailabilityAction } from "@/app/admin/actions";
 import { ClientsTable } from "@/components/admin/ClientsTable";
 import { ExportClientsButton } from "@/components/admin/ExportClientsButton";
 import { NewReservationModal } from "@/components/admin/NewReservationModal";
+import { DayHoursStrip } from "@/components/admin/ReservationTimePicker";
 import { PrintReservationContractButton } from "@/components/admin/PrintReservationContractButton";
 import {
   type ReservationCategoryOption,
@@ -25,6 +26,7 @@ import {
   toDayKey,
 } from "@/lib/admin/availability";
 import { ReservationStatusBadge } from "@/lib/admin/reservations";
+import { formatTimeRangeLabel, isDayFullyBooked } from "@/lib/admin/time-slots";
 import type { AdminClientRow } from "@/lib/admin/clients";
 import { cn } from "@/lib/cn";
 
@@ -156,10 +158,13 @@ export function ReservationsPanel({
     setViewMonth(next.getUTCMonth());
   }
 
-  function handleDayClick(dayKey: string, hasReservation: boolean) {
+  function handleDayClick(dayKey: string, hasReservation: boolean, isOpen: boolean) {
     const isPast = isPastDayKey(dayKey, todayKey);
     if (isPast && !(activeTab === "reservas" && hasReservation)) return;
     setSelectedDay(dayKey);
+    if (activeTab === "reservas" && isOpen && !isPast) {
+      openReservationModal(dayKey);
+    }
   }
 
   function handleToggleAvailability() {
@@ -367,7 +372,7 @@ export function ReservationsPanel({
                   key={dayKey}
                   type="button"
                   disabled={isPending || !canSelectDay}
-                  onClick={() => handleDayClick(dayKey, isReserved)}
+                  onClick={() => handleDayClick(dayKey, isReserved, availability.isOpen)}
                   className={cn(
                     "relative flex min-h-11 flex-col rounded-sm border p-1 text-left transition-all sm:min-h-20 sm:p-2",
                     canSelectDay &&
@@ -446,6 +451,10 @@ export function ReservationsPanel({
 
               {activeTab === "reservas" && (
                 <>
+                  {selectedAvailability.isOpen && (
+                    <DayHoursStrip occupied={selectedReservations} />
+                  )}
+
                   {selectedReservations.length === 0 ? (
                     <div className="rounded-sm border border-primary/10 bg-surface px-4 py-5">
                       <p className="font-medium">
@@ -479,9 +488,11 @@ export function ReservationsPanel({
                                 {reservation.eventTitle || reservation.clientName}
                               </p>
                               <p className="mt-1 text-sm text-muted">{reservation.clientName}</p>
-                              {reservation.startTime && (
-                                <p className="mt-1 text-sm text-muted">{reservation.startTime}</p>
-                              )}
+                              <p className="mt-1 text-sm text-muted">
+                                {formatTimeRangeLabel(reservation.startTime) ||
+                                  reservation.startTime ||
+                                  reservationConfig.hours.allDayLabel}
+                              </p>
                               {reservation.category && (
                                 <p className="mt-2 text-xs uppercase tracking-[0.12em] text-muted">
                                   {reservation.category.title}
@@ -504,7 +515,9 @@ export function ReservationsPanel({
                           </div>
                         </div>
                       ))}
-                      {selectedAvailability.isOpen && !selectedIsPast && (
+                      {selectedAvailability.isOpen &&
+                        !selectedIsPast &&
+                        !isDayFullyBooked(selectedReservations) && (
                         <button
                           type="button"
                           onClick={() => openReservationModal(selectedDay)}
@@ -563,6 +576,9 @@ export function ReservationsPanel({
       <NewReservationModal
         open={reservationModalOpen}
         eventDate={reservationModalDate}
+        dayReservations={
+          reservationModalDate ? (reservationsByDay.get(reservationModalDate) ?? []) : []
+        }
         categories={categoryOptions}
         subcategories={subcategoryOptions}
         plans={planOptions}

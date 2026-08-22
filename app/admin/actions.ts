@@ -41,6 +41,8 @@ import { sendReservationConfirmationEmail } from "@/lib/email/send-reservation-c
 import { buildReservationContractData } from "@/lib/admin/reservation-contract";
 import { getAdminReservationById } from "@/lib/db/admin";
 import { redirectAfterSave } from "@/lib/admin/return-to";
+import { reservationConfig } from "@/config/reservations";
+import { isRangeAvailable, parseTimeRange } from "@/lib/admin/time-slots";
 
 export type CreateReservationModalResult =
   | { ok: true; emailSent: boolean; emailSentTo?: string; emailError?: string }
@@ -713,6 +715,32 @@ function parseEventDate(value: FormDataEntryValue | null) {
   return new Date(`${text}T12:00:00.000Z`);
 }
 
+async function findReservationTimeConflict(
+  eventDate: Date,
+  startTime: string | null,
+  excludeId?: string,
+) {
+  if (!startTime) return reservationConfig.hours.requiredError;
+
+  const range = parseTimeRange(startTime);
+  if (!range) return reservationConfig.hours.invalidError;
+
+  const existing = await prisma.reservation.findMany({
+    where: {
+      eventDate,
+      status: { not: "cancelled" },
+      ...(excludeId ? { id: { not: excludeId } } : {}),
+    },
+    select: { startTime: true, clientName: true },
+  });
+
+  if (!isRangeAvailable(range, existing)) {
+    return reservationConfig.hours.overlapError;
+  }
+
+  return null;
+}
+
 function parseOptionalId(value: FormDataEntryValue | null) {
   const id = String(value ?? "").trim();
   return id.length > 0 ? id : null;
@@ -772,11 +800,17 @@ async function createReservationFromFormData(formData: FormData) {
   const categoryId = String(formData.get("categoryId") ?? "").trim();
   const subcategoryId = String(formData.get("subcategoryId") ?? "").trim();
   const planId = String(formData.get("planId") ?? "").trim();
+  const eventDate = parseEventDate(formData.get("eventDate"));
+  const startTime = parseOptionalString(formData.get("startTime"));
+  const timeConflict = await findReservationTimeConflict(eventDate, startTime);
+  if (timeConflict) {
+    throw new Error(timeConflict);
+  }
 
   return prisma.reservation.create({
     data: {
-      eventDate: parseEventDate(formData.get("eventDate")),
-      startTime: parseOptionalString(formData.get("startTime")),
+      eventDate,
+      startTime,
       clientName,
       clientPhone,
       clientEmail,
@@ -811,7 +845,24 @@ export async function createReservationModalAction(
     };
   }
 
-  const reservation = await createReservationFromFormData(formData);
+  let reservation;
+  try {
+    reservation = await createReservationFromFormData(formData);
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "No se pudo guardar la reserva.";
+    const isTimeError =
+      message === reservationConfig.hours.overlapError ||
+      message === reservationConfig.hours.requiredError ||
+      message === reservationConfig.hours.invalidError;
+
+    return {
+      ok: false,
+      message,
+      fieldErrors: isTimeError ? { startTime: message } : undefined,
+    };
+  }
+
   revalidatePortfolio();
 
   if (!reservation.clientEmail) {
@@ -822,6 +873,7 @@ export async function createReservationModalAction(
     clientName: reservation.clientName,
     clientEmail: reservation.clientEmail,
     eventDate: reservation.eventDate,
+    startTime: reservation.startTime,
     categoryTitle: reservation.category?.title ?? "—",
     planTitle: reservation.plan?.title ?? "—",
     location: reservation.location,
@@ -859,6 +911,7 @@ export async function createReservationAction(formData: FormData) {
       clientName: reservation.clientName,
       clientEmail: reservation.clientEmail,
       eventDate: reservation.eventDate,
+      startTime: reservation.startTime,
       categoryTitle: reservation.category?.title ?? "—",
       planTitle: reservation.plan?.title ?? "—",
       location: reservation.location,
@@ -885,11 +938,18 @@ export async function updateReservationAction(formData: FormData) {
     throw new Error("Datos incompletos.");
   }
 
+  const eventDate = parseEventDate(formData.get("eventDate"));
+  const startTime = parseOptionalString(formData.get("startTime"));
+  const timeConflict = await findReservationTimeConflict(eventDate, startTime, id);
+  if (timeConflict) {
+    throw new Error(timeConflict);
+  }
+
   await prisma.reservation.update({
     where: { id },
     data: {
-      eventDate: parseEventDate(formData.get("eventDate")),
-      startTime: parseOptionalString(formData.get("startTime")),
+      eventDate,
+      startTime,
       clientName,
       clientPhone,
       clientEmail: parseOptionalString(formData.get("clientEmail")),

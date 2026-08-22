@@ -10,6 +10,7 @@ import {
   type ReservationPlanOption,
   type ReservationSubcategoryOption,
 } from "@/components/admin/ReservationFormFields";
+import { ReservationTimePicker } from "@/components/admin/ReservationTimePicker";
 import { reservationConfig } from "@/config/reservations";
 import { formatDayLabel } from "@/lib/admin/availability";
 import {
@@ -17,12 +18,19 @@ import {
   type ReservationFormErrors,
 } from "@/lib/admin/reservation-form-validation";
 import { syncRichTextBeforeSubmit } from "@/lib/admin/rich-text-form";
+import {
+  formatTimeRangeLabel,
+  isRangeAvailable,
+  parseTimeRange,
+  type OccupiedReservation,
+} from "@/lib/admin/time-slots";
 import { formatPlanPrice } from "@/lib/format/price";
 import { cn } from "@/lib/cn";
 
 type NewReservationModalProps = {
   open: boolean;
   eventDate: string | null;
+  dayReservations: OccupiedReservation[];
   categories: ReservationCategoryOption[];
   subcategories: ReservationSubcategoryOption[];
   plans: ReservationPlanOption[];
@@ -30,8 +38,11 @@ type NewReservationModalProps = {
   onSuccess?: (message: string) => void;
 };
 
+type ReservationStep = "horario" | "datos";
+
 type ReservationSummary = {
   eventDate: string;
+  startTime: string;
   clientName: string;
   clientIdNumber: string;
   clientPhone: string;
@@ -60,6 +71,7 @@ function buildReservationSummary(
 
   return {
     eventDate: String(formData.get("eventDate") ?? ""),
+    startTime: String(formData.get("startTime") ?? "").trim(),
     clientName: String(formData.get("clientName") ?? "").trim(),
     clientIdNumber: String(formData.get("clientIdNumber") ?? "").trim(),
     clientPhone: String(formData.get("clientPhone") ?? "").trim(),
@@ -89,6 +101,7 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 export function NewReservationModal({
   open,
   eventDate,
+  dayReservations,
   categories,
   subcategories,
   plans,
@@ -108,7 +121,12 @@ export function NewReservationModal({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [emailWarning, setEmailWarning] = useState<string | null>(null);
   const [formVersion, setFormVersion] = useState(0);
+  const [step, setStep] = useState<ReservationStep>("horario");
+  const [startTime, setStartTime] = useState<string | null>(null);
+  const [hoursError, setHoursError] = useState<string | null>(null);
   const formKey = `${eventDate ?? "new"}-${formVersion}`;
+  const hoursCopy = reservationConfig.hours;
+  const selectedTimeLabel = formatTimeRangeLabel(startTime);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -146,9 +164,27 @@ export function NewReservationModal({
       setFieldErrors({});
       setSubmitError(null);
       setEmailWarning(null);
-      setEmailWarning(null);
+      setStep("horario");
+      setStartTime(null);
+      setHoursError(null);
     }
   }, [open]);
+
+  function handleContinueFromHours() {
+    const range = parseTimeRange(startTime);
+    if (!startTime || !range) {
+      setHoursError(hoursCopy.requiredError);
+      return;
+    }
+
+    if (!isRangeAvailable(range, dayReservations)) {
+      setHoursError(hoursCopy.overlapError);
+      return;
+    }
+
+    setHoursError(null);
+    setStep("datos");
+  }
 
   function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -185,6 +221,10 @@ export function NewReservationModal({
         }
         setSubmitError(result.message);
         setConfirmOpen(false);
+        if (result.fieldErrors?.startTime) {
+          setHoursError(result.fieldErrors.startTime);
+          setStep("horario");
+        }
         return;
       }
 
@@ -232,10 +272,19 @@ export function NewReservationModal({
           <div>
             <p className="text-xs uppercase tracking-[0.14em] text-muted">Nueva reserva</p>
             <h2 id={titleId} className="mt-1 font-display text-2xl italic sm:text-3xl">
-              Registrar evento
+              {step === "horario" ? hoursCopy.pickerTitle : "Registrar evento"}
             </h2>
             {eventDate && (
               <p className="mt-1 text-sm capitalize text-muted">{formatDayLabel(eventDate)}</p>
+            )}
+            {step === "datos" && selectedTimeLabel && (
+              <button
+                type="button"
+                onClick={() => setStep("horario")}
+                className="mt-2 text-left text-sm text-catalog underline-offset-4 hover:underline"
+              >
+                {selectedTimeLabel} · {hoursCopy.changeTimeLabel}
+              </button>
             )}
           </div>
           <button
@@ -247,6 +296,64 @@ export function NewReservationModal({
             Cerrar
           </button>
         </div>
+
+        <ol className="mt-5 grid grid-cols-2 gap-2 text-xs uppercase tracking-[0.12em]">
+          <li>
+            <button
+              type="button"
+              onClick={() => setStep("horario")}
+              className={cn(
+                "w-full rounded-sm border px-3 py-2 text-left",
+                step === "horario"
+                  ? "border-catalog-gold bg-catalog-gold text-catalog-ink"
+                  : "border-primary/10 bg-surface text-muted hover:border-primary/25",
+              )}
+            >
+              1. {hoursCopy.stepHorario}
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              disabled={!startTime}
+              onClick={() => startTime && setStep("datos")}
+              className={cn(
+                "w-full rounded-sm border px-3 py-2 text-left disabled:cursor-not-allowed",
+                step === "datos"
+                  ? "border-catalog-gold bg-catalog-gold text-catalog-ink"
+                  : "border-primary/10 bg-surface text-muted hover:border-primary/25",
+              )}
+            >
+              2. {hoursCopy.stepDatos}
+            </button>
+          </li>
+        </ol>
+
+        {step === "horario" && (
+          <div className="mt-5">
+            <p className="mb-4 text-sm text-muted">{hoursCopy.pickerHint}</p>
+            <ReservationTimePicker
+              occupied={dayReservations}
+              value={startTime}
+              onChange={(next) => {
+                setStartTime(next);
+                setHoursError(null);
+              }}
+            />
+            {hoursError && (
+              <p className="mt-3 rounded-sm border border-accent/30 bg-accent/5 px-3 py-2 text-sm text-accent">
+                {hoursError}
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={handleContinueFromHours}
+              className="mt-5 inline-flex w-full items-center justify-center rounded-full bg-primary px-5 py-3 text-xs uppercase tracking-[0.12em] text-white transition-transform hover:-translate-y-0.5"
+            >
+              {hoursCopy.continueLabel}
+            </button>
+          </div>
+        )}
 
         {submitError && (
           <p className="mt-4 rounded-sm border border-accent/30 bg-accent/5 px-3 py-2 text-sm text-accent">
@@ -260,22 +367,25 @@ export function NewReservationModal({
           </p>
         )}
 
-        <AdminForm
-          key={formKey}
-          resetOnSuccess
-          className="mt-6 grid gap-4 sm:grid-cols-2"
-          onSubmit={handleFormSubmit}
-        >
-          <ReservationFormFields
-            categories={categories}
-            subcategories={subcategories}
-            plans={plans}
-            defaults={{ eventDate: eventDate ?? "" }}
-            hideEventDateField
-            fieldErrors={fieldErrors}
-            submitLabel="Revisar y confirmar"
-          />
-        </AdminForm>
+        {step === "datos" && (
+          <AdminForm
+            key={formKey}
+            resetOnSuccess
+            className="mt-6 grid gap-4 sm:grid-cols-2"
+            onSubmit={handleFormSubmit}
+          >
+            <input type="hidden" name="startTime" value={startTime ?? ""} />
+            <ReservationFormFields
+              categories={categories}
+              subcategories={subcategories}
+              plans={plans}
+              defaults={{ eventDate: eventDate ?? "", startTime: startTime ?? "" }}
+              hideEventDateField
+              fieldErrors={fieldErrors}
+              submitLabel="Revisar y confirmar"
+            />
+          </AdminForm>
+        )}
 
         {isSubmitting && !confirmOpen && (
           <p className="mt-4 text-center text-xs uppercase tracking-[0.12em] text-muted">
@@ -298,6 +408,10 @@ export function NewReservationModal({
         {summary && (
           <dl className="mt-5">
             <SummaryRow label="Fecha" value={formatDayLabel(summary.eventDate)} />
+            <SummaryRow
+              label={hoursCopy.timeLabel}
+              value={formatTimeRangeLabel(summary.startTime) || summary.startTime}
+            />
             <SummaryRow label="Cliente" value={summary.clientName} />
             <SummaryRow label="Cédula" value={summary.clientIdNumber} />
             <SummaryRow label="Teléfono" value={summary.clientPhone} />

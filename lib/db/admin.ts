@@ -276,6 +276,20 @@ export async function getAdminCalendarData() {
   return { reservations, overrides, categories, subcategories, plans };
 }
 
+export async function getAdminReservationsForDate(eventDate: Date) {
+  return prisma.reservation.findMany({
+    where: {
+      eventDate,
+      status: { not: "cancelled" },
+    },
+    select: {
+      id: true,
+      startTime: true,
+      clientName: true,
+    },
+  });
+}
+
 export async function getAdminClients() {
   const reservations = await prisma.reservation.findMany({
     orderBy: [{ eventDate: "desc" }],

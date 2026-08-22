@@ -8,6 +8,7 @@ import { AdminForm } from "@/components/admin/AdminForm";
 import { PrintReservationContractButton } from "@/components/admin/PrintReservationContractButton";
 import { AdminReturnToField } from "@/components/admin/AdminReturnToField";
 import { ReservationFormFields } from "@/components/admin/ReservationFormFields";
+import { reservationConfig } from "@/config/reservations";
 import {
   deleteReservationAction,
   updateReservationAction,
@@ -19,6 +20,7 @@ import {
   getAdminCategoryOptions,
   getAdminPlanOptions,
   getAdminReservationById,
+  getAdminReservationsForDate,
   getAdminSubcategoryOptions,
 } from "@/lib/db/admin";
 
@@ -28,14 +30,15 @@ type PageProps = {
 
 export default async function EditReservationPage({ params }: Readonly<PageProps>) {
   const { id } = await params;
-  const [reservation, categories, subcategories, plans] = await Promise.all([
-    getAdminReservationById(id),
+  const reservation = await getAdminReservationById(id);
+  if (!reservation) notFound();
+
+  const [categories, subcategories, plans, sameDayReservations] = await Promise.all([
     getAdminCategoryOptions(),
     getAdminSubcategoryOptions(),
     getAdminPlanOptions(),
+    getAdminReservationsForDate(reservation.eventDate),
   ]);
-
-  if (!reservation) notFound();
 
   const contractData = buildReservationContractData({
     clientName: reservation.clientName,
@@ -85,8 +88,13 @@ export default async function EditReservationPage({ params }: Readonly<PageProps
                 category: plan.subcategory.category,
                 price: plan.price,
               }))}
+              showTimePicker
+              occupiedReservations={sameDayReservations.filter(
+                (item) => item.id !== reservation.id,
+              )}
               defaults={{
                 eventDate: toDateInputValue(reservation.eventDate),
+                startTime: reservation.startTime ?? reservationConfig.hours.allDayValue,
                 clientName: reservation.clientName,
                 clientPhone: reservation.clientPhone,
                 clientEmail: reservation.clientEmail ?? "",

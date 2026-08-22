@@ -8,8 +8,10 @@ import {
 } from "@/components/admin/AdminUi";
 import { AdminPriceField } from "@/components/admin/AdminPriceField";
 import { AdminRichText } from "@/components/admin/AdminRichText";
+import { ReservationTimePicker } from "@/components/admin/ReservationTimePicker";
 import { reservationConfig } from "@/config/reservations";
 import type { ReservationFormErrors } from "@/lib/admin/reservation-form-validation";
+import type { OccupiedReservation } from "@/lib/admin/time-slots";
 import { cn } from "@/lib/cn";
 import { formatPlanPrice } from "@/lib/format/price";
 
@@ -37,6 +39,7 @@ export type ReservationPlanOption = {
 
 export type ReservationFormDefaults = {
   eventDate?: string;
+  startTime?: string;
   clientName?: string;
   clientPhone?: string;
   clientEmail?: string;
@@ -61,6 +64,8 @@ type ReservationFormFieldsProps = {
   submitLabel?: string;
   showStatus?: boolean;
   hideEventDateField?: boolean;
+  showTimePicker?: boolean;
+  occupiedReservations?: readonly OccupiedReservation[];
   extraActions?: ReactNode;
 };
 
@@ -78,6 +83,8 @@ export function ReservationFormFields({
   submitLabel = "Guardar reserva",
   showStatus = true,
   hideEventDateField = false,
+  showTimePicker = false,
+  occupiedReservations = [],
   extraActions,
 }: Readonly<ReservationFormFieldsProps>) {
   const inputClassName =
@@ -89,6 +96,7 @@ export function ReservationFormFields({
   const [amountPaidDigits, setAmountPaidDigits] = useState(
     defaults.amountPaid != null ? String(defaults.amountPaid) : "",
   );
+  const [startTime, setStartTime] = useState(defaults.startTime ?? "");
 
   const filteredSubcategories = useMemo(
     () =>
@@ -165,6 +173,21 @@ export function ReservationFormFields({
           />
           <FieldError message={fieldErrors?.eventDate} />
         </label>
+      )}
+
+      {showTimePicker && (
+        <div className="sm:col-span-2">
+          <p className="mb-3 text-xs uppercase tracking-[0.12em] text-muted">
+            {reservationConfig.hours.timeLabel} *
+          </p>
+          <ReservationTimePicker
+            occupied={occupiedReservations}
+            value={startTime || null}
+            onChange={(next) => setStartTime(next ?? "")}
+          />
+          <input type="hidden" name="startTime" value={startTime} />
+          <FieldError message={fieldErrors?.startTime} />
+        </div>
       )}
 
       <div>

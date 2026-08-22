@@ -4,6 +4,7 @@ import {
   formatReservationDateShort,
   ReservationStatusBadge,
 } from "@/lib/admin/reservations";
+import { formatTimeRangeLabel } from "@/lib/admin/time-slots";
 
 type ReservationRow = {
   id: string;
@@ -62,12 +63,16 @@ export function ReservationsTable({ reservations, variant }: Readonly<Reservatio
                     ? formatReservationDate(reservation.eventDate)
                     : formatReservationDateShort(reservation.eventDate)}
                   {isUpcoming && reservation.startTime && (
-                    <p className="mt-1 sm:hidden">{reservation.startTime}</p>
+                    <p className="mt-1 sm:hidden">
+                      {formatTimeRangeLabel(reservation.startTime) || reservation.startTime}
+                    </p>
                   )}
                 </td>
                 {isUpcoming && (
                   <td className="hidden px-4 py-4 align-top sm:table-cell">
-                    {reservation.startTime || "—"}
+                    {formatTimeRangeLabel(reservation.startTime) ||
+                      reservation.startTime ||
+                      "—"}
                   </td>
                 )}
                 <td className="px-4 py-4 align-top">
