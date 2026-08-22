@@ -20,8 +20,8 @@ export const siteConfig = {
     "Fotografía profesional de retratos, 15 años, embarazo, bebés, grados y cumpleaños en Manizales y Villamaría.",
   url: "https://www.capturastamara.com",
   logo: {
-    main: "/images/logo/logo-1.png",
-    isotype: "/images/logo/logo-1.png",
+    main: "/images/logo/logo-3.png",
+    isotype: "/images/logo/logo-3.png",
     wordmark: "CapturasTamara",
     alt: "Logo CapturasTamara",
   },
