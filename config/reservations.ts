@@ -80,7 +80,7 @@ export const reservationConfig = {
     subject: (clientName: string) => `Reserva registrada: ${clientName}`,
     noReplyNotice:
       "Este correo es solo informativo. Por favor no respondas a este mensaje.",
-    motto: "Diseñamos y cubrimos el evento de tus sueños",
+    motto: "Captura tu mejor imagen",
     heading: "¡Reserva registrada!",
     greeting: (name: string) => `Hola ${name},`,
     intro:

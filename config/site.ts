@@ -15,9 +15,9 @@ export type NavItem =
 
 export const siteConfig = {
   name: "CapturasTamara",
-  title: "CapturasTamara | Producción de Eventos",
+  title: "CapturasTamara | Fotografía profesional",
   description:
-    "Producción profesional de bodas, quinceañeras y eventos especiales con rigor operativo y sensibilidad artística.",
+    "Fotografía profesional de retratos, 15 años, embarazo, bebés, grados y cumpleaños en Manizales y Villamaría.",
   url: "https://www.capturastamara.com",
   logo: {
     main: "/images/logo/logo-1.png",
@@ -26,16 +26,18 @@ export const siteConfig = {
     alt: "Logo CapturasTamara",
   },
   hero: {
-    title: "PRODUCCIÓN DE EVENTOS",
-    tagline: "DISEÑAMOS Y CUBRIMOS EL EVENTO DE TUS SUEÑOS.",
-    scrollLabel: "Desplazarse hacia abajo",
+    title: "CAPTURA TU MEJOR IMAGEN",
+    tagline: "FOTOGRAFÍA PROFESIONAL EN MANIZALES Y VILLAMARÍA.",
+    scrollLabel: "Ir a las categorías",
     video: "/images/hero/video-hero-1.mp4",
     poster: "/images/hero/hero-desktop.png",
-    alt: "Celebración de quinceañera con luces, decoración y pista de baile",
+    alt: "Sesión fotográfica profesional CapturasTamara",
   },
   nav: [
     { type: "link", label: "Home", href: "/" },
-    { type: "link", label: "Nosotros", href: "/#nosotros" },
+    { type: "link", label: "Categorías", href: "/#categorias" },
+    { type: "link", label: "Productos", href: "/#productos" },
+    { type: "link", label: "Condiciones", href: "/#condiciones" },
     { type: "link", label: "Portafolio", href: "/portafolio" },
     { type: "link", label: "Iniciar sesión", href: "/admin/login" },
   ] satisfies NavItem[],
@@ -51,22 +53,18 @@ export const siteConfig = {
   regions: [
     "Manizales",
     "Villamaría",
-    "Chinchiná",
-    "Neira",
-    "Palestina",
-    "Santagueda"
   ],
   about: {
     headline:
-      "Diseñamos legados emocionales que trascienden el instante y se convierten en parte de una historia inolvidable.",
-    body: "Contamos con más de 10 años de trayectoria diseñando celebraciones de alto nivel con una visión estratégica global. Nuestro enfoque une el rigor operativo con la sensibilidad de quien ejecuta con el corazón, para dar vida a momentos extraordinarios en cualquier escenario del mundo; pensados para ser recordados como un legado.",
-    cta: { label: "Conoce más", href: "/portafolio" },
+      "Capturamos los momentos que quieres recordar, con calidez y detalle.",
+    body: "En CapturasTamara hacemos fotografía de retratos, 15 años, embarazo, bebés, grados y cumpleaños. Cubrimos Manizales y Villamaría; si tu sesión es por fuera, coordinamos los viáticos contigo.",
+    cta: { label: "Ver categorías", href: "/#categorias" },
   },
   portfolio: {
-    headline: "La clave es hacerlo\ncon el corazón",
+    headline: "Elige la sesión\nque quieres vivir",
     pageTitle: "Portafolio",
     pageIntro:
-      "Explora nuestras categorías y conoce la forma en que damos vida a cada celebración.",
+      "Explora nuestras categorías y conoce cómo retratamos cada momento.",
     planPriceLabel: "Desde",
     planPriceTiersTitle: "Nuestros precios",
     planGuestSuffix: "invitados",
@@ -77,27 +75,28 @@ export const siteConfig = {
     subheadline: "Diseñamos experiencias\ncon intención y significado",
   },
   ctaBanner: {
-    headline:
-      "SÍ, QUIERO: la maestría de diseñar con propósito e intención.",
-    body: "Contamos con más de 10 años de trayectoria diseñando celebraciones de alto nivel con una visión estratégica global. Nuestro enfoque une el rigor operativo con la sensibilidad de quien ejecuta con el corazón, para dar vida a momentos extraordinarios en cualquier escenario del mundo; pensados para ser recordados como un legado.",
-    cta: { label: "Lo quiero", href: "/#contacto" },
+    headline: "Agenda tu sesión y captura tu mejor imagen.",
+    body: "Reserva con el 50% por WhatsApp y elige la categoría que quieres vivir. El material digital se entrega en máximo 2 días.",
+    cta: { label: "Agendar por WhatsApp", href: "/#contacto" },
     image: galleryAssetPaths.cover,
     imageAlt: "Pareja en celebración elegante",
   },
   contact: {
-    headline: "Construyamos juntos el evento de tus sueños",
+    headline: "Agendemos tu sesión fotográfica",
     email: "contacto@capturastamara.com",
     phone: "+57 300 000 0000",
-    city: "Colombia",
+    city: "Manizales, Colombia",
     eventTypes: [
-      "Boda",
-      "Quinceañera",
-      "Evento corporativo",
-      "Evento social",
+      "Retratos",
+      "15 años",
+      "Embarazo",
+      "Bebés",
+      "Grados",
+      "Cumpleaños",
       "Otro",
     ],
     privacyLabel: "Acepto las Políticas de privacidad de CapturasTamara.",
-    submitLabel: "Escribe tu historia",
+    submitLabel: "Quiero agendar",
     image: galleryAssetPaths.gallery01,
     imageAlt: "Detalle de celebración de boda",
   },
@@ -107,7 +106,7 @@ export const siteConfig = {
     facebook: "https://www.facebook.com/capturastamara",
   },
   whatsapp: {
-    label: "Cotizar evento",
+    label: "Agendar sesión",
     href: "https://wa.me/573000000000",
   },
   pwa: {
@@ -128,8 +127,7 @@ export const siteConfig = {
     contactCta: { label: "Solicitar cotización", href: "/#contacto" },
   },
   footer: {
-    quote:
-      "Cada evento es una historia única y mágica, donde los sueños se entrelazan para siempre y cobran vida.",
+    quote: "Captura tu mejor imagen.",
     copyright: "CapturasTamara",
     privacyHref: "/politicas-privacidad",
     privacyLabel: "Políticas de privacidad",

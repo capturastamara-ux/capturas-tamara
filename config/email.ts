@@ -12,7 +12,7 @@ export const emailConfig = {
   notifyTo: siteConfig.contact.email,
   brand: {
     name: siteConfig.name,
-    byline: "PRODUCCIÓN DE EVENTOS",
+    byline: "FOTOGRAFÍA PROFESIONAL",
     /** Ruta relativa en /public — se incrusta en el correo vía CID (no depende del dominio). */
     logoPublicPath: siteConfig.logo.main,
     logoContentId: "logo-capturastamara",
