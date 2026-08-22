@@ -9,6 +9,6 @@ type PageProps = {
 };
 
 export default async function PlanDetailRedirect({ params }: PageProps) {
-  const { categorySlug, planSlug } = await params;
-  redirect(`/portafolio/${categorySlug}#${planSlug}`);
+  const { categorySlug, subcategorySlug, planSlug } = await params;
+  redirect(`/portafolio/${categorySlug}/${subcategorySlug}#${planSlug}`);
 }

@@ -63,12 +63,14 @@ export const siteConfig = {
   about: {
     headline:
       "Capturamos los momentos que quieres recordar, con calidez y detalle.",
-    body: "En CapturasTamara hacemos fotografía de retratos, 15 años, embarazo, bebés, grados y cumpleaños. Cubrimos Manizales y Villamaría; si tu sesión es por fuera, coordinamos los viáticos contigo.",
+    body: "",
     cta: { label: "Ver categorías", href: "/#categorias" },
   },
   portfolio: {
     headline: "Elige la sesión\nque quieres vivir",
     pageTitle: "Portafolio",
+    backLabel: "Categorías",
+    backHref: "/#categorias",
     pageIntro:
       "Explora nuestras categorías y conoce cómo retratamos cada momento.",
     planPriceLabel: "Valor",
@@ -94,7 +96,7 @@ export const siteConfig = {
   contact: {
     headline: "Agendemos tu sesión fotográfica",
     email: "contacto@capturastamara.com",
-    phone: "+57 300 000 0000",
+    phone: "+57 304 471 1872",
     city: "Manizales, Colombia",
     eventTypes: [
       "Retratos",
@@ -116,7 +118,7 @@ export const siteConfig = {
   },
   whatsapp: {
     label: "Agendar sesión",
-    href: "https://wa.me/573000000000",
+    href: "https://wa.me/573044711872",
   },
   pwa: {
     themeColor: "#1a1a1a",

@@ -9,7 +9,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { siteConfig } from "@/config/site";
 import { getCategoryBySlug } from "@/lib/db/portfolio";
 import { richTextToPlainText } from "@/lib/sanitize-rich-text";
-import { PortfolioSubcategoryTree } from "@/components/sections/PortfolioSubcategoryTree";
+import { PortfolioLevelView } from "@/components/sections/PortfolioLevelView";
 
 export const dynamic = "force-dynamic";
 
@@ -51,10 +51,10 @@ export default async function CategorySubcategoriesPage({ params }: PageProps) {
           <div className="mx-auto min-w-0 max-w-[1400px]">
             <Reveal>
               <Link
-                href="/portafolio"
+                href={siteConfig.portfolio.backHref}
                 className="text-[0.65rem] uppercase tracking-[0.14em] text-white/70 transition-colors hover:text-catalog-gold sm:text-xs"
               >
-                ← Portafolio
+                ← {siteConfig.portfolio.backLabel}
               </Link>
             </Reveal>
 
@@ -76,12 +76,10 @@ export default async function CategorySubcategoriesPage({ params }: PageProps) {
             </Reveal>
 
             {category.subcategories.length > 0 ? (
-              <div className="mt-12 sm:mt-16">
-                <PortfolioSubcategoryTree
-                  nodes={category.subcategories}
-                  categoryTitle={category.title}
-                />
-              </div>
+              <PortfolioLevelView
+                categorySlug={category.slug}
+                nodes={category.subcategories}
+              />
             ) : (
               <p className="mt-10 text-white/70">
                 Aún no hay subcategorías publicadas en {category.title}.

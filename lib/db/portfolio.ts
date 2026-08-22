@@ -86,6 +86,32 @@ export async function getCategoryBySlug(slug: string) {
   };
 }
 
+function findSubcategoryNode<T extends { slug: string; title: string; children: T[] }>(
+  nodes: T[],
+  slug: string,
+  parent: T | null = null,
+): { node: T; parent: T | null } | null {
+  for (const node of nodes) {
+    if (node.slug === slug) return { node, parent };
+    const nested = findSubcategoryNode(node.children, slug, node);
+    if (nested) return nested;
+  }
+  return null;
+}
+
+export async function getPublishedSubcategoryBranch(
+  categorySlug: string,
+  subcategorySlug: string,
+) {
+  const category = await getCategoryBySlug(categorySlug);
+  if (!category) return null;
+
+  const match = findSubcategoryNode(category.subcategories, subcategorySlug);
+  if (!match) return null;
+
+  return { category, node: match.node, parent: match.parent };
+}
+
 export async function getSubcategoryBySlugs(
   categorySlug: string,
   subcategorySlug: string,

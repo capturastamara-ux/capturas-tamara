@@ -29,10 +29,21 @@ export type PortfolioSubcategoryNode = {
   id: string;
   slug: string;
   title: string;
+  coverUrl: string | null;
   gallery: GalleryImage[];
   plans: PlanCard[];
   children: PortfolioSubcategoryNode[];
 };
+
+export function subcategoryCoverUrl(node: PortfolioSubcategoryNode): string | null {
+  return (
+    node.coverUrl ??
+    node.plans[0]?.coverUrl ??
+    node.gallery[0]?.url ??
+    node.children.map(subcategoryCoverUrl).find(Boolean) ??
+    null
+  );
+}
 
 type PortfolioSubcategoryTreeProps = {
   nodes: PortfolioSubcategoryNode[];
