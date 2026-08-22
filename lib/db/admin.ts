@@ -258,10 +258,7 @@ export async function getAdminCalendarData() {
           category: { select: { title: true } },
         },
       },
-      priceTiers: {
-        orderBy: { sortOrder: "asc" },
-        select: { guestCount: true, price: true },
-      },
+      price: true,
     },
   });
 
@@ -309,10 +306,6 @@ export async function getAdminReservationById(id: string) {
               categoryId: true,
             },
           },
-          priceTiers: {
-            orderBy: { sortOrder: "asc" },
-            select: { guestCount: true, price: true },
-          },
           sections: {
             orderBy: { sortOrder: "asc" },
             select: { title: true, intro: true },
@@ -341,10 +334,7 @@ export async function getAdminPlanOptions() {
           category: { select: { title: true } },
         },
       },
-      priceTiers: {
-        orderBy: { sortOrder: "asc" },
-        select: { guestCount: true, price: true },
-      },
+      price: true,
     },
   });
 }

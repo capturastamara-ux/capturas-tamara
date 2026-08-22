@@ -9,7 +9,7 @@ import {
 } from "@/components/admin/UploadFormContext";
 import { AdminRichText } from "@/components/admin/AdminRichText";
 import { MediaUploadField } from "@/components/admin/MediaUploadField";
-import { AdminPriceTierList } from "@/components/admin/AdminPriceTierList";
+import { AdminPriceField } from "@/components/admin/AdminPriceField";
 import { CategorySubcategorySelect } from "@/components/admin/CategorySubcategorySelect";
 import { createPlanAction } from "@/app/admin/actions";
 import { getAdminCategoryOptions, getAdminSubcategoryOptions } from "@/lib/db/admin";
@@ -67,9 +67,7 @@ export default async function NewPlanPage({ searchParams }: PageProps) {
             placeholder="Hacemos las cosas con el corazón"
           />
           <AdminField label="Título" name="title" required placeholder="Todo Incluido" />
-          <div className="sm:col-span-2">
-            <AdminPriceTierList />
-          </div>
+          <AdminPriceField label="Precio" name="price" required />
           <AdminRichText
             label="Descripción"
             name="description"

@@ -1,9 +1,7 @@
 import { RichTextContent } from "@/components/ui/RichTextContent";
-import { PlanPriceTierSummary } from "@/components/ui/PlanPricing";
 import { formatPlanPrice } from "@/lib/format/price";
 import { getComparisonColumnLayout } from "@/lib/cotizador/layout";
 import { getComparisonSectionTitles } from "@/lib/cotizador/sections";
-import { getPriceForGuestCount } from "@/lib/plans/price-tiers";
 import type { ComparisonPlan } from "@/lib/cotizador/types";
 import { cn } from "@/lib/cn";
 
@@ -35,7 +33,6 @@ export function PlanComparisonTable({
 }: Readonly<PlanComparisonTableProps>) {
   const sectionTitles = getComparisonSectionTitles(plans);
   const showDraftBadge = variant === "admin";
-  const showSingleTierPrice = selectedGuestCount != null;
   const { tableMinWidth, labelWidthPx, planWidthPx } =
     getComparisonColumnLayout(plans.length);
 
@@ -109,23 +106,7 @@ export function PlanComparisonTable({
                 )}
                 style={{ minWidth: planWidthPx }}
               >
-                {showSingleTierPrice ? (
-                  (() => {
-                    const tierPrice = getPriceForGuestCount(
-                      plan.priceTiers,
-                      selectedGuestCount,
-                    );
-                    if (tierPrice != null) {
-                      return formatPlanPrice(tierPrice);
-                    }
-                    if (plan.priceTiers.length === 0 && plan.price != null) {
-                      return formatPlanPrice(plan.price);
-                    }
-                    return <span className="font-normal text-muted">—</span>;
-                  })()
-                ) : plan.priceTiers.length > 0 ? (
-                  <PlanPriceTierSummary priceTiers={plan.priceTiers} />
-                ) : plan.price != null ? (
+                {plan.price != null ? (
                   formatPlanPrice(plan.price)
                 ) : (
                   <span className="font-normal text-muted">—</span>

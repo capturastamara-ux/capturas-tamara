@@ -1,5 +1,3 @@
-import { getPriceForGuestCount } from "@/lib/plans/price-tiers";
-
 export type ReservationContractData = {
   clientName: string;
   clientIdNumber: string | null;
@@ -37,7 +35,6 @@ export function buildReservationContractData(input: {
     tagline: string | null;
     description: string | null;
     price: number | null;
-    priceTiers: Array<{ guestCount: number; price: number }>;
     sections: Array<{ title: string; intro: string | null }>;
   } | null;
 }): ReservationContractData {
@@ -55,10 +52,7 @@ export function buildReservationContractData(input: {
     year: "numeric",
   }).format(new Date());
 
-  const planPrice =
-    input.plan && input.guestCount != null
-      ? getPriceForGuestCount(input.plan.priceTiers, input.guestCount) ?? input.plan.price
-      : input.plan?.price ?? null;
+  const planPrice = input.plan?.price ?? null;
 
   return {
     clientName: input.clientName,

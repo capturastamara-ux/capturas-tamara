@@ -12,7 +12,7 @@ export default async function AdminDashboardPage() {
       <AdminPageHeader
         eyebrow="Panel"
         title="Inicio"
-        description="Gestiona categorías, planes, reservas y cotizaciones."
+        description="Gestiona categorías, subcategorías, planes y reservas."
       />
 
       <div className="mb-4 text-sm text-muted">Auth: Supabase</div>
@@ -45,13 +45,6 @@ export default async function AdminDashboardPage() {
         >
           <p className="font-display text-2xl italic text-catalog-ink">Reservas</p>
           <p className="mt-2 text-sm text-muted">Agenda de eventos y clientes.</p>
-        </Link>
-        <Link
-          href="/admin/cotizador"
-          className="rounded-sm border border-catalog/15 bg-background p-5 transition-colors hover:border-catalog/30 hover:bg-cream"
-        >
-          <p className="font-display text-2xl italic text-catalog-ink">Cotizador</p>
-          <p className="mt-2 text-sm text-muted">Compara planes por categoría.</p>
         </Link>
       </div>
 

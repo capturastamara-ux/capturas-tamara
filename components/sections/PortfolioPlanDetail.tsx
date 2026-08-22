@@ -15,11 +15,6 @@ type PlanDetail = {
   title: string;
   tagline: string | null;
   price: number | null;
-  priceTiers: Array<{
-    id: string;
-    guestCount: number;
-    price: number;
-  }>;
   coverUrl: string | null;
   description: string | null;
   sections: Array<{
@@ -102,7 +97,6 @@ export function PortfolioPlanDetail({ plan }: PortfolioPlanDetailProps) {
             </SectionHeading>
             <PlanPricing
               price={plan.price}
-              priceTiers={plan.priceTiers}
               variant="compact"
               className="mt-4 sm:mt-5"
             />

@@ -43,7 +43,7 @@ export default async function AdminReservationsPage({ searchParams }: Readonly<P
         categoryId: plan.subcategory.categoryId,
         subcategoryId: plan.subcategoryId,
         category: plan.subcategory.category,
-        priceTiers: plan.priceTiers,
+        price: plan.price,
       }))}
       clients={clients}
       initialNewReservationDate={nueva}

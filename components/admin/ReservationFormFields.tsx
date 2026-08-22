@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { AdminPhoneField } from "@/components/admin/AdminPhoneField";
 import {
   AdminField,
@@ -9,11 +9,9 @@ import {
 import { AdminPriceField } from "@/components/admin/AdminPriceField";
 import { AdminRichText } from "@/components/admin/AdminRichText";
 import { reservationConfig } from "@/config/reservations";
-import { siteConfig } from "@/config/site";
 import type { ReservationFormErrors } from "@/lib/admin/reservation-form-validation";
 import { cn } from "@/lib/cn";
 import { formatPlanPrice } from "@/lib/format/price";
-import { getPriceForGuestCount } from "@/lib/plans/price-tiers";
 
 export type ReservationCategoryOption = {
   id: string;
@@ -33,7 +31,7 @@ export type ReservationPlanOption = {
   categoryId: string;
   subcategoryId: string;
   category: { title: string };
-  priceTiers: Array<{ guestCount: number; price: number }>;
+  price: number | null;
 };
 
 export type ReservationFormDefaults = {
@@ -81,16 +79,12 @@ export function ReservationFormFields({
   hideEventDateField = false,
   extraActions,
 }: Readonly<ReservationFormFieldsProps>) {
-  const guestCountFieldId = useId();
   const inputClassName =
     "rounded-sm border border-primary/15 bg-background px-3 py-2.5 text-sm outline-none transition-colors focus:border-primary";
 
   const [categoryId, setCategoryId] = useState(defaults.categoryId ?? "");
   const [subcategoryId, setSubcategoryId] = useState(defaults.subcategoryId ?? "");
   const [planId, setPlanId] = useState(defaults.planId ?? "");
-  const [guestCount, setGuestCount] = useState<number | "">(
-    defaults.guestCount ?? "",
-  );
   const [amountPaidDigits, setAmountPaidDigits] = useState(
     defaults.amountPaid != null ? String(defaults.amountPaid) : "",
   );
@@ -116,18 +110,7 @@ export function ReservationFormFields({
     [planId, plans],
   );
 
-  const guestCountOptions = useMemo(
-    () =>
-      [...(selectedPlan?.priceTiers ?? [])]
-        .sort((a, b) => a.guestCount - b.guestCount)
-        .map((tier) => tier.guestCount),
-    [selectedPlan],
-  );
-
-  const selectedPlanPrice = useMemo(() => {
-    if (guestCount === "") return null;
-    return getPriceForGuestCount(selectedPlan?.priceTiers ?? [], guestCount);
-  }, [guestCount, selectedPlan]);
+  const selectedPlanPrice = selectedPlan?.price ?? null;
 
   const amountRemaining = useMemo(() => {
     if (selectedPlanPrice == null) return null;
@@ -151,18 +134,6 @@ export function ReservationFormFields({
       setPlanId("");
     }
   }, [filteredPlans, planId, subcategoryId]);
-
-  useEffect(() => {
-    if (guestCountOptions.length === 0) {
-      setGuestCount("");
-      return;
-    }
-
-    const current = guestCount === "" ? null : guestCount;
-    if (current == null || !guestCountOptions.includes(current)) {
-      setGuestCount(guestCountOptions[0] ?? "");
-    }
-  }, [guestCount, guestCountOptions, planId]);
 
   function handleCategoryChange(nextCategoryId: string) {
     setCategoryId(nextCategoryId);
@@ -305,46 +276,6 @@ export function ReservationFormFields({
       </label>
 
       <div className="grid gap-4 sm:col-span-2 sm:grid-cols-2">
-        {guestCountOptions.length > 0 ? (
-          <label htmlFor={guestCountFieldId} className="flex flex-col gap-2">
-            <span className="text-xs uppercase tracking-[0.12em] text-muted">
-              {reservationConfig.form.guestCountLabel} *
-            </span>
-            <select
-              id={guestCountFieldId}
-              name="guestCount"
-              required
-              value={guestCount === "" ? guestCountOptions[0] : guestCount}
-              onChange={(event) =>
-                setGuestCount(Number.parseInt(event.target.value, 10))
-              }
-              className={cn(inputClassName, fieldErrors?.guestCount && "border-accent/50")}
-            >
-              {guestCountOptions.map((count) => (
-                <option key={count} value={count}>
-                  {count.toLocaleString("es-CO")} {siteConfig.portfolio.planGuestSuffix}
-                </option>
-              ))}
-            </select>
-            <FieldError message={fieldErrors?.guestCount} />
-          </label>
-        ) : (
-          <label className="flex flex-col gap-2">
-            <span className="text-xs uppercase tracking-[0.12em] text-muted">
-              {reservationConfig.form.guestCountLabel}
-            </span>
-            <input
-              type="number"
-              name="guestCount"
-              min={1}
-              step={1}
-              defaultValue={defaults.guestCount ?? ""}
-              placeholder="Ej. 100"
-              className={inputClassName}
-            />
-          </label>
-        )}
-
         <div className="flex flex-col gap-2">
           <span className="text-xs uppercase tracking-[0.12em] text-muted">
             {reservationConfig.form.planPriceLabel}

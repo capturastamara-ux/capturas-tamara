@@ -16,7 +16,6 @@ import {
   nextSubcategorySortOrder,
   parseOptionalString,
   parseOptionalPrice,
-  parsePriceTiersJson,
   parseRichTextOptional,
   parsePublished,
   parseSortOrder,
@@ -39,10 +38,6 @@ import {
 import { sendReservationConfirmationEmail } from "@/lib/email/send-reservation-confirmation";
 import { buildReservationContractData } from "@/lib/admin/reservation-contract";
 import { getAdminReservationById } from "@/lib/db/admin";
-import {
-  getMinPriceFromTiers,
-  normalizePriceTiers,
-} from "@/lib/plans/price-tiers";
 
 export type CreateReservationModalResult =
   | { ok: true; emailSent: boolean; emailSentTo?: string; emailError?: string }
@@ -310,10 +305,7 @@ export async function createPlanAction(formData: FormData) {
   const slug = await uniquePlanSlug(subcategoryId, title);
 
   const coverUrl = parseOptionalString(formData.get("coverUrl"));
-  const priceTiers = normalizePriceTiers(
-    parsePriceTiersJson(formData.get("priceTiers")),
-  );
-  const planPrice = getMinPriceFromTiers(priceTiers);
+  const planPrice = parseOptionalPrice(formData.get("price"));
 
   let plan;
   try {
@@ -328,13 +320,6 @@ export async function createPlanAction(formData: FormData) {
         coverUrl,
         sortOrder: await nextPlanSortOrder(subcategoryId),
         published: parsePublished(formData.get("published")),
-        priceTiers: {
-          create: priceTiers.map((tier, index) => ({
-            guestCount: tier.guestCount,
-            price: tier.price,
-            sortOrder: index,
-          })),
-        },
       },
     });
   } catch (error) {
@@ -360,10 +345,7 @@ export async function updatePlanAction(formData: FormData) {
     select: { coverUrl: true, subcategoryId: true },
   });
   const coverUrl = parseOptionalString(formData.get("coverUrl"));
-  const priceTiers = normalizePriceTiers(
-    parsePriceTiersJson(formData.get("priceTiers")),
-  );
-  const planPrice = getMinPriceFromTiers(priceTiers);
+  const planPrice = parseOptionalPrice(formData.get("price"));
   const subcategoryChanged = existing?.subcategoryId !== subcategoryId;
   const sortOrder = subcategoryChanged
     ? await nextPlanSortOrder(subcategoryId)
@@ -371,16 +353,6 @@ export async function updatePlanAction(formData: FormData) {
 
   await prisma.$transaction([
     prisma.planPriceTier.deleteMany({ where: { planId: id } }),
-    ...priceTiers.map((tier, index) =>
-      prisma.planPriceTier.create({
-        data: {
-          planId: id,
-          guestCount: tier.guestCount,
-          price: tier.price,
-          sortOrder: index,
-        },
-      }),
-    ),
     prisma.plan.update({
       where: { id },
       data: {

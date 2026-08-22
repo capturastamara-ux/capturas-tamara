@@ -80,7 +80,7 @@ export default async function EditReservationPage({ params }: Readonly<PageProps
                 categoryId: plan.subcategory.categoryId,
                 subcategoryId: plan.subcategoryId,
                 category: plan.subcategory.category,
-                priceTiers: plan.priceTiers,
+                price: plan.price,
               }))}
               defaults={{
                 eventDate: toDateInputValue(reservation.eventDate),

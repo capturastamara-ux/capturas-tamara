@@ -12,7 +12,6 @@ const links = [
   { href: "/admin/subcategorias", label: "Subcategorías" },
   { href: "/admin/planes", label: "Planes" },
   { href: "/admin/reservas", label: "Reservas" },
-  { href: "/admin/cotizador", label: "Cotizador" },
 ] as const;
 
 type AdminShellProps = {

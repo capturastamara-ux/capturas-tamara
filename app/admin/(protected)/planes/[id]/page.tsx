@@ -17,7 +17,7 @@ import { AdminRichText } from "@/components/admin/AdminRichText";
 import { MediaUploadField } from "@/components/admin/MediaUploadField";
 import { AdminFlashToast } from "@/components/admin/AdminFlashToast";
 import { SectionSortableList } from "@/components/admin/SectionSortableList";
-import { AdminPriceTierList } from "@/components/admin/AdminPriceTierList";
+import { AdminPriceField } from "@/components/admin/AdminPriceField";
 import { PlanFormSaveButton, PlanFormSaveProvider, PlanFormSaveStatusBridge } from "@/components/admin/PlanFormSaveButton";
 import {
   createGalleryImageAction,
@@ -90,16 +90,13 @@ export default async function EditPlanPage({ params, searchParams }: PageProps) 
 
               <AdminField label="Pre título" name="tagline" defaultValue={plan.tagline} />
               <AdminField label="Título" name="title" required defaultValue={plan.title} />
-              <div className="sm:col-span-2">
-                <AdminPriceTierList
-                  formId="plan-form"
-                  defaultTiers={plan.priceTiers.map((tier) => ({
-                    id: tier.id,
-                    guestCount: tier.guestCount,
-                    price: tier.price,
-                  }))}
-                />
-              </div>
+              <AdminPriceField
+                formId="plan-form"
+                label="Precio"
+                name="price"
+                required
+                defaultValue={plan.price}
+              />
               <AdminRichText
                 label="Descripción"
                 name="description"
