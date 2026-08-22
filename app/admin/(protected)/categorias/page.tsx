@@ -10,7 +10,7 @@ export default async function AdminCategoriesPage() {
       <AdminPageHeader
         eyebrow="Portafolio"
         title="Categorías"
-        description="Bodas, 15 años y cualquier categoría nueva que quieras ofrecer."
+        description="Retratos, 15 años, embarazo y cualquier categoría nueva que quieras ofrecer. Lo publicado aparece en la landing."
         action={{ href: "/admin/categorias/nueva", label: "Nueva categoría" }}
       />
 

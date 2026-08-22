@@ -8,6 +8,10 @@
   --color-surface: #faf8f5;
   --color-background: #ffffff;
   --color-foreground: #1a1a1a;
+  --color-catalog: #3d6e75;
+  --color-catalog-mid: #6a9a94;
+  --color-catalog-gold: #f0d000;
+  --color-catalog-ink: #12324a;
   --font-body: "Inter", sans-serif;
   --font-display: "Cormorant Garamond", serif;
 }
@@ -20,6 +24,10 @@
   --color-surface: #faf8f5;
   --color-background: #ffffff;
   --color-foreground: #1a1a1a;
+  --color-catalog: #3d6e75;
+  --color-catalog-mid: #6a9a94;
+  --color-catalog-gold: #f0d000;
+  --color-catalog-ink: #12324a;
   --font-sans: var(--font-body), sans-serif;
   --font-display: var(--font-display), serif;
   --animate-marquee: marquee 32s linear infinite;
@@ -30,6 +38,13 @@
   box-shadow:
     0 4px 14px rgb(26 26 26 / 0.08),
     0 18px 42px -18px rgb(26 26 26 / 0.22);
+}
+
+@utility catalog-grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  mix-blend-mode: overlay;
+  opacity: 0.14;
 }
 
 @keyframes marquee {

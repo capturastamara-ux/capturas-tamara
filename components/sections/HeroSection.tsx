@@ -76,7 +76,7 @@ export function HeroSection() {
         transition={{ duration: 0.7, delay: 0.9, ease }}
       >
         <Link
-          href="/#nosotros"
+          href="/#categorias"
           aria-label={siteConfig.hero.scrollLabel}
           className="flex h-11 w-11 items-center justify-center rounded-full border border-white/70 text-white transition-transform hover:translate-y-0.5 hover:border-white"
         >

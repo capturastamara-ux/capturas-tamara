@@ -51,8 +51,14 @@ export const siteConfig = {
     redirectTo: "/admin",
   },
   regions: [
-    "Manizales",
-    "Villamaría",
+    "15 años",
+    "Maternidad",
+    "Bebés",
+    "Grados",
+    "Cumpleaños",
+    "Reencuentros",
+    "Familia",
+    "Eventos"
   ],
   about: {
     headline:

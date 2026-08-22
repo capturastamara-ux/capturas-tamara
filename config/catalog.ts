@@ -7,6 +7,7 @@ export type CatalogPriceRow = {
 
 export type CatalogProduct = {
   id: string;
+  eyebrow: string;
   title: string;
   subtitle: string;
   images: ReadonlyArray<{ src: string; alt: string }>;
@@ -16,14 +17,16 @@ export type CatalogProduct = {
 export const catalogConfig = {
   categories: {
     id: "categorias",
-    heading: "Dale CLICK a la categoría de tu interés",
+    eyebrow: "Sesiones",
+    heading: "Elige la categoría de tu interés",
     empty:
       "Aún no hay categorías publicadas. Agrégalas desde el panel de administración.",
   },
   products: [
     {
       id: "retablos",
-      title: "RETABLOS EN MADERA",
+      eyebrow: "Impresión premium",
+      title: "Retablos en madera",
       subtitle: "Tamaño y valor de impresión en madera",
       images: [
         {
@@ -52,7 +55,8 @@ export const catalogConfig = {
     },
     {
       id: "impresiones",
-      title: "IMPRESIONES",
+      eyebrow: "Papel fotográfico",
+      title: "Impresiones",
       subtitle: "Tamaño y valor de impresión en papel",
       images: [
         {
@@ -80,23 +84,46 @@ export const catalogConfig = {
   ] as const satisfies ReadonlyArray<CatalogProduct>,
   conditions: {
     id: "condiciones",
-    title: "CONDICIONES",
+    eyebrow: "Reserva",
+    title: "Condiciones",
     items: [
-      "El material visual digital se entrega en máx. 2 días; impresiones o retablo de madera en máx. 5 días después de haber realizado la sesión.",
-      "Debe reservar con el 50% de la sesión y el otro 50% una vez entregado el material físico si es el caso; de lo contrario deberá cancelar el otro 50% una vez finalizada la sesión.",
-      "Se cubre todo Manizales y Villamaría. Si es por fuera de estas, los viáticos corren por cuenta del cliente (desplazamiento, comida y hospedaje de ser el caso).",
-      "Si desea fotos en formato digital adicionales al paquete contratado, tendrá un costo de $4.000 cada una.",
-      "Se envían todas las fotos tomadas en la sesión y usted escoge la cantidad de fotos del paquete que contrató para su respectiva edición en posproducción.",
-      "El material puede ser usado como parte del portafolio y contenido publicitario del fotógrafo.",
-      "Recuerda enviarnos un pantallazo a nuestro WhatsApp del 50% para agendar tu reserva.",
+      {
+        title: "Entrega",
+        body: "El material visual digital se entrega en máx. 2 días; impresiones o retablo de madera en máx. 5 días después de haber realizado la sesión.",
+      },
+      {
+        title: "Anticipo",
+        body: "Debe reservar con el 50% de la sesión y el otro 50% una vez entregado el material físico si es el caso; de lo contrario deberá cancelar el otro 50% una vez finalizada la sesión.",
+      },
+      {
+        title: "Cobertura",
+        body: "Se cubre todo Manizales y Villamaría. Si es por fuera de estas, los viáticos corren por cuenta del cliente (desplazamiento, comida y hospedaje de ser el caso).",
+      },
+      {
+        title: "Fotos extra",
+        body: "Si desea fotos en formato digital adicionales al paquete contratado, tendrá un costo de $4.000 cada una.",
+      },
+      {
+        title: "Selección",
+        body: "Se envían todas las fotos tomadas en la sesión y usted escoge la cantidad de fotos del paquete que contrató para su respectiva edición en posproducción.",
+      },
+      {
+        title: "Uso de imagen",
+        body: "El material puede ser usado como parte del portafolio y contenido publicitario del fotógrafo.",
+      },
+      {
+        title: "Confirmación",
+        body: "Recuerda enviarnos un pantallazo a nuestro WhatsApp del 50% para agendar tu reserva.",
+      },
     ],
   },
   payments: {
     id: "pagos",
-    title: "MEDIOS DE PAGO",
+    eyebrow: "Reserva",
+    title: "Medios de pago",
     accounts: [
-      { label: "Ahorros", number: "0852-7005-8044" },
-      { label: "Ahorros", number: "373-699651-24" },
+      { label: "Cuenta de ahorros", number: "0852-7005-8044" },
+      { label: "Cuenta de ahorros", number: "373-699651-24" },
     ],
   },
 } as const;

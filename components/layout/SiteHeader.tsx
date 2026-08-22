@@ -33,7 +33,7 @@ export function SiteHeader({ variant = "overlay" }: SiteHeaderProps) {
 
         <nav
           aria-label="Navegación principal"
-          className="hidden items-center gap-1 lg:flex"
+          className="hidden items-center gap-0.5 lg:flex xl:gap-1"
         >
           {siteConfig.nav.map((item) => {
             const [rawPath, hash] = item.href.split("#");
@@ -51,7 +51,7 @@ export function SiteHeader({ variant = "overlay" }: SiteHeaderProps) {
                 key={item.label}
                 href={item.href}
                 className={cn(
-                  "px-3.5 py-2 text-[11px] uppercase tracking-[0.18em] transition-colors xl:px-4 xl:text-xs",
+                  "px-2.5 py-2 text-[10px] uppercase tracking-[0.16em] transition-colors xl:px-3.5 xl:text-[11px] 2xl:px-4 2xl:text-xs",
                   isSolid
                     ? "text-primary hover:bg-primary/5"
                     : "text-white hover:bg-white/10",
