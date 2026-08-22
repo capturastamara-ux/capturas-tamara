@@ -22,7 +22,7 @@ const planImages = {
   gallery03: "/images/plans/todo-incluido/gallery-03.png",
   decoracion: "/images/plans/todo-incluido/section-decoracion.png",
   banqueteria: "/images/plans/todo-incluido/section-banqueteria.png",
-  hero: "/images/hero/hero-desktop.png",
+  hero: "/images/hero/hero-desktop.jpeg",
 } as const;
 
 export const portfolioCategories: PortfolioCategory[] = [

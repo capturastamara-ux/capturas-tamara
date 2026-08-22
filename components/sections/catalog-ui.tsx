@@ -15,12 +15,12 @@ export function CatalogBand({
     <section
       id={id}
       className={cn(
-        "relative overflow-hidden bg-catalog bg-[radial-gradient(ellipse_at_center,rgb(106_154_148_/_0.55)_0%,var(--color-catalog)_68%)]",
+        "relative overflow-x-clip bg-catalog bg-[radial-gradient(ellipse_at_center,rgb(106_154_148_/_0.55)_0%,var(--color-catalog)_68%)]",
         className,
       )}
     >
       <div className="catalog-grain pointer-events-none absolute inset-0" aria-hidden="true" />
-      <div className="relative z-10">{children}</div>
+      <div className="relative z-10 w-full">{children}</div>
     </section>
   );
 }
@@ -43,7 +43,7 @@ export function CatalogHeading({
           {eyebrow}
         </p>
       ) : null}
-      <h2 className="mt-3 font-display text-[clamp(1.85rem,4.4vw,3.15rem)] font-normal italic leading-[1.12] text-white">
+      <h2 className="mt-3 font-display text-[clamp(1.7rem,4vw,2.45rem)] font-normal italic leading-[1.12] text-white">
         {title}
       </h2>
       <span

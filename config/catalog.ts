@@ -17,10 +17,14 @@ export type CatalogProduct = {
 export const catalogConfig = {
   categories: {
     id: "categorias",
-    eyebrow: "Sesiones",
+    eyebrow: "Categorías",
     heading: "Elige la categoría de tu interés",
     empty:
       "Aún no hay categorías publicadas. Agrégalas desde el panel de administración.",
+    previewLimit: 4,
+    moreLabel: "Ver más categorías",
+    moreHref: "/portafolio",
+    cardCta: "Ver categoría",
   },
   products: [
     {

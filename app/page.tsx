@@ -6,12 +6,26 @@ import { CatalogCategoriesSection } from "@/components/sections/CatalogCategorie
 import { CatalogProductsSection } from "@/components/sections/CatalogProductsSection";
 import { CatalogConditionsSection } from "@/components/sections/CatalogConditionsSection";
 import { AboutIntro } from "@/components/sections/AboutIntro";
-import { getPublishedCategories } from "@/lib/db/portfolio";
+import { catalogConfig } from "@/config/catalog";
+import {
+  getPublishedCategories,
+  getPublishedPlanImages,
+  pickRandomPlanImages,
+} from "@/lib/db/portfolio";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const categories = await getPublishedCategories();
+  const [categories, planImages] = await Promise.all([
+    getPublishedCategories(),
+    getPublishedPlanImages(),
+  ]);
+  const imagesByProduct = Object.fromEntries(
+    catalogConfig.products.map((product) => [
+      product.id,
+      pickRandomPlanImages(planImages, 3, product.images),
+    ]),
+  );
 
   return (
     <>
@@ -28,7 +42,7 @@ export default async function Home() {
             coverUrl: category.coverUrl,
           }))}
         />
-        <CatalogProductsSection />
+        <CatalogProductsSection imagesByProduct={imagesByProduct} />
         <CatalogConditionsSection />
         <AboutIntro />
       </main>

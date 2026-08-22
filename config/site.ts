@@ -29,9 +29,9 @@ export const siteConfig = {
     title: "CAPTURA TU MEJOR IMAGEN",
     tagline: "FOTOGRAFÍA PROFESIONAL EN MANIZALES Y VILLAMARÍA.",
     scrollLabel: "Ir a las categorías",
-    video: "/images/hero/video-hero-1.mp4",
-    poster: "/images/hero/hero-desktop.png",
-    alt: "Sesión fotográfica profesional CapturasTamara",
+    //video: "/images/hero/video-hero-1.mp4",
+    poster: "/images/hero/hero-desktop.jpeg",
+    alt: "Sesión fotográfica profesional Capturas Tamara",
   },
   nav: [
     { type: "link", label: "Home", href: "/" },

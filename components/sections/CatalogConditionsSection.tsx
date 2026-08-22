@@ -15,9 +15,9 @@ export function CatalogConditionsSection() {
     <>
       <CatalogBand
         id={conditions.id}
-        className="px-5 py-20 sm:px-8 sm:py-24 lg:px-12"
+        className="px-5 py-16 sm:px-8 sm:py-20 lg:px-12"
       >
-        <div className="mx-auto max-w-[1100px]">
+        <div className="mx-auto max-w-[820px]">
           <Reveal>
             <CatalogHeading
               eyebrow={conditions.eyebrow}
@@ -27,15 +27,15 @@ export function CatalogConditionsSection() {
 
           <RevealStagger
             stagger={0.06}
-            className="mt-14 grid gap-x-12 gap-y-10 sm:grid-cols-2"
+            className="mt-12 grid gap-x-10 gap-y-8 sm:grid-cols-2"
           >
             {conditions.items.map((item, index) => (
               <RevealItem key={item.title}>
-                <article className="border-t border-white/15 pt-5">
+                <article className="border-t border-white/15 pt-5 text-center sm:text-left">
                   <p className="text-[0.62rem] uppercase tracking-[0.26em] text-catalog-gold">
                     {formatIndex(index)} — {item.title}
                   </p>
-                  <p className="mt-3 text-sm leading-relaxed text-white/80 sm:text-[0.95rem]">
+                  <p className="mt-3 text-sm leading-relaxed text-white/80">
                     {item.body}
                   </p>
                 </article>
@@ -58,9 +58,9 @@ export function CatalogConditionsSection() {
 
       <CatalogBand
         id={payments.id}
-        className="px-5 pb-20 sm:px-8 sm:pb-24 lg:px-12"
+        className="px-5 pb-16 sm:px-8 sm:pb-20 lg:px-12"
       >
-        <div className="mx-auto max-w-[760px]">
+        <div className="mx-auto max-w-[640px]">
           <Reveal>
             <CatalogHeading eyebrow={payments.eyebrow} title={payments.title} />
           </Reveal>

@@ -17,7 +17,7 @@ function SocialIcon({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
-      className="flex h-9 w-9 items-center justify-center text-primary transition-opacity hover:opacity-60"
+      className="flex h-9 w-9 items-center justify-center text-white/85 transition-opacity hover:text-catalog-gold"
     >
       {children}
     </Link>
@@ -28,11 +28,11 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-cream px-5 py-16 sm:px-8 lg:px-12">
+    <footer className="border-t border-white/10 bg-catalog px-5 py-16 sm:px-8 lg:px-12">
       <div className="mx-auto max-w-[1400px]">
         <div className="grid gap-12 lg:grid-cols-[1fr_auto_1fr] lg:items-start">
           <div className="order-2 text-center lg:order-1 lg:text-left">
-            <p className="text-xs uppercase tracking-[0.14em] text-muted">
+            <p className="text-xs uppercase tracking-[0.14em] text-catalog-gold">
               Redes sociales
             </p>
             <div className="mt-4 flex justify-center gap-4 lg:justify-start">
@@ -59,9 +59,9 @@ export function Footer() {
               size="md"
               showName
               stackedOnMobile
-              nameClassName="text-primary"
+              nameClassName="text-white"
             />
-            <p className="mt-8 max-w-md font-display text-lg italic leading-relaxed text-primary/80">
+            <p className="mt-8 max-w-md font-display text-lg italic leading-relaxed text-white/80">
               &ldquo;{siteConfig.footer.quote}&rdquo;
             </p>
           </div>
@@ -69,18 +69,18 @@ export function Footer() {
           <div className="order-3 flex flex-col items-center gap-3 text-center lg:items-end lg:pt-1 lg:text-right">
             <Link
               href={siteConfig.footer.privacyHref}
-              className="text-xs uppercase tracking-[0.12em] text-primary transition-opacity hover:opacity-60"
+              className="text-xs uppercase tracking-[0.12em] text-white/85 transition-opacity hover:text-catalog-gold"
             >
               {siteConfig.footer.privacyLabel}
             </Link>
-            <p className="text-xs uppercase tracking-[0.1em] text-muted">
+            <p className="text-xs uppercase tracking-[0.1em] text-white/55">
               © {year} {siteConfig.footer.copyright}
             </p>
             <Link
               href={siteConfig.footer.credits.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-muted transition-opacity hover:opacity-60"
+              className="text-xs text-white/55 transition-opacity hover:text-catalog-gold"
             >
               {siteConfig.footer.credits.label}
             </Link>

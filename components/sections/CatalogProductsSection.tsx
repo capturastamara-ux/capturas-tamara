@@ -8,40 +8,50 @@ import { CatalogBand, CatalogHeading } from "@/components/sections/catalog-ui";
 import { Reveal } from "@/components/ui/Reveal";
 import { cn } from "@/lib/cn";
 
-function PlaqueFan({ product }: Readonly<{ product: CatalogProduct }>) {
-  const offsets = [
-    { rotate: "-11deg", x: "-28%", z: 1 },
-    { rotate: "2deg", x: "0%", z: 3 },
-    { rotate: "10deg", x: "28%", z: 2 },
-  ] as const;
+type ProductImage = {
+  src: string;
+  alt: string;
+};
+
+type CatalogProductsSectionProps = {
+  imagesByProduct: Readonly<Record<string, ReadonlyArray<ProductImage>>>;
+};
+
+function PlaqueFan({
+  images,
+}: Readonly<{ images: ReadonlyArray<ProductImage> }>) {
+  const rotations = ["-10deg", "1deg", "10deg"] as const;
+  const layers = [1, 3, 2] as const;
 
   return (
-    <div className="relative mx-auto h-56 w-full max-w-lg sm:h-72">
-      {product.images.map((image, index) => {
-        const offset = offsets[index] ?? offsets[1];
-        return (
+    <div className="flex w-full justify-center lg:justify-start">
+      <div className="flex items-center justify-center">
+        {images.slice(0, 3).map((image, index) => (
           <div
-            key={image.src}
-            className="absolute top-1/2 left-1/2 w-[44%] max-w-[180px] origin-center -translate-x-1/2 -translate-y-1/2 bg-[#1a120c] p-[9px] shadow-[0_22px_50px_rgb(0_0_0_/_0.4)] sm:p-[11px]"
+            key={`${image.src}-${index}`}
+            className={cn(
+              "relative w-[6.6rem] shrink-0 bg-[#1a120c] p-1.5 shadow-[0_18px_40px_rgb(0_0_0_/_0.4)] sm:w-[7.5rem] sm:p-2",
+              index > 0 && "-ml-7 sm:-ml-8",
+            )}
             style={{
-              transform: `translate(-50%, -50%) translateX(${offset.x}) rotate(${offset.rotate})`,
-              zIndex: offset.z,
+              transform: `rotate(${rotations[index] ?? "0deg"})`,
+              zIndex: layers[index] ?? 1,
             }}
           >
-            <div className="bg-[#f4efe8] p-[5px] sm:p-1.5">
+            <div className="bg-[#f4efe8] p-1">
               <div className="relative aspect-[3/4] overflow-hidden">
                 <Image
                   src={image.src}
                   alt={image.alt}
                   fill
                   className="object-cover"
-                  sizes="180px"
+                  sizes="140px"
                 />
               </div>
             </div>
           </div>
-        );
-      })}
+        ))}
+      </div>
     </div>
   );
 }
@@ -66,7 +76,7 @@ function PriceTable({ product }: Readonly<{ product: CatalogProduct }>) {
                   cm
                 </span>
               </th>
-              <td className="py-3 text-right font-display text-xl tabular-nums text-catalog-gold sm:text-2xl">
+              <td className="py-3 text-right font-display text-lg tabular-nums text-catalog-gold sm:text-xl">
                 {formatCop(row.price)}
               </td>
             </tr>
@@ -77,39 +87,45 @@ function PriceTable({ product }: Readonly<{ product: CatalogProduct }>) {
   );
 }
 
-export function CatalogProductsSection() {
+export function CatalogProductsSection({
+  imagesByProduct,
+}: Readonly<CatalogProductsSectionProps>) {
   return (
     <div id="productos">
-      {catalogConfig.products.map((product, index) => (
+      {catalogConfig.products.map((product, index) => {
+        const images = imagesByProduct[product.id] ?? product.images;
+
+        return (
         <CatalogBand
           key={product.id}
           id={product.id}
-          className="px-5 py-16 sm:px-8 sm:py-20 lg:px-12"
+          className="px-5 py-14 sm:px-8 sm:py-16 lg:px-12"
         >
           <div
             className={cn(
-              "mx-auto max-w-[1100px]",
-              index > 0 && "border-t border-white/10 pt-16 sm:pt-20",
+              "mx-auto flex w-full max-w-[820px] flex-col items-center",
+              index > 0 && "border-t border-white/10 pt-14 sm:pt-16",
             )}
           >
-            <Reveal>
+            <Reveal className="w-full">
               <CatalogHeading eyebrow={product.eyebrow} title={product.title} />
             </Reveal>
 
-            <div className="mt-12 grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
-              <Reveal>
-                <PlaqueFan product={product} />
-                <p className="mt-10 text-center text-[0.72rem] uppercase tracking-[0.22em] text-white/70 lg:text-left">
+            <div className="mt-10 flex w-full flex-col items-center gap-8 lg:grid lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-12">
+              <Reveal className="flex w-full flex-col items-center lg:items-start">
+                <PlaqueFan images={images} />
+                <p className="mt-8 w-full text-center text-[0.68rem] uppercase tracking-[0.22em] text-white/70">
                   {product.subtitle}
                 </p>
               </Reveal>
-              <Reveal delay={0.08}>
+              <Reveal delay={0.08} className="w-full max-w-md lg:max-w-none">
                 <PriceTable product={product} />
               </Reveal>
             </div>
           </div>
         </CatalogBand>
-      ))}
+        );
+      })}
     </div>
   );
 }
