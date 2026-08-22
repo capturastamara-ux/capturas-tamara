@@ -21,6 +21,7 @@ export type SortableSubcategory = {
   categoryId: string;
   categoryTitle: string;
   parentId: string | null;
+  parentTitle: string | null;
   depth: number;
 };
 
@@ -164,6 +165,7 @@ export function SubcategoriesSortableTable({
               onDragEnd={onDragEnd}
               className={cn(
                 "border-b border-catalog/5 last:border-0 transition-colors",
+                subcategory.depth > 0 && "bg-catalog/[0.04]",
                 draggingId === subcategory.id && "opacity-50",
                 overId === subcategory.id &&
                   draggingId !== subcategory.id &&
@@ -180,24 +182,52 @@ export function SubcategoriesSortableTable({
                 </span>
               </td>
               <td className="px-4 py-4">
-                <div style={{ paddingLeft: subcategory.depth * 16 }}>
-                  <Link
-                    href={`/admin/subcategorias/${subcategory.id}`}
-                    className="font-medium hover:opacity-70"
-                    draggable={false}
-                    onClick={(event) => {
-                      if (draggingId) event.preventDefault();
-                    }}
-                  >
-                    {subcategory.title}
-                  </Link>
-                  <p className="mt-1 text-xs text-muted sm:hidden">
-                    {subcategory.categoryTitle}
-                  </p>
+                <div
+                  className="flex items-start gap-2"
+                  style={{ paddingLeft: subcategory.depth * 28 }}
+                >
+                  {subcategory.depth > 0 && (
+                    <span
+                      aria-hidden="true"
+                      className="mt-1 inline-flex h-5 w-5 shrink-0 items-end justify-start text-catalog"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path
+                          d="M4 0v8h10"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                        />
+                      </svg>
+                    </span>
+                  )}
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Link
+                        href={`/admin/subcategorias/${subcategory.id}`}
+                        className="font-medium hover:opacity-70"
+                        draggable={false}
+                        onClick={(event) => {
+                          if (draggingId) event.preventDefault();
+                        }}
+                      >
+                        {subcategory.title}
+                      </Link>
+                      {subcategory.parentTitle && (
+                        <span className="rounded-full bg-catalog/10 px-2 py-0.5 text-[0.65rem] uppercase tracking-[0.1em] text-catalog">
+                          Hija de {subcategory.parentTitle}
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-1 text-xs text-muted sm:hidden">
+                      {subcategory.categoryTitle}
+                    </p>
+                  </div>
                 </div>
               </td>
               <td className="hidden px-4 py-4 text-muted sm:table-cell">
-                {subcategory.categoryTitle}
+                {subcategory.parentTitle
+                  ? `${subcategory.categoryTitle} · ${subcategory.parentTitle}`
+                  : subcategory.categoryTitle}
               </td>
               <td className="px-4 py-4">{subcategory.planCount}</td>
               <td className="px-4 py-4">

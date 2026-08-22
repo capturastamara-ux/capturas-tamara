@@ -27,6 +27,9 @@ export default async function AdminSubcategoriesPage() {
           categoryId: subcategory.categoryId,
           categoryTitle: subcategory.category.title,
           parentId: subcategory.parentId,
+          parentTitle: subcategory.parentId
+            ? treeRows.find((item) => item.id === subcategory.parentId)?.title ?? null
+            : null,
           depth: subcategory.depth,
         }))}
       />
