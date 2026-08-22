@@ -87,9 +87,12 @@ export async function nextCategorySortOrder() {
   return (result._max.sortOrder ?? -1) + 1;
 }
 
-export async function nextSubcategorySortOrder(categoryId: string) {
+export async function nextSubcategorySortOrder(
+  categoryId: string,
+  parentId: string | null = null,
+) {
   const result = await prisma.subcategory.aggregate({
-    where: { categoryId },
+    where: { categoryId, parentId },
     _max: { sortOrder: true },
   });
   return (result._max.sortOrder ?? -1) + 1;

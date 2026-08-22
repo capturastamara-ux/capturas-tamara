@@ -38,6 +38,9 @@ model Subcategory {
   coverUrl     String?
   sortOrder    Int           @default(0)
   published    Boolean       @default(true)
+  parentId     String?
+  parent       Subcategory?  @relation("SubcategoryTree", fields: [parentId], references: [id], onDelete: Cascade)
+  children     Subcategory[] @relation("SubcategoryTree")
   plans        Plan[]
   gallery      SubcategoryGalleryImage[]
   reservations Reservation[]
@@ -46,6 +49,7 @@ model Subcategory {
 
   @@unique([categoryId, slug])
   @@index([categoryId, published, sortOrder])
+  @@index([parentId, sortOrder])
 }
 
 /// Plan ofrecido dentro de una subcategoría

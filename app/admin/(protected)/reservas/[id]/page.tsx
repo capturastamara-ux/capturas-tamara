@@ -13,6 +13,7 @@ import {
 } from "@/app/admin/actions";
 import { buildReservationContractData } from "@/lib/admin/reservation-contract";
 import { toDateInputValue } from "@/lib/admin/reservations";
+import { withPathLabels } from "@/lib/admin/subcategory-tree";
 import {
   getAdminCategoryOptions,
   getAdminPlanOptions,
@@ -73,7 +74,7 @@ export default async function EditReservationPage({ params }: Readonly<PageProps
             <input type="hidden" name="id" value={reservation.id} />
             <ReservationFormFields
               categories={categories}
-              subcategories={subcategories}
+              subcategories={withPathLabels(subcategories)}
               plans={plans.map((plan) => ({
                 id: plan.id,
                 title: plan.title,

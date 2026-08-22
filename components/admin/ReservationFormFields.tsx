@@ -23,6 +23,7 @@ export type ReservationSubcategoryOption = {
   id: string;
   title: string;
   categoryId: string;
+  label?: string;
 };
 
 export type ReservationPlanOption = {
@@ -246,7 +247,7 @@ export function ReservationFormFields({
           </option>
           {filteredSubcategories.map((subcategory) => (
             <option key={subcategory.id} value={subcategory.id}>
-              {subcategory.title}
+              {subcategory.label ?? subcategory.title}
             </option>
           ))}
         </select>

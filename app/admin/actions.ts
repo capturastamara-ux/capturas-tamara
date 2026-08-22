@@ -24,6 +24,7 @@ import {
   uniquePlanSlug,
   uniqueSubcategorySlug,
 } from "@/lib/admin/form";
+import { descendantIdSet } from "@/lib/admin/subcategory-tree";
 import { removedStorageUrls } from "@/lib/storage/media";
 import {
   collectCategoryMediaUrls,
@@ -175,6 +176,39 @@ export async function deleteCategoryAction(formData: FormData) {
   redirect("/admin/categorias");
 }
 
+async function resolveSubcategoryPlacement(
+  categoryId: string,
+  parentId: string | null,
+  excludeId?: string,
+) {
+  if (!parentId) {
+    return { categoryId, parentId: null };
+  }
+
+  if (excludeId && parentId === excludeId) {
+    throw new Error("Una subcategoría no puede colgar de sí misma.");
+  }
+
+  const parent = await prisma.subcategory.findUnique({
+    where: { id: parentId },
+    select: { id: true, categoryId: true },
+  });
+  if (!parent) {
+    throw new Error("La subcategoría padre no existe.");
+  }
+
+  if (excludeId) {
+    const relatives = await prisma.subcategory.findMany({
+      select: { id: true, parentId: true },
+    });
+    if (descendantIdSet(relatives, excludeId).has(parentId)) {
+      throw new Error("No puedes colgar una subcategoría dentro de una hija suya.");
+    }
+  }
+
+  return { categoryId: parent.categoryId, parentId: parent.id };
+}
+
 export async function createSubcategoryAction(formData: FormData) {
   const categoryId = String(formData.get("categoryId") ?? "");
   const title = String(formData.get("title") ?? "").trim();
@@ -182,20 +216,28 @@ export async function createSubcategoryAction(formData: FormData) {
     throw new Error("Categoría y título son obligatorios.");
   }
 
-  const slug = await uniqueSubcategorySlug(categoryId, title);
+  const placement = await resolveSubcategoryPlacement(
+    categoryId,
+    parseOptionalId(formData.get("parentId")),
+  );
+  const slug = await uniqueSubcategorySlug(placement.categoryId, title);
   const coverUrl = parseOptionalString(formData.get("coverUrl"));
 
   let subcategory;
   try {
     subcategory = await prisma.subcategory.create({
       data: {
-        categoryId,
+        categoryId: placement.categoryId,
+        parentId: placement.parentId,
         title,
         slug,
         subtitle: parseOptionalString(formData.get("subtitle")),
         description: parseRichTextOptional(formData.get("description")),
         coverUrl,
-        sortOrder: await nextSubcategorySortOrder(categoryId),
+        sortOrder: await nextSubcategorySortOrder(
+          placement.categoryId,
+          placement.parentId,
+        ),
         published: parsePublished(formData.get("published")),
       },
     });
@@ -216,21 +258,29 @@ export async function updateSubcategoryAction(formData: FormData) {
     throw new Error("Datos incompletos.");
   }
 
-  const slug = await uniqueSubcategorySlug(categoryId, title, id);
+  const placement = await resolveSubcategoryPlacement(
+    categoryId,
+    parseOptionalId(formData.get("parentId")),
+    id,
+  );
+  const slug = await uniqueSubcategorySlug(placement.categoryId, title, id);
   const existing = await prisma.subcategory.findUnique({
     where: { id },
-    select: { coverUrl: true, categoryId: true },
+    select: { coverUrl: true, categoryId: true, parentId: true },
   });
   const coverUrl = parseOptionalString(formData.get("coverUrl"));
-  const categoryChanged = existing?.categoryId !== categoryId;
-  const sortOrder = categoryChanged
-    ? await nextSubcategorySortOrder(categoryId)
+  const moved =
+    existing?.categoryId !== placement.categoryId ||
+    existing?.parentId !== placement.parentId;
+  const sortOrder = moved
+    ? await nextSubcategorySortOrder(placement.categoryId, placement.parentId)
     : undefined;
 
   await prisma.subcategory.update({
     where: { id },
     data: {
-      categoryId,
+      categoryId: placement.categoryId,
+      parentId: placement.parentId,
       title,
       slug,
       subtitle: parseOptionalString(formData.get("subtitle")),
@@ -240,6 +290,19 @@ export async function updateSubcategoryAction(formData: FormData) {
       ...(sortOrder != null ? { sortOrder } : {}),
     },
   });
+
+  if (existing && existing.categoryId !== placement.categoryId) {
+    const relatives = await prisma.subcategory.findMany({
+      select: { id: true, parentId: true },
+    });
+    const descendantIds = [...descendantIdSet(relatives, id)];
+    if (descendantIds.length > 0) {
+      await prisma.subcategory.updateMany({
+        where: { id: { in: descendantIds } },
+        data: { categoryId: placement.categoryId },
+      });
+    }
+  }
 
   await deleteStoredMedia(removedStorageUrls(existing?.coverUrl, coverUrl));
 
@@ -251,14 +314,22 @@ export async function reorderSubcategoriesAction(orderedIds: string[]) {
   if (orderedIds.length === 0) return;
 
   const existing = await prisma.subcategory.findMany({
-    select: { id: true },
+    where: { id: { in: orderedIds } },
+    select: { id: true, parentId: true, categoryId: true },
   });
-  const existingIds = new Set(existing.map((subcategory) => subcategory.id));
-  if (
-    orderedIds.length !== existingIds.size ||
-    orderedIds.some((id) => !existingIds.has(id))
-  ) {
+  if (existing.length !== orderedIds.length) {
     throw new Error("El orden de subcategorías no es válido.");
+  }
+
+  const parentId = existing[0]?.parentId ?? null;
+  const categoryId = existing[0]?.categoryId;
+  if (
+    existing.some(
+      (item) =>
+        item.parentId !== parentId || item.categoryId !== categoryId,
+    )
+  ) {
+    throw new Error("Solo puedes reordenar subcategorías del mismo nivel.");
   }
 
   await prisma.$transaction(
@@ -280,6 +351,12 @@ export async function deleteSubcategoryAction(formData: FormData) {
 
   const subcategory = await prisma.subcategory.findUnique({
     where: { id },
+    select: { id: true, categoryId: true },
+  });
+  if (!subcategory) return;
+
+  const relatives = await prisma.subcategory.findMany({
+    where: { categoryId: subcategory.categoryId },
     include: {
       gallery: true,
       plans: {
@@ -290,11 +367,13 @@ export async function deleteSubcategoryAction(formData: FormData) {
       },
     },
   });
+  const subtreeIds = new Set([id, ...descendantIdSet(relatives, id)]);
+  const mediaUrls = relatives
+    .filter((item) => subtreeIds.has(item.id))
+    .flatMap((item) => collectSubcategoryMediaUrls(item));
 
-  if (subcategory) {
-    await deleteStoredMedia(collectSubcategoryMediaUrls(subcategory));
-    await prisma.subcategory.delete({ where: { id } });
-  }
+  await deleteStoredMedia(mediaUrls);
+  await prisma.subcategory.delete({ where: { id } });
   revalidatePortfolio();
   redirect("/admin/subcategorias");
 }

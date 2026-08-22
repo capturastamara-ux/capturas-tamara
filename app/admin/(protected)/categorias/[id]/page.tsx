@@ -16,6 +16,7 @@ import {
   deleteCategoryAction,
   updateCategoryAction,
 } from "@/app/admin/actions";
+import { flattenTree, nestByParent } from "@/lib/admin/subcategory-tree";
 import { getAdminCategoryById } from "@/lib/db/admin";
 
 type PageProps = {
@@ -81,11 +82,12 @@ export default async function EditCategoryPage({ params }: PageProps) {
               </Link>
             </div>
             <ul className="space-y-3">
-              {category.subcategories.map((subcategory) => (
+              {flattenTree(nestByParent(category.subcategories)).map((subcategory) => (
                 <li key={subcategory.id} className="flex items-center justify-between gap-3 text-sm">
                   <Link
                     href={`/admin/subcategorias/${subcategory.id}`}
                     className="hover:opacity-70"
+                    style={{ paddingLeft: subcategory.depth * 16 }}
                   >
                     {subcategory.title}
                   </Link>

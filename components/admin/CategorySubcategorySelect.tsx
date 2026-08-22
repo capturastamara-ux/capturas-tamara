@@ -11,6 +11,7 @@ export type SubcategorySelectOption = {
   id: string;
   title: string;
   categoryId: string;
+  label?: string;
 };
 
 type CategorySubcategorySelectProps = {
@@ -96,9 +97,9 @@ export function CategorySubcategorySelect({
                 : "Esta categoría no tiene subcategorías"
               : "Primero elige una categoría"}
           </option>
-          {filtered.map((subcategory) => (
+            {filtered.map((subcategory) => (
             <option key={subcategory.id} value={subcategory.id}>
-              {subcategory.title}
+              {subcategory.label ?? subcategory.title}
             </option>
           ))}
         </select>

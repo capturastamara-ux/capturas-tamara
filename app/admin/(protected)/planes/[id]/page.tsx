@@ -24,6 +24,7 @@ import {
   updatePlanAction,
 } from "@/app/admin/actions";
 import { CategorySubcategorySelect } from "@/components/admin/CategorySubcategorySelect";
+import { withPathLabels } from "@/lib/admin/subcategory-tree";
 import { getAdminCategoryOptions, getAdminPlanById, getAdminSubcategoryOptions } from "@/lib/db/admin";
 
 type PageProps = {
@@ -80,7 +81,7 @@ export default async function EditPlanPage({ params, searchParams }: PageProps) 
 
               <CategorySubcategorySelect
                 categories={categories}
-                subcategories={subcategories}
+                subcategories={withPathLabels(subcategories)}
                 defaultCategoryId={plan.subcategory.categoryId}
                 defaultSubcategoryId={plan.subcategoryId}
               />

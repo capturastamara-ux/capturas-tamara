@@ -12,6 +12,7 @@ import { MediaUploadField } from "@/components/admin/MediaUploadField";
 import { AdminPriceField } from "@/components/admin/AdminPriceField";
 import { CategorySubcategorySelect } from "@/components/admin/CategorySubcategorySelect";
 import { createPlanAction } from "@/app/admin/actions";
+import { withPathLabels } from "@/lib/admin/subcategory-tree";
 import { getAdminCategoryOptions, getAdminSubcategoryOptions } from "@/lib/db/admin";
 
 type PageProps = {
@@ -56,7 +57,7 @@ export default async function NewPlanPage({ searchParams }: PageProps) {
         >
           <CategorySubcategorySelect
             categories={categories}
-            subcategories={subcategories}
+            subcategories={withPathLabels(subcategories)}
             defaultCategoryId={categoryId}
             defaultSubcategoryId={subcategoryId}
           />

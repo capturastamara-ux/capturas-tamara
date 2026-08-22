@@ -1,3 +1,4 @@
+import { nestByParent } from "@/lib/admin/subcategory-tree";
 import { prisma } from "@/lib/db/prisma";
 import { landingGallerySlots } from "@/config/gallery";
 
@@ -56,7 +57,7 @@ export async function getPublishedCategories() {
 }
 
 export async function getCategoryBySlug(slug: string) {
-  return prisma.category.findFirst({
+  const category = await prisma.category.findFirst({
     where: { slug, published: true },
     include: {
       subcategories: {
@@ -76,6 +77,13 @@ export async function getCategoryBySlug(slug: string) {
       },
     },
   });
+
+  if (!category) return null;
+
+  return {
+    ...category,
+    subcategories: nestByParent(category.subcategories),
+  };
 }
 
 export async function getSubcategoryBySlugs(

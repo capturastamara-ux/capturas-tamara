@@ -9,23 +9,30 @@ import {
 } from "@/components/admin/UploadFormContext";
 import { AdminRichText } from "@/components/admin/AdminRichText";
 import { MediaUploadField } from "@/components/admin/MediaUploadField";
+import { SubcategoryPlacementFields } from "@/components/admin/SubcategoryPlacementFields";
 import { createSubcategoryAction } from "@/app/admin/actions";
-import { getAdminCategoryOptions } from "@/lib/db/admin";
+import { getAdminCategoryOptions, getAdminSubcategoryOptions } from "@/lib/db/admin";
 
 type PageProps = {
-  searchParams: Promise<{ categoryId?: string }>;
+  searchParams: Promise<{ categoryId?: string; parentId?: string }>;
 };
 
 export default async function NewSubcategoryPage({ searchParams }: PageProps) {
-  const { categoryId } = await searchParams;
-  const categories = await getAdminCategoryOptions();
+  const { categoryId, parentId } = await searchParams;
+  const [categories, subcategories] = await Promise.all([
+    getAdminCategoryOptions(),
+    getAdminSubcategoryOptions(),
+  ]);
+  const parent = parentId
+    ? subcategories.find((item) => item.id === parentId)
+    : undefined;
 
   return (
     <>
       <AdminPageHeader
         eyebrow="Subcategorías"
         title="Nueva subcategoría"
-        description="Quedará dentro de una categoría. Después podrás crear planes y agregar la galería."
+        description="Puede colgar de una categoría o de otra subcategoría. Después podrás crear planes y agregar la galería."
       />
 
       {categories.length === 0 ? (
@@ -41,23 +48,12 @@ export default async function NewSubcategoryPage({ searchParams }: PageProps) {
           action={createSubcategoryAction}
           className="max-w-2xl space-y-5 rounded-sm border border-catalog/15 bg-background p-5 sm:p-6"
         >
-          <label className="flex flex-col gap-2">
-            <span className="text-xs uppercase tracking-[0.12em] text-muted">
-              Categoría *
-            </span>
-            <select
-              name="categoryId"
-              required
-              defaultValue={categoryId ?? categories[0]?.id}
-              className="rounded-sm border border-catalog/20 bg-background px-3 py-2.5 text-sm outline-none focus:border-catalog"
-            >
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.title}
-                </option>
-              ))}
-            </select>
-          </label>
+          <SubcategoryPlacementFields
+            categories={categories}
+            subcategories={subcategories}
+            defaultCategoryId={parent?.categoryId ?? categoryId}
+            defaultParentId={parentId}
+          />
           <AdminField label="Título" name="title" required placeholder="Estudio" />
           <AdminField
             label="Subtítulo"

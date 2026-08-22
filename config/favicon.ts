@@ -1,6 +1,7 @@
 const base = "/images/favicon";
 
 export const faviconConfig = {
+  ico: "/favicon.ico",
   icon16: `${base}/favicon-16x16.png`,
   icon32: `${base}/favicon-32x32.png`,
   appleTouch: `${base}/apple-touch-icon.png`,

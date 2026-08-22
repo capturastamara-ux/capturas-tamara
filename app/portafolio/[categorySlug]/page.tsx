@@ -9,8 +9,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { siteConfig } from "@/config/site";
 import { getCategoryBySlug } from "@/lib/db/portfolio";
 import { richTextToPlainText } from "@/lib/sanitize-rich-text";
-import { PlanGallerySection } from "@/components/sections/PlanGallerySection";
-import { PortfolioPlanSplits } from "@/components/sections/PortfolioPlanSplits";
+import { PortfolioSubcategoryTree } from "@/components/sections/PortfolioSubcategoryTree";
 
 export const dynamic = "force-dynamic";
 
@@ -77,44 +76,11 @@ export default async function CategorySubcategoriesPage({ params }: PageProps) {
             </Reveal>
 
             {category.subcategories.length > 0 ? (
-              <div className="mt-12 flex flex-col gap-16 sm:mt-16 sm:gap-24">
-                {category.subcategories.map((subcategory) => (
-                  <section
-                    key={subcategory.id}
-                    id={subcategory.slug}
-                    className="scroll-mt-28"
-                  >
-                    <Reveal>
-                      <p className="text-[0.65rem] uppercase tracking-[0.32em] text-catalog-gold">
-                        {category.title}
-                      </p>
-                      <SectionHeading
-                        as="h2"
-                        align="left"
-                        className="mt-3 font-display text-[clamp(1.6rem,4vw,2.5rem)] italic text-white"
-                      >
-                        {subcategory.title}
-                      </SectionHeading>
-                      <span
-                        className="mt-4 block h-px w-14 bg-catalog-gold/80"
-                        aria-hidden="true"
-                      />
-                    </Reveal>
-                    <div className="mt-8 sm:mt-10">
-                      <PortfolioPlanSplits
-                        tone="catalog"
-                        categoryTitle={subcategory.title}
-                        plans={subcategory.plans}
-                      />
-                    </div>
-                    <PlanGallerySection
-                      compact
-                      tone="catalog"
-                      planTitle={subcategory.title}
-                      images={subcategory.gallery}
-                    />
-                  </section>
-                ))}
+              <div className="mt-12 sm:mt-16">
+                <PortfolioSubcategoryTree
+                  nodes={category.subcategories}
+                  categoryTitle={category.title}
+                />
               </div>
             ) : (
               <p className="mt-10 text-white/70">

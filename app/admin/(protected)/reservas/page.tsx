@@ -1,5 +1,6 @@
 import { ReservationsPanel } from "@/components/admin/ReservationsPanel";
 import { toDayKey } from "@/lib/admin/availability";
+import { withPathLabels } from "@/lib/admin/subcategory-tree";
 import { getAdminCalendarData, getAdminClients } from "@/lib/db/admin";
 
 type PageProps = {
@@ -36,7 +37,7 @@ export default async function AdminReservationsPage({ searchParams }: Readonly<P
       overrides={serializedOverrides}
       categories={categories}
       categoryOptions={categories}
-      subcategoryOptions={subcategories}
+      subcategoryOptions={withPathLabels(subcategories)}
       planOptions={plans.map((plan) => ({
         id: plan.id,
         title: plan.title,

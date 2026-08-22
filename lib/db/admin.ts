@@ -1,4 +1,5 @@
 import { aggregateAdminClients } from "@/lib/admin/clients";
+import { pathLabelMap } from "@/lib/admin/subcategory-tree";
 import { prisma } from "@/lib/db/prisma";
 
 export async function getAdminDashboardStats() {
@@ -42,7 +43,7 @@ export async function getAdminCategoryById(id: string) {
     where: { id },
     include: {
       subcategories: {
-        orderBy: { sortOrder: "asc" },
+        orderBy: [{ parentId: "asc" }, { sortOrder: "asc" }],
         include: { _count: { select: { plans: true } } },
       },
     },
@@ -53,11 +54,12 @@ export async function getAdminSubcategories() {
   return prisma.subcategory.findMany({
     orderBy: [
       { category: { sortOrder: "asc" } },
+      { parentId: "asc" },
       { sortOrder: "asc" },
     ],
     include: {
       category: { select: { id: true, title: true, slug: true } },
-      _count: { select: { plans: true } },
+      _count: { select: { plans: true, children: true } },
     },
   });
 }
@@ -67,6 +69,10 @@ export async function getAdminSubcategoryById(id: string) {
     where: { id },
     include: {
       category: { select: { id: true, title: true, slug: true } },
+      children: {
+        orderBy: { sortOrder: "asc" },
+        include: { _count: { select: { plans: true } } },
+      },
       gallery: { orderBy: { sortOrder: "asc" } },
       plans: {
         orderBy: { sortOrder: "asc" },
@@ -114,11 +120,13 @@ export async function getAdminPlanGroups() {
     },
   });
 
+  const labels = pathLabelMap(subcategories);
+
   return subcategories
     .filter((subcategory) => subcategory.plans.length > 0)
     .map((subcategory) => ({
       id: subcategory.id,
-      title: subcategory.title,
+      title: labels.get(subcategory.id) ?? subcategory.title,
       slug: subcategory.slug,
       categoryTitle: subcategory.category.title,
       plans: subcategory.plans.map((plan) => ({
@@ -189,6 +197,7 @@ export async function getAdminSubcategoryOptions() {
       title: true,
       slug: true,
       categoryId: true,
+      parentId: true,
       category: { select: { id: true, title: true } },
     },
   });
@@ -239,6 +248,7 @@ export async function getAdminCalendarData() {
       id: true,
       title: true,
       categoryId: true,
+      parentId: true,
     },
   });
 

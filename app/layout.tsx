@@ -13,12 +13,12 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   icons: {
     icon: [
+      { url: faviconConfig.ico, sizes: "any", type: "image/x-icon" },
       { url: faviconConfig.icon16, sizes: "16x16", type: "image/png" },
       { url: faviconConfig.icon32, sizes: "32x32", type: "image/png" },
       { url: faviconConfig.android192, sizes: "192x192", type: "image/png" },
-      { url: "/favicon.ico", sizes: "any" },
     ],
-    shortcut: faviconConfig.icon32,
+    shortcut: faviconConfig.ico,
     apple: [
       {
         url: faviconConfig.appleTouch,

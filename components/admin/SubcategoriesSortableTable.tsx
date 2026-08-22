@@ -8,6 +8,7 @@ import {
 } from "@/app/admin/actions";
 import { AdminConfirmDeleteForm } from "@/components/admin/AdminConfirmDeleteForm";
 import { StatusBadge } from "@/components/admin/AdminUi";
+import { flattenTree, nestByParent } from "@/lib/admin/subcategory-tree";
 import { cn } from "@/lib/cn";
 
 export type SortableSubcategory = {
@@ -16,7 +17,11 @@ export type SortableSubcategory = {
   slug: string;
   published: boolean;
   planCount: number;
+  childCount: number;
+  categoryId: string;
   categoryTitle: string;
+  parentId: string | null;
+  depth: number;
 };
 
 function GripIcon() {
@@ -55,10 +60,14 @@ export function SubcategoriesSortableTable({
     setSubcategories(initialSubcategories);
   }, [initialSubcategories]);
 
-  const persistOrder = (next: SortableSubcategory[]) => {
-    setSubcategories(next);
+  const persistOrder = (siblings: SortableSubcategory[]) => {
+    const parentId = siblings[0]?.parentId ?? null;
+    setSubcategories((current) => {
+      const others = current.filter((item) => item.parentId !== parentId);
+      return flattenTree(nestByParent([...others, ...siblings]));
+    });
     startTransition(async () => {
-      await reorderSubcategoriesAction(next.map((item) => item.id));
+      await reorderSubcategoriesAction(siblings.map((item) => item.id));
     });
   };
 
@@ -86,11 +95,25 @@ export function SubcategoriesSortableTable({
     const toIndex = subcategories.findIndex((item) => item.id === targetId);
     if (fromIndex < 0 || toIndex < 0) return;
 
-    const next = [...subcategories];
-    const [moved] = next.splice(fromIndex, 1);
-    if (!moved) return;
-    next.splice(toIndex, 0, moved);
-    persistOrder(next);
+    const source = subcategories[fromIndex];
+    const target = subcategories[toIndex];
+    if (!source || !target || source.parentId !== target.parentId) return;
+
+    const siblingIds = new Set(
+      subcategories
+        .filter((item) => item.parentId === source.parentId)
+        .map((item) => item.id),
+    );
+    const siblings = subcategories.filter((item) => siblingIds.has(item.id));
+    const fromSibling = siblings.findIndex((item) => item.id === sourceId);
+    const toSibling = siblings.findIndex((item) => item.id === targetId);
+    if (fromSibling < 0 || toSibling < 0) return;
+
+    const nextSiblings = [...siblings];
+    const [movedSibling] = nextSiblings.splice(fromSibling, 1);
+    if (!movedSibling) return;
+    nextSiblings.splice(toSibling, 0, movedSibling);
+    persistOrder(nextSiblings);
   };
 
   const onDragEnd = () => {
@@ -114,7 +137,8 @@ export function SubcategoriesSortableTable({
       )}
     >
       <p className="border-b border-catalog/15 px-4 py-3 text-xs text-muted">
-        Arrastra para definir el orden
+        Arrastra para ordenar hermanas del mismo nivel. Puedes anidar una
+        subcategoría dentro de otra al editarla.
       </p>
       <table className="w-full text-left text-sm" aria-busy={isPending}>
         <thead className="border-b border-catalog/15 text-xs uppercase tracking-[0.12em] text-muted">
@@ -156,19 +180,21 @@ export function SubcategoriesSortableTable({
                 </span>
               </td>
               <td className="px-4 py-4">
-                <Link
-                  href={`/admin/subcategorias/${subcategory.id}`}
-                  className="font-medium hover:opacity-70"
-                  draggable={false}
-                  onClick={(event) => {
-                    if (draggingId) event.preventDefault();
-                  }}
-                >
-                  {subcategory.title}
-                </Link>
-                <p className="mt-1 text-xs text-muted sm:hidden">
-                  {subcategory.categoryTitle}
-                </p>
+                <div style={{ paddingLeft: subcategory.depth * 16 }}>
+                  <Link
+                    href={`/admin/subcategorias/${subcategory.id}`}
+                    className="font-medium hover:opacity-70"
+                    draggable={false}
+                    onClick={(event) => {
+                      if (draggingId) event.preventDefault();
+                    }}
+                  >
+                    {subcategory.title}
+                  </Link>
+                  <p className="mt-1 text-xs text-muted sm:hidden">
+                    {subcategory.categoryTitle}
+                  </p>
+                </div>
               </td>
               <td className="hidden px-4 py-4 text-muted sm:table-cell">
                 {subcategory.categoryTitle}
@@ -185,6 +211,13 @@ export function SubcategoriesSortableTable({
                     draggable={false}
                   >
                     Editar
+                  </Link>
+                  <Link
+                    href={`/admin/subcategorias/nueva?categoryId=${subcategory.categoryId}&parentId=${subcategory.id}`}
+                    className="text-xs uppercase tracking-[0.1em] text-catalog hover:text-catalog-ink"
+                    draggable={false}
+                  >
+                    Agregar hija
                   </Link>
                   <AdminConfirmDeleteForm
                     action={deleteSubcategoryAction}
