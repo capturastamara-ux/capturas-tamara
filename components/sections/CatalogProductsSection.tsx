@@ -111,9 +111,28 @@ export function CatalogProductsSection({
               <CatalogHeading eyebrow={product.eyebrow} title={product.title} />
             </Reveal>
 
-            <div className="mt-10 flex w-full flex-col items-center gap-8 lg:grid lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-12">
+            <div
+              className={cn(
+                "mt-10 flex w-full flex-col items-center gap-8",
+                !product.hero &&
+                  "lg:grid lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-12",
+              )}
+            >
               <Reveal className="flex w-full flex-col items-center lg:items-start">
-                <PlaqueFan images={images} />
+                {product.hero ? (
+                  <div className="relative w-full overflow-hidden">
+                    <Image
+                      src={product.hero.src}
+                      alt={product.hero.alt}
+                      width={1400}
+                      height={788}
+                      className="h-auto w-full object-contain"
+                      sizes="(max-width: 820px) 92vw, 820px"
+                    />
+                  </div>
+                ) : (
+                  <PlaqueFan images={images} />
+                )}
                 <p className="mt-8 w-full text-center text-[0.68rem] uppercase tracking-[0.22em] text-white/70">
                   {product.subtitle}
                 </p>

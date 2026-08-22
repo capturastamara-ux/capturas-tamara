@@ -23,6 +23,8 @@ const planImages = {
   decoracion: "/images/plans/todo-incluido/section-decoracion.png",
   banqueteria: "/images/plans/todo-incluido/section-banqueteria.png",
   hero: "/images/hero/hero-desktop.jpeg",
+  retablo: "/images/hero/retablo-1.jpeg",
+  impresiones: "/images/hero/impresiones-1.png",
 } as const;
 
 export const portfolioCategories: PortfolioCategory[] = [

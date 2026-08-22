@@ -5,12 +5,18 @@ export type CatalogPriceRow = {
   price: number;
 };
 
+export type CatalogProductImage = {
+  src: string;
+  alt: string;
+};
+
 export type CatalogProduct = {
   id: string;
   eyebrow: string;
   title: string;
   subtitle: string;
-  images: ReadonlyArray<{ src: string; alt: string }>;
+  hero?: CatalogProductImage;
+  images: ReadonlyArray<CatalogProductImage>;
   rows: ReadonlyArray<CatalogPriceRow>;
 };
 
@@ -32,20 +38,11 @@ export const catalogConfig = {
       eyebrow: "Impresión premium",
       title: "Retablos en madera",
       subtitle: "Tamaño y valor de impresión en madera",
-      images: [
-        {
-          src: galleryAssetPaths.gallery01,
-          alt: "Retablo en madera con retrato fotográfico",
-        },
-        {
-          src: galleryAssetPaths.cover,
-          alt: "Retablo en madera con sesión familiar",
-        },
-        {
-          src: galleryAssetPaths.gallery02,
-          alt: "Retablo en madera con fotografía de celebración",
-        },
-      ],
+      hero: {
+        src: galleryAssetPaths.retablo,
+        alt: "Retablos en madera con fotografías de CapturasTamara",
+      },
+      images: [],
       rows: [
         { size: "10×15", price: 20_000 },
         { size: "13×18", price: 24_000 },
@@ -62,20 +59,11 @@ export const catalogConfig = {
       eyebrow: "Papel fotográfico",
       title: "Impresiones",
       subtitle: "Tamaño y valor de impresión en papel",
-      images: [
-        {
-          src: galleryAssetPaths.gallery03,
-          alt: "Impresión fotográfica en papel",
-        },
-        {
-          src: galleryAssetPaths.banqueteria,
-          alt: "Ampliación fotográfica impresa",
-        },
-        {
-          src: galleryAssetPaths.decoracion,
-          alt: "Set de impresiones fotográficas",
-        },
-      ],
+      hero: {
+        src: galleryAssetPaths.impresiones,
+        alt: "Impresiones fotográficas en papel de CapturasTamara",
+      },
+      images: [],
       rows: [
         { size: "10×15", price: 1_800 },
         { size: "13×18", price: 2_400 },
