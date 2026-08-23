@@ -43,9 +43,20 @@ import { getAdminReservationById } from "@/lib/db/admin";
 import { redirectAfterSave } from "@/lib/admin/return-to";
 import { reservationConfig } from "@/config/reservations";
 import { isRangeAvailable, parseTimeRange } from "@/lib/admin/time-slots";
+import {
+  deleteReservationFromGoogleCalendar,
+  syncReservationToGoogleCalendar,
+} from "@/lib/google/calendar";
 
 export type CreateReservationModalResult =
-  | { ok: true; emailSent: boolean; emailSentTo?: string; emailError?: string }
+  | {
+      ok: true;
+      emailSent: boolean;
+      emailSentTo?: string;
+      emailError?: string;
+      calendarSynced?: boolean;
+      calendarError?: string;
+    }
   | { ok: false; message: string; fieldErrors?: ReservationFormErrors };
 
 function revalidatePortfolio() {
@@ -787,6 +798,50 @@ export async function toggleDayAvailabilityAction(formData: FormData) {
   revalidatePath("/admin/reservas");
 }
 
+async function persistGoogleCalendarSync(
+  reservation: {
+    id: string;
+    eventDate: Date;
+    startTime: string | null;
+    clientName: string;
+    clientPhone: string;
+    clientEmail: string | null;
+    location: string | null;
+    notes: string | null;
+    status: ReservationStatus;
+    category?: { title: string } | null;
+    plan?: { title: string } | null;
+  },
+  existingEventId?: string | null,
+) {
+  const result = await syncReservationToGoogleCalendar(
+    {
+      eventDate: reservation.eventDate,
+      startTime: reservation.startTime,
+      clientName: reservation.clientName,
+      clientPhone: reservation.clientPhone,
+      clientEmail: reservation.clientEmail,
+      location: reservation.location,
+      notes: reservation.notes,
+      status: reservation.status,
+      categoryTitle: reservation.category?.title,
+      planTitle: reservation.plan?.title,
+    },
+    existingEventId,
+  );
+
+  if (result.status === "ok") {
+    await prisma.reservation.update({
+      where: { id: reservation.id },
+      data: { googleEventId: result.eventId },
+    });
+  } else if (result.status === "error") {
+    console.error("[reservas] Google Calendar:", result.error);
+  }
+
+  return result;
+}
+
 async function createReservationFromFormData(formData: FormData) {
   const validation = validateReservationFormData(formData);
   if (!validation.ok) {
@@ -865,8 +920,19 @@ export async function createReservationModalAction(
 
   revalidatePortfolio();
 
+  const calendarResult = await persistGoogleCalendarSync(reservation);
+  const calendarSynced = calendarResult.status === "ok";
+  const calendarError =
+    calendarResult.status === "error" ? calendarResult.error : undefined;
+
   if (!reservation.clientEmail) {
-    return { ok: true, emailSent: false, emailError: "La reserva no tiene correo." };
+    return {
+      ok: true,
+      emailSent: false,
+      emailError: "La reserva no tiene correo.",
+      calendarSynced,
+      calendarError,
+    };
   }
 
   const emailResult = await sendReservationConfirmationEmail({
@@ -889,7 +955,13 @@ export async function createReservationModalAction(
       "→",
       reservation.clientEmail,
     );
-    return { ok: true, emailSent: false, emailError: emailResult.error };
+    return {
+      ok: true,
+      emailSent: false,
+      emailError: emailResult.error,
+      calendarSynced,
+      calendarError,
+    };
   }
 
   console.info(
@@ -899,12 +971,19 @@ export async function createReservationModalAction(
     reservation.clientEmail,
   );
 
-  return { ok: true, emailSent: true, emailSentTo: reservation.clientEmail };
+  return {
+    ok: true,
+    emailSent: true,
+    emailSentTo: reservation.clientEmail,
+    calendarSynced,
+    calendarError,
+  };
 }
 
 export async function createReservationAction(formData: FormData) {
   const reservation = await createReservationFromFormData(formData);
   revalidatePortfolio();
+  await persistGoogleCalendarSync(reservation);
 
   if (reservation.clientEmail) {
     await sendReservationConfirmationEmail({
@@ -945,7 +1024,12 @@ export async function updateReservationAction(formData: FormData) {
     throw new Error(timeConflict);
   }
 
-  await prisma.reservation.update({
+  const existing = await prisma.reservation.findUnique({
+    where: { id },
+    select: { googleEventId: true },
+  });
+
+  const reservation = await prisma.reservation.update({
     where: { id },
     data: {
       eventDate,
@@ -965,7 +1049,13 @@ export async function updateReservationAction(formData: FormData) {
       subcategoryId: parseOptionalId(formData.get("subcategoryId")),
       planId: parseOptionalId(formData.get("planId")),
     },
+    include: {
+      category: { select: { title: true } },
+      plan: { select: { title: true } },
+    },
   });
+
+  await persistGoogleCalendarSync(reservation, existing?.googleEventId);
 
   revalidatePortfolio();
   redirectAfterSave(formData, "/admin/reservas", "updated");
@@ -975,7 +1065,13 @@ export async function deleteReservationAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   if (!id) return;
 
+  const existing = await prisma.reservation.findUnique({
+    where: { id },
+    select: { googleEventId: true },
+  });
+
   await prisma.reservation.delete({ where: { id } });
+  await deleteReservationFromGoogleCalendar(existing?.googleEventId);
   revalidatePortfolio();
   redirect("/admin/reservas");
 }

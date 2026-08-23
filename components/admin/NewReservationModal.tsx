@@ -230,8 +230,17 @@ export function NewReservationModal({
 
       if (!result.emailSent) {
         setEmailWarning(
-          result.emailError ??
-            "La reserva se guardó, pero no se pudo enviar el correo de confirmación.",
+          [
+            result.emailError ??
+              "La reserva se guardó, pero no se pudo enviar el correo de confirmación.",
+            result.calendarError
+              ? reservationConfig.calendar.failedSuffix
+              : result.calendarSynced
+                ? reservationConfig.calendar.syncedSuffix
+                : null,
+          ]
+            .filter(Boolean)
+            .join(" "),
         );
         setConfirmOpen(false);
         setFormVersion((value) => value + 1);
@@ -239,9 +248,18 @@ export function NewReservationModal({
         return;
       }
 
-      const successMessage = result.emailSentTo
-        ? `Reserva creada. Correo de confirmación enviado a ${result.emailSentTo}.`
-        : "Reserva creada. Correo de confirmación enviado.";
+      const successMessage = [
+        result.emailSentTo
+          ? `Reserva creada. Correo de confirmación enviado a ${result.emailSentTo}.`
+          : "Reserva creada. Correo de confirmación enviado.",
+        result.calendarError
+          ? reservationConfig.calendar.failedSuffix
+          : result.calendarSynced
+            ? reservationConfig.calendar.syncedSuffix
+            : null,
+      ]
+        .filter(Boolean)
+        .join(" ");
 
       setConfirmOpen(false);
       setFormVersion((value) => value + 1);

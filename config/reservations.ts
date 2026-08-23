@@ -102,6 +102,16 @@ export const reservationConfig = {
     signatureLineLabel: "Firma",
     fileNamePrefix: "contrato",
   },
+  calendar: {
+    timezone: "America/Bogota",
+    eventTitle: (clientName: string, planTitle: string) =>
+      planTitle && planTitle !== "—"
+        ? `Reserva · ${clientName} · ${planTitle}`
+        : `Reserva · ${clientName}`,
+    syncedSuffix: "Evento creado en Google Calendar.",
+    failedSuffix:
+      "La reserva se guardó, pero no se pudo crear en Google Calendar.",
+  },
   email: {
     subject: (clientName: string) => `Reserva registrada: ${clientName}`,
     noReplyNotice:

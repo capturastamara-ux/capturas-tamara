@@ -128,6 +128,7 @@ model Reservation {
   subcategory    Subcategory?  @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
   planId         String?
   plan           Plan?         @relation(fields: [planId], references: [id], onDelete: SetNull)
+  googleEventId  String?
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
 
