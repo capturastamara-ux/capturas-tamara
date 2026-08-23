@@ -83,9 +83,9 @@ export default async function EditReservationPage({ params }: Readonly<PageProps
               plans={plans.map((plan) => ({
                 id: plan.id,
                 title: plan.title,
-                categoryId: plan.subcategory.categoryId,
+                categoryId: plan.categoryId,
                 subcategoryId: plan.subcategoryId,
-                category: plan.subcategory.category,
+                category: plan.category,
                 price: plan.price,
               }))}
               showTimePicker

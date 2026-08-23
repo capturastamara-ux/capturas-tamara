@@ -44,24 +44,41 @@ export default async function EditPlanPage({ params }: PageProps) {
   return (
     <>
       <AdminPageHeader
-        eyebrow={`${plan.subcategory.category.title} · ${plan.subcategory.title} · Plan`}
+        eyebrow={
+          plan.subcategory
+            ? `${plan.category.title} · ${plan.subcategory.title} · Plan`
+            : `${plan.category.title} · Plan`
+        }
         title={plan.title}
         description="Edita el plan y administra sus secciones."
       />
 
       <div className="mb-6 flex flex-wrap gap-3 text-xs uppercase tracking-[0.12em]">
         <Link
-          href={`/portafolio/${plan.subcategory.category.slug}#${plan.slug}`}
+          href={
+            plan.subcategory
+              ? `/portafolio/${plan.category.slug}/${plan.subcategory.slug}#${plan.slug}`
+              : `/portafolio/${plan.category.slug}#${plan.slug}`
+          }
           className="text-primary hover:opacity-70"
         >
           Ver en el sitio
         </Link>
-        <Link
-          href={`/admin/subcategorias/${plan.subcategoryId}`}
-          className="text-muted hover:opacity-70"
-        >
-          Ir a subcategoría
-        </Link>
+        {plan.subcategoryId ? (
+          <Link
+            href={`/admin/subcategorias/${plan.subcategoryId}`}
+            className="text-muted hover:opacity-70"
+          >
+            Ir a subcategoría
+          </Link>
+        ) : (
+          <Link
+            href={`/admin/categorias/${plan.categoryId}`}
+            className="text-muted hover:opacity-70"
+          >
+            Ir a categoría
+          </Link>
+        )}
       </div>
 
       <AdminMediaScope>
@@ -76,8 +93,8 @@ export default async function EditPlanPage({ params }: PageProps) {
               <CategorySubcategorySelect
                 categories={categories}
                 subcategories={withPathLabels(subcategories)}
-                defaultCategoryId={plan.subcategory.categoryId}
-                defaultSubcategoryId={plan.subcategoryId}
+                defaultCategoryId={plan.categoryId}
+                defaultSubcategoryId={plan.subcategoryId ?? undefined}
               />
 
               <AdminField label="Pre título" name="tagline" defaultValue={plan.tagline} />

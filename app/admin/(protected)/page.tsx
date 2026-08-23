@@ -103,7 +103,8 @@ export default async function AdminDashboardPage() {
                   <span>
                     {plan.title}{" "}
                     <span className="text-muted">
-                      · {plan.subcategory.category.title} / {plan.subcategory.title}
+                      · {plan.category.title}
+                      {plan.subcategory ? ` / ${plan.subcategory.title}` : ""}
                     </span>
                   </span>
                   <span className="text-muted">

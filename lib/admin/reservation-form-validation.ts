@@ -71,11 +71,6 @@ export function validateReservationFormData(
     errors.categoryId = validation.category;
   }
 
-  const subcategoryId = String(formData.get("subcategoryId") ?? "").trim();
-  if (!subcategoryId) {
-    errors.subcategoryId = validation.subcategory;
-  }
-
   const planId = String(formData.get("planId") ?? "").trim();
   if (!planId) {
     errors.planId = validation.plan;

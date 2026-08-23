@@ -85,11 +85,12 @@ export async function getAdminSubcategoryById(id: string) {
 export async function getAdminPlans() {
   return prisma.plan.findMany({
     orderBy: [
-      { subcategory: { category: { sortOrder: "asc" } } },
+      { category: { sortOrder: "asc" } },
       { subcategory: { sortOrder: "asc" } },
       { sortOrder: "asc" },
     ],
     include: {
+      category: { select: { id: true, title: true, slug: true } },
       subcategory: {
         select: {
           id: true,
@@ -104,28 +105,65 @@ export async function getAdminPlans() {
 }
 
 export async function getAdminPlanGroups() {
-  const subcategories = await prisma.subcategory.findMany({
-    orderBy: [
-      { category: { sortOrder: "asc" } },
-      { sortOrder: "asc" },
-    ],
-    include: {
-      category: { select: { id: true, title: true, slug: true } },
-      plans: {
-        orderBy: { sortOrder: "asc" },
-        include: {
-          _count: { select: { sections: true } },
+  const [categories, subcategories] = await Promise.all([
+    prisma.category.findMany({
+      orderBy: { sortOrder: "asc" },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        plans: {
+          where: { subcategoryId: null },
+          orderBy: { sortOrder: "asc" },
+          include: { _count: { select: { sections: true } } },
         },
       },
-    },
-  });
+    }),
+    prisma.subcategory.findMany({
+      orderBy: [
+        { category: { sortOrder: "asc" } },
+        { sortOrder: "asc" },
+      ],
+      include: {
+        category: { select: { id: true, title: true, slug: true } },
+        plans: {
+          orderBy: { sortOrder: "asc" },
+          include: {
+            _count: { select: { sections: true } },
+          },
+        },
+      },
+    }),
+  ]);
 
   const labels = pathLabelMap(subcategories);
 
-  return subcategories
+  const categoryGroups = categories
+    .filter((category) => category.plans.length > 0)
+    .map((category) => ({
+      id: category.id,
+      scope: "category" as const,
+      title: category.title,
+      slug: category.slug,
+      categoryTitle: "Categoría",
+      plans: category.plans.map((plan) => ({
+        id: plan.id,
+        title: plan.title,
+        slug: plan.slug,
+        price: plan.price,
+        coverUrl: plan.coverUrl,
+        published: plan.published,
+        sectionCount: plan._count.sections,
+        categorySlug: category.slug,
+        subcategorySlug: null,
+      })),
+    }));
+
+  const subcategoryGroups = subcategories
     .filter((subcategory) => subcategory.plans.length > 0)
     .map((subcategory) => ({
       id: subcategory.id,
+      scope: "subcategory" as const,
       title: labels.get(subcategory.id) ?? subcategory.title,
       slug: subcategory.slug,
       categoryTitle: subcategory.category.title,
@@ -141,12 +179,15 @@ export async function getAdminPlanGroups() {
         subcategorySlug: subcategory.slug,
       })),
     }));
+
+  return [...categoryGroups, ...subcategoryGroups];
 }
 
 export async function getAdminPlanById(id: string) {
   return prisma.plan.findUnique({
     where: { id },
     include: {
+      category: true,
       subcategory: {
         include: { category: true },
       },
@@ -167,6 +208,7 @@ export async function getAdminSectionById(id: string) {
         select: {
           id: true,
           title: true,
+          category: { select: { title: true } },
           subcategory: {
             select: {
               title: true,
@@ -254,14 +296,16 @@ export async function getAdminCalendarData() {
 
   const plans = await prisma.plan.findMany({
     orderBy: [
-      { subcategory: { category: { sortOrder: "asc" } } },
+      { category: { sortOrder: "asc" } },
       { subcategory: { sortOrder: "asc" } },
       { sortOrder: "asc" },
     ],
     select: {
       id: true,
       title: true,
+      categoryId: true,
       subcategoryId: true,
+      category: { select: { title: true } },
       subcategory: {
         select: {
           categoryId: true,
@@ -325,6 +369,7 @@ export async function getAdminReservationById(id: string) {
           tagline: true,
           description: true,
           price: true,
+          categoryId: true,
           subcategoryId: true,
           subcategory: {
             select: {
@@ -344,14 +389,16 @@ export async function getAdminReservationById(id: string) {
 export async function getAdminPlanOptions() {
   return prisma.plan.findMany({
     orderBy: [
-      { subcategory: { category: { sortOrder: "asc" } } },
+      { category: { sortOrder: "asc" } },
       { subcategory: { sortOrder: "asc" } },
       { sortOrder: "asc" },
     ],
     select: {
       id: true,
       title: true,
+      categoryId: true,
       subcategoryId: true,
+      category: { select: { title: true } },
       subcategory: {
         select: {
           categoryId: true,
@@ -368,6 +415,14 @@ export async function getAdminComparisonCategories() {
   const categories = await prisma.category.findMany({
     orderBy: { sortOrder: "asc" },
     include: {
+      plans: {
+        where: { subcategoryId: null },
+        orderBy: { sortOrder: "asc" },
+        include: {
+          sections: { orderBy: { sortOrder: "asc" } },
+          priceTiers: { orderBy: { sortOrder: "asc" } },
+        },
+      },
       subcategories: {
         orderBy: { sortOrder: "asc" },
         include: {
@@ -387,6 +442,9 @@ export async function getAdminComparisonCategories() {
     id: category.id,
     slug: category.slug,
     title: category.title,
-    plans: category.subcategories.flatMap((subcategory) => subcategory.plans),
+    plans: [
+      ...category.plans,
+      ...category.subcategories.flatMap((subcategory) => subcategory.plans),
+    ],
   }));
 }

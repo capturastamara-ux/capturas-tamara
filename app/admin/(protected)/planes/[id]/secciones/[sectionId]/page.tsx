@@ -27,7 +27,7 @@ export default async function EditSectionPage({ params }: Readonly<PageProps>) {
   return (
     <>
       <AdminPageHeader
-        eyebrow={`${section.plan.subcategory.category.title} · ${section.plan.title} · Sección`}
+        eyebrow={`${section.plan.category.title} · ${section.plan.title} · Sección`}
         title={section.title}
         description="Edita los datos de esta sección del plan."
       />

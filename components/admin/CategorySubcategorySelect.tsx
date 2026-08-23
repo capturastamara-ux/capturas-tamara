@@ -36,11 +36,7 @@ export function CategorySubcategorySelect({
     "";
 
   const [categoryId, setCategoryId] = useState(initialCategoryId);
-  const [subcategoryId, setSubcategoryId] = useState(
-    defaultSubcategoryId ||
-      subcategories.find((item) => item.categoryId === initialCategoryId)?.id ||
-      "",
-  );
+  const [subcategoryId, setSubcategoryId] = useState(defaultSubcategoryId ?? "");
 
   const filtered = useMemo(
     () => subcategories.filter((item) => item.categoryId === categoryId),
@@ -57,13 +53,13 @@ export function CategorySubcategorySelect({
           Categoría{required ? " *" : ""}
         </span>
         <select
+          name="categoryId"
           value={categoryId}
           required={required}
           onChange={(event) => {
             const nextCategoryId = event.target.value;
             setCategoryId(nextCategoryId);
-            const first = subcategories.find((item) => item.categoryId === nextCategoryId);
-            setSubcategoryId(first?.id ?? "");
+            setSubcategoryId("");
           }}
           className={selectClassName}
         >
@@ -80,20 +76,19 @@ export function CategorySubcategorySelect({
 
       <label className="flex flex-col gap-2">
         <span className="text-xs uppercase tracking-[0.12em] text-muted">
-          Subcategoría{required ? " *" : ""}
+          Subcategoría
         </span>
         <select
           name="subcategoryId"
-          required={required}
           disabled={!categoryId}
           value={subcategoryId}
           onChange={(event) => setSubcategoryId(event.target.value)}
           className={selectClassName}
         >
-          <option value="" disabled>
+          <option value="">
             {categoryId
               ? filtered.length > 0
-                ? "Selecciona una subcategoría"
+                ? "Solo categoría (sin subcategoría)"
                 : "Esta categoría no tiene subcategorías"
               : "Primero elige una categoría"}
           </option>

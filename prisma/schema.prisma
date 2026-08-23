@@ -21,6 +21,7 @@ model Category {
   sortOrder     Int           @default(0)
   published     Boolean       @default(true)
   subcategories Subcategory[]
+  plans         Plan[]
   reservations  Reservation[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
@@ -52,11 +53,13 @@ model Subcategory {
   @@index([parentId, sortOrder])
 }
 
-/// Plan ofrecido dentro de una subcategoría
+/// Plan ofrecido en una categoría; la subcategoría es opcional
 model Plan {
   id            String           @id @default(cuid())
-  subcategoryId String
-  subcategory   Subcategory      @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
+  categoryId    String
+  category      Category         @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  subcategoryId String?
+  subcategory   Subcategory?     @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
   slug          String
   title         String
   tagline       String?
@@ -73,6 +76,7 @@ model Plan {
   updatedAt     DateTime         @updatedAt
 
   @@unique([subcategoryId, slug])
+  @@index([categoryId, published, sortOrder])
   @@index([subcategoryId, published, sortOrder])
 }
 

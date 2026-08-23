@@ -393,21 +393,32 @@ export async function deleteSubcategoryAction(formData: FormData) {
 }
 
 export async function createPlanAction(formData: FormData) {
-  const subcategoryId = String(formData.get("subcategoryId") ?? "");
+  const categoryId = String(formData.get("categoryId") ?? "").trim();
+  const subcategoryId = parseOptionalId(formData.get("subcategoryId"));
   const title = String(formData.get("title") ?? "").trim();
-  if (!subcategoryId || !title) {
-    throw new Error("Subcategoría y título son obligatorios.");
+  if (!categoryId || !title) {
+    throw new Error("Categoría y título son obligatorios.");
   }
 
-  const slug = await uniquePlanSlug(subcategoryId, title);
+  if (subcategoryId) {
+    const subcategory = await prisma.subcategory.findFirst({
+      where: { id: subcategoryId, categoryId },
+      select: { id: true },
+    });
+    if (!subcategory) {
+      throw new Error("La subcategoría no pertenece a esa categoría.");
+    }
+  }
+
+  const slug = await uniquePlanSlug(categoryId, title, undefined, subcategoryId);
 
   const coverUrl = parseOptionalString(formData.get("coverUrl"));
   const planPrice = parseOptionalPrice(formData.get("price"));
 
-  let plan;
   try {
-    plan = await prisma.plan.create({
+    await prisma.plan.create({
       data: {
+        categoryId,
         subcategoryId,
         title,
         slug,
@@ -415,7 +426,7 @@ export async function createPlanAction(formData: FormData) {
         price: planPrice,
         description: parseRichTextOptional(formData.get("description")),
         coverUrl,
-        sortOrder: await nextPlanSortOrder(subcategoryId),
+        sortOrder: await nextPlanSortOrder({ categoryId, subcategoryId }),
         published: parsePublished(formData.get("published")),
       },
     });
@@ -430,22 +441,34 @@ export async function createPlanAction(formData: FormData) {
 
 export async function updatePlanAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
-  const subcategoryId = String(formData.get("subcategoryId") ?? "");
+  const categoryId = String(formData.get("categoryId") ?? "").trim();
+  const subcategoryId = parseOptionalId(formData.get("subcategoryId"));
   const title = String(formData.get("title") ?? "").trim();
-  if (!id || !subcategoryId || !title) {
+  if (!id || !categoryId || !title) {
     throw new Error("Datos incompletos.");
   }
 
-  const slug = await uniquePlanSlug(subcategoryId, title, id);
+  if (subcategoryId) {
+    const subcategory = await prisma.subcategory.findFirst({
+      where: { id: subcategoryId, categoryId },
+      select: { id: true },
+    });
+    if (!subcategory) {
+      throw new Error("La subcategoría no pertenece a esa categoría.");
+    }
+  }
+
+  const slug = await uniquePlanSlug(categoryId, title, id, subcategoryId);
   const existing = await prisma.plan.findUnique({
     where: { id },
-    select: { coverUrl: true, subcategoryId: true },
+    select: { coverUrl: true, categoryId: true, subcategoryId: true },
   });
   const coverUrl = parseOptionalString(formData.get("coverUrl"));
   const planPrice = parseOptionalPrice(formData.get("price"));
-  const subcategoryChanged = existing?.subcategoryId !== subcategoryId;
-  const sortOrder = subcategoryChanged
-    ? await nextPlanSortOrder(subcategoryId)
+  const parentChanged =
+    existing?.categoryId !== categoryId || existing?.subcategoryId !== subcategoryId;
+  const sortOrder = parentChanged
+    ? await nextPlanSortOrder({ categoryId, subcategoryId })
     : undefined;
 
   await prisma.$transaction([
@@ -453,6 +476,7 @@ export async function updatePlanAction(formData: FormData) {
     prisma.plan.update({
       where: { id },
       data: {
+        categoryId,
         subcategoryId,
         title,
         slug,
@@ -519,11 +543,18 @@ export async function createSectionAction(formData: FormData) {
   revalidatePath(`/admin/planes/${planId}`);
 }
 
-export async function reorderPlansAction(subcategoryId: string, orderedIds: string[]) {
-  if (!subcategoryId || orderedIds.length === 0) return;
+export async function reorderPlansAction(
+  parentId: string,
+  orderedIds: string[],
+  scope: "category" | "subcategory" = "subcategory",
+) {
+  if (!parentId || orderedIds.length === 0) return;
 
   const existing = await prisma.plan.findMany({
-    where: { subcategoryId },
+    where:
+      scope === "category"
+        ? { categoryId: parentId, subcategoryId: null }
+        : { subcategoryId: parentId },
     select: { id: true },
   });
   const existingIds = new Set(existing.map((plan) => plan.id));
@@ -853,7 +884,7 @@ async function createReservationFromFormData(formData: FormData) {
   const clientEmail = String(formData.get("clientEmail") ?? "").trim();
   const clientIdNumber = String(formData.get("clientIdNumber") ?? "").trim();
   const categoryId = String(formData.get("categoryId") ?? "").trim();
-  const subcategoryId = String(formData.get("subcategoryId") ?? "").trim();
+  const subcategoryId = parseOptionalId(formData.get("subcategoryId"));
   const planId = String(formData.get("planId") ?? "").trim();
   const eventDate = parseEventDate(formData.get("eventDate"));
   const startTime = parseOptionalString(formData.get("startTime"));

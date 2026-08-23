@@ -20,13 +20,17 @@ const planInclude = {
   },
 };
 
-const publishedHierarchy = {
+const publishedPlanWhere = {
   published: true,
-  subcategory: {
-    published: true,
-    category: { published: true },
-  },
-} as const;
+  category: { published: true },
+  OR: [{ subcategoryId: null }, { subcategory: { published: true } }],
+};
+
+const publishedPlanOrderBy = [
+  { category: { sortOrder: "asc" as const } },
+  { subcategory: { sortOrder: "asc" as const } },
+  { sortOrder: "asc" as const },
+];
 
 export async function getPublishedCategories() {
   return prisma.category.findMany({
@@ -60,6 +64,11 @@ export async function getCategoryBySlug(slug: string) {
   const category = await prisma.category.findFirst({
     where: { slug, published: true },
     include: {
+      plans: {
+        where: { published: true, subcategoryId: null },
+        orderBy: { sortOrder: "asc" },
+        include: planInclude,
+      },
       subcategories: {
         where: { published: true },
         orderBy: { sortOrder: "asc" },
@@ -167,13 +176,10 @@ export async function getPlanBySlugs(
 
 export async function getAllPublishedPlans() {
   return prisma.plan.findMany({
-    where: publishedHierarchy,
-    orderBy: [
-      { subcategory: { category: { sortOrder: "asc" } } },
-      { subcategory: { sortOrder: "asc" } },
-      { sortOrder: "asc" },
-    ],
+    where: publishedPlanWhere,
+    orderBy: publishedPlanOrderBy,
     include: {
+      category: { select: { id: true, slug: true, title: true } },
       subcategory: {
         select: {
           id: true,
@@ -188,12 +194,8 @@ export async function getAllPublishedPlans() {
 
 export async function getLandingGalleryImages() {
   const plans = await prisma.plan.findMany({
-    where: publishedHierarchy,
-    orderBy: [
-      { subcategory: { category: { sortOrder: "asc" } } },
-      { subcategory: { sortOrder: "asc" } },
-      { sortOrder: "asc" },
-    ],
+    where: publishedPlanWhere,
+    orderBy: publishedPlanOrderBy,
     select: {
       title: true,
       coverUrl: true,
@@ -271,12 +273,8 @@ function shuffle<T>(items: T[]) {
 
 export async function getPublishedPlanImages(): Promise<PlanMediaImage[]> {
   const plans = await prisma.plan.findMany({
-    where: publishedHierarchy,
-    orderBy: [
-      { subcategory: { category: { sortOrder: "asc" } } },
-      { subcategory: { sortOrder: "asc" } },
-      { sortOrder: "asc" },
-    ],
+    where: publishedPlanWhere,
+    orderBy: publishedPlanOrderBy,
     select: {
       title: true,
       coverUrl: true,
@@ -347,6 +345,10 @@ export async function getPublicComparisonCategories() {
     where: { published: true },
     orderBy: { sortOrder: "asc" },
     include: {
+      plans: {
+        where: { published: true, subcategoryId: null },
+        select: { id: true },
+      },
       subcategories: {
         where: { published: true },
         include: {
@@ -361,7 +363,10 @@ export async function getPublicComparisonCategories() {
 
   return categories.map((category) => ({
     ...category,
-    plans: category.subcategories.flatMap((subcategory) => subcategory.plans),
+    plans: [
+      ...category.plans,
+      ...category.subcategories.flatMap((subcategory) => subcategory.plans),
+    ],
   }));
 }
 
@@ -369,6 +374,14 @@ export async function getPublicComparisonBySlug(slug: string) {
   const category = await prisma.category.findFirst({
     where: { slug, published: true },
     include: {
+      plans: {
+        where: { published: true, subcategoryId: null },
+        orderBy: { sortOrder: "asc" },
+        include: {
+          sections: { orderBy: { sortOrder: "asc" } },
+          priceTiers: { orderBy: { sortOrder: "asc" } },
+        },
+      },
       subcategories: {
         where: { published: true },
         orderBy: { sortOrder: "asc" },
@@ -390,6 +403,9 @@ export async function getPublicComparisonBySlug(slug: string) {
 
   return {
     ...category,
-    plans: category.subcategories.flatMap((subcategory) => subcategory.plans),
+    plans: [
+      ...category.plans,
+      ...category.subcategories.flatMap((subcategory) => subcategory.plans),
+    ],
   };
 }

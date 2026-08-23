@@ -32,7 +32,7 @@ export default async function NewPlanPage({ searchParams }: PageProps) {
       <AdminPageHeader
         eyebrow="Planes"
         title="Nuevo plan"
-        description="Después de crearlo podrás agregar secciones y galería."
+        description="Puedes colgarlo de una subcategoría o solo de la categoría. Después de crearlo podrás agregar secciones y galería."
       />
 
       {categories.length === 0 ? (
@@ -40,14 +40,6 @@ export default async function NewPlanPage({ searchParams }: PageProps) {
           Primero crea una categoría en{" "}
           <a href="/admin/categorias/nueva" className="underline">
             Categorías
-          </a>
-          .
-        </p>
-      ) : subcategories.length === 0 ? (
-        <p className="text-sm text-muted">
-          Primero crea una subcategoría en{" "}
-          <a href="/admin/subcategorias/nueva" className="underline">
-            Subcategorías
           </a>
           .
         </p>

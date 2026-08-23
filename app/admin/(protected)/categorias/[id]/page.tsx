@@ -99,7 +99,16 @@ export default async function EditCategoryPage({ params }: PageProps) {
                 </li>
               ))}
               {category.subcategories.length === 0 && (
-                <li className="text-sm text-muted">Sin subcategorías todavía.</li>
+                <li className="text-sm text-muted">
+                  Sin subcategorías. Puedes{" "}
+                  <Link
+                    href={`/admin/planes/nuevo?categoryId=${category.id}`}
+                    className="underline"
+                  >
+                    crear un plan
+                  </Link>{" "}
+                  directo en esta categoría.
+                </li>
               )}
             </ul>
           </section>

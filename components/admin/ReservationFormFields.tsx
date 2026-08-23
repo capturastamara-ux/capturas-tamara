@@ -32,7 +32,7 @@ export type ReservationPlanOption = {
   id: string;
   title: string;
   categoryId: string;
-  subcategoryId: string;
+  subcategoryId: string | null;
   category: { title: string };
   price: number | null;
 };
@@ -106,13 +106,15 @@ export function ReservationFormFields({
     [categoryId, subcategories],
   );
 
-  const filteredPlans = useMemo(
-    () =>
-      subcategoryId
-        ? plans.filter((plan) => plan.subcategoryId === subcategoryId)
-        : [],
-    [plans, subcategoryId],
-  );
+  const filteredPlans = useMemo(() => {
+    if (!categoryId) return [];
+    if (subcategoryId) {
+      return plans.filter((plan) => plan.subcategoryId === subcategoryId);
+    }
+    return plans.filter(
+      (plan) => plan.categoryId === categoryId && plan.subcategoryId == null,
+    );
+  }, [categoryId, plans, subcategoryId]);
 
   const selectedPlan = useMemo(
     () => plans.find((plan) => plan.id === planId) ?? null,
@@ -139,10 +141,10 @@ export function ReservationFormFields({
   }, [categoryId, filteredSubcategories, subcategoryId]);
 
   useEffect(() => {
-    if (planId && subcategoryId && !filteredPlans.some((plan) => plan.id === planId)) {
+    if (planId && categoryId && !filteredPlans.some((plan) => plan.id === planId)) {
       setPlanId("");
     }
-  }, [filteredPlans, planId, subcategoryId]);
+  }, [categoryId, filteredPlans, planId]);
 
   function handleCategoryChange(nextCategoryId: string) {
     setCategoryId(nextCategoryId);
@@ -245,17 +247,20 @@ export function ReservationFormFields({
       </label>
 
       <label className="flex flex-col gap-2">
-        <span className="text-xs uppercase tracking-[0.12em] text-muted">Subcategoría *</span>
+        <span className="text-xs uppercase tracking-[0.12em] text-muted">Subcategoría</span>
         <select
           name="subcategoryId"
-          required
           value={subcategoryId}
           disabled={!categoryId}
           onChange={(event) => handleSubcategoryChange(event.target.value)}
           className={cn(inputClassName, fieldErrors?.subcategoryId && "border-accent/50")}
         >
-          <option value="" disabled>
-            {categoryId ? "Selecciona una subcategoría" : "Primero elige una categoría"}
+          <option value="">
+            {categoryId
+              ? filteredSubcategories.length > 0
+                ? "Solo categoría (sin subcategoría)"
+                : "Esta categoría no tiene subcategorías"
+              : "Primero elige una categoría"}
           </option>
           {filteredSubcategories.map((subcategory) => (
             <option key={subcategory.id} value={subcategory.id}>
@@ -272,12 +277,12 @@ export function ReservationFormFields({
           name="planId"
           required
           value={planId}
-          disabled={!subcategoryId}
+          disabled={!categoryId}
           onChange={(event) => setPlanId(event.target.value)}
           className={cn(inputClassName, fieldErrors?.planId && "border-accent/50")}
         >
           <option value="" disabled>
-            {subcategoryId ? "Selecciona un plan" : "Primero elige una subcategoría"}
+            {categoryId ? "Selecciona un plan" : "Primero elige una categoría"}
           </option>
           {filteredPlans.map((plan) => (
             <option key={plan.id} value={plan.id}>

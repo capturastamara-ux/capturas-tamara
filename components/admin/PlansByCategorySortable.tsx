@@ -18,11 +18,12 @@ export type SortablePlan = {
   published: boolean;
   sectionCount: number;
   categorySlug: string;
-  subcategorySlug: string;
+  subcategorySlug: string | null;
 };
 
 export type PlanCategoryGroup = {
   id: string;
+  scope: "category" | "subcategory";
   title: string;
   slug: string;
   categoryTitle: string;
@@ -50,12 +51,14 @@ function GripIcon() {
 }
 
 type PlanSortableListProps = {
-  subcategoryId: string;
+  parentId: string;
+  scope: "category" | "subcategory";
   plans: SortablePlan[];
 };
 
 function PlanSortableList({
-  subcategoryId,
+  parentId,
+  scope,
   plans: initialPlans,
 }: Readonly<PlanSortableListProps>) {
   const [plans, setPlans] = useState(initialPlans);
@@ -71,8 +74,9 @@ function PlanSortableList({
     setPlans(next);
     startTransition(async () => {
       await reorderPlansAction(
-        subcategoryId,
+        parentId,
         next.map((plan) => plan.id),
+        scope,
       );
     });
   };
@@ -191,7 +195,11 @@ function PlanSortableList({
               Editar
             </Link>
             <Link
-              href={`/portafolio/${plan.categorySlug}#${plan.slug}`}
+              href={
+                plan.subcategorySlug
+                  ? `/portafolio/${plan.categorySlug}/${plan.subcategorySlug}#${plan.slug}`
+                  : `/portafolio/${plan.categorySlug}#${plan.slug}`
+              }
               className="text-xs uppercase tracking-[0.1em] text-muted hover:opacity-70"
               draggable={false}
             >
@@ -231,7 +239,7 @@ export function PlansByCategorySortable({
     <div className="space-y-8">
       {groups.map((group) => (
         <section
-          key={group.id}
+          key={`${group.scope}-${group.id}`}
           className="overflow-hidden rounded-sm border border-primary/10 bg-background p-4 sm:p-5"
         >
           <div className="flex flex-wrap items-end justify-between gap-3 border-b border-primary/10 pb-4">
@@ -247,7 +255,7 @@ export function PlansByCategorySortable({
           </div>
 
           <div className="mt-4">
-            <PlanSortableList subcategoryId={group.id} plans={group.plans} />
+            <PlanSortableList parentId={group.id} scope={group.scope} plans={group.plans} />
           </div>
         </section>
       ))}

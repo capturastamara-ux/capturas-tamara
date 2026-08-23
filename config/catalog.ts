@@ -80,32 +80,40 @@ export const catalogConfig = {
     title: "Condiciones",
     items: [
       {
-        title: "Entrega",
-        body: "El material visual digital se entrega en máx. 2 días; impresiones o retablo de madera en máx. 5 días después de haber realizado la sesión.",
+        title: "Galería",
+        body: "Tu galería digital privada para la selección de fotos del paquete contratado estará disponible en 24 horas máximo.",
+      },
+      {
+        title: "Digital",
+        body: "El material digital seleccionado se entregará 72 horas máximo luego de la selección.",
+      },
+      {
+        title: "Físico",
+        body: "El material físico se entregará 5 días después de la sesión.",
       },
       {
         title: "Anticipo",
-        body: "Debe reservar con el 50% de la sesión y el otro 50% una vez entregado el material físico si es el caso; de lo contrario deberá cancelar el otro 50% una vez finalizada la sesión.",
+        body: "Debe reservar con el 50% del valor del paquete contratado y el otro 50% una vez finalizada la sesión.",
       },
       {
         title: "Cobertura",
-        body: "Se cubre todo Manizales y Villamaría. Si es por fuera de estas, los viáticos corren por cuenta del cliente (desplazamiento, comida y hospedaje de ser el caso).",
+        body: "Se cubre en la ciudad de Manizales y Villamaría. Si la locación es por fuera de estas, los viáticos corren por cuenta del cliente (desplazamiento, comida y hospedaje de ser el caso).",
       },
       {
         title: "Fotos extra",
-        body: "Si desea fotos en formato digital adicionales al paquete contratado, tendrá un costo de $4.000 cada una.",
-      },
-      {
-        title: "Selección",
-        body: "Se envían todas las fotos tomadas en la sesión y usted escoge la cantidad de fotos del paquete que contrató para su respectiva edición en posproducción.",
+        body: "Si deseas fotos impresas adicionales a las contratadas, tendrá un costo de $5.000 cada una.",
       },
       {
         title: "Uso de imagen",
-        body: "El material puede ser usado como parte del portafolio y contenido publicitario del fotógrafo.",
+        body: "El material puede ser usado como parte del portafolio y contenido publicitario de la marca. En caso de no autorizar el uso del mismo, informar al fotógrafo.",
       },
       {
         title: "Confirmación",
         body: "Recuerda enviarnos un pantallazo a nuestro WhatsApp del 50% para agendar tu reserva.",
+      },
+      {
+        title: "Cancelación",
+        body: "En caso de cancelación por algún motivo, se puede reprogramar la sesión pero no se hará devolución de dinero, a no ser que sea un caso fortuito donde esté en juego la integridad del cliente.",
       },
     ],
   },

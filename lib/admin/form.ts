@@ -58,9 +58,10 @@ export async function uniqueSubcategorySlug(
 }
 
 export async function uniquePlanSlug(
-  subcategoryId: string,
+  categoryId: string,
   title: string,
   excludeId?: string,
+  subcategoryId?: string | null,
 ) {
   const base = slugify(title) || "plan";
   let candidate = base;
@@ -68,11 +69,18 @@ export async function uniquePlanSlug(
 
   while (true) {
     const existing = await prisma.plan.findFirst({
-      where: {
-        subcategoryId,
-        slug: candidate,
-        ...(excludeId ? { NOT: { id: excludeId } } : {}),
-      },
+      where: subcategoryId
+        ? {
+            subcategoryId,
+            slug: candidate,
+            ...(excludeId ? { NOT: { id: excludeId } } : {}),
+          }
+        : {
+            categoryId,
+            subcategoryId: null,
+            slug: candidate,
+            ...(excludeId ? { NOT: { id: excludeId } } : {}),
+          },
       select: { id: true },
     });
 
@@ -98,9 +106,14 @@ export async function nextSubcategorySortOrder(
   return (result._max.sortOrder ?? -1) + 1;
 }
 
-export async function nextPlanSortOrder(subcategoryId: string) {
+export async function nextPlanSortOrder(input: {
+  categoryId: string;
+  subcategoryId: string | null;
+}) {
   const result = await prisma.plan.aggregate({
-    where: { subcategoryId },
+    where: input.subcategoryId
+      ? { subcategoryId: input.subcategoryId }
+      : { categoryId: input.categoryId, subcategoryId: null },
     _max: { sortOrder: true },
   });
   return (result._max.sortOrder ?? -1) + 1;

@@ -10,6 +10,7 @@ import { siteConfig } from "@/config/site";
 import { getCategoryBySlug } from "@/lib/db/portfolio";
 import { richTextToPlainText } from "@/lib/sanitize-rich-text";
 import { PortfolioLevelView } from "@/components/sections/PortfolioLevelView";
+import { PortfolioPlanSplits } from "@/components/sections/PortfolioPlanSplits";
 
 export const dynamic = "force-dynamic";
 
@@ -60,7 +61,7 @@ export default async function CategorySubcategoriesPage({ params }: PageProps) {
 
             <Reveal delay={0.06} className="mt-6 sm:mt-8">
               <p className="text-[0.65rem] uppercase tracking-[0.32em] text-catalog-gold">
-                Subcategorías
+                {category.subcategories.length > 0 ? "Subcategorías" : "Planes"}
               </p>
               <SectionHeading
                 as="h1"
@@ -80,11 +81,23 @@ export default async function CategorySubcategoriesPage({ params }: PageProps) {
                 categorySlug={category.slug}
                 nodes={category.subcategories}
               />
-            ) : (
+            ) : null}
+
+            {category.plans.length > 0 ? (
+              <div className="mt-10 sm:mt-12">
+                <PortfolioPlanSplits
+                  tone="catalog"
+                  categoryTitle={category.title}
+                  plans={category.plans}
+                />
+              </div>
+            ) : null}
+
+            {category.subcategories.length === 0 && category.plans.length === 0 ? (
               <p className="mt-10 text-white/70">
-                Aún no hay subcategorías publicadas en {category.title}.
+                Aún no hay contenido publicado en {category.title}.
               </p>
-            )}
+            ) : null}
           </div>
         </CatalogBand>
       </main>

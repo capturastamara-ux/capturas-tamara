@@ -41,9 +41,9 @@ export default async function AdminReservationsPage({ searchParams }: Readonly<P
       planOptions={plans.map((plan) => ({
         id: plan.id,
         title: plan.title,
-        categoryId: plan.subcategory.categoryId,
+        categoryId: plan.categoryId,
         subcategoryId: plan.subcategoryId,
-        category: plan.subcategory.category,
+        category: plan.category,
         price: plan.price,
       }))}
       clients={clients}
