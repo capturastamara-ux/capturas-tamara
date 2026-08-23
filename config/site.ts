@@ -22,8 +22,8 @@ export const siteConfig = {
   logo: {
     main: "/images/logo/logo-3.png",
     isotype: "/images/logo/logo-3.png",
-    wordmark: "CapturasTamara",
-    alt: "Logo CapturasTamara",
+    wordmark: "Capturas Tamara",
+    alt: "Logo Capturas Tamara",
   },
   hero: {
     titleLine: "WILL",
