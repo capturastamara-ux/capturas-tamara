@@ -14,6 +14,7 @@ import {
   nextPlanSortOrder,
   nextSectionSortOrder,
   nextSubcategoryGallerySortOrder,
+  nextCategoryGallerySortOrder,
   nextSubcategorySortOrder,
   parseOptionalString,
   parseOptionalPrice,
@@ -168,6 +169,13 @@ export async function deleteCategoryAction(formData: FormData) {
   const category = await prisma.category.findUnique({
     where: { id },
     include: {
+      gallery: true,
+      plans: {
+        include: {
+          sections: true,
+          gallery: true,
+        },
+      },
       subcategories: {
         include: {
           gallery: true,
@@ -699,6 +707,53 @@ export async function deleteSubcategoryGalleryImageAction(formData: FormData) {
 
   revalidatePortfolio();
   revalidatePath(`/admin/subcategorias/${subcategoryId}`);
+}
+
+export async function createCategoryGalleryImagesAction(formData: FormData) {
+  const categoryId = String(formData.get("categoryId") ?? "");
+  const urls = formData
+    .getAll("url")
+    .map((value) => String(value).trim())
+    .filter(Boolean);
+
+  if (!categoryId || urls.length === 0) return;
+
+  const startOrder = await nextCategoryGallerySortOrder(categoryId);
+
+  try {
+    await prisma.categoryGalleryImage.createMany({
+      data: urls.map((url, index) => ({
+        categoryId,
+        url,
+        sortOrder: startOrder + index,
+      })),
+    });
+  } catch (error) {
+    await deleteStoredMedia(urls);
+    throw error;
+  }
+
+  revalidatePortfolio();
+  revalidatePath(`/admin/categorias/${categoryId}`);
+}
+
+export async function deleteCategoryGalleryImageAction(formData: FormData) {
+  const id = String(formData.get("id") ?? "");
+  const categoryId = String(formData.get("categoryId") ?? "");
+  if (!id || !categoryId) return;
+
+  const image = await prisma.categoryGalleryImage.findUnique({
+    where: { id },
+    select: { url: true },
+  });
+
+  if (image) {
+    await deleteStoredMedia([image.url]);
+    await prisma.categoryGalleryImage.delete({ where: { id } });
+  }
+
+  revalidatePortfolio();
+  revalidatePath(`/admin/categorias/${categoryId}`);
 }
 
 export async function createGalleryImageAction(formData: FormData) {

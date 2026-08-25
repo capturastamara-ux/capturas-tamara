@@ -2,8 +2,8 @@
 
 import { useId, useState, useTransition } from "react";
 import {
-  createSubcategoryGalleryImagesAction,
-  deleteSubcategoryGalleryImageAction,
+  createCategoryGalleryImagesAction,
+  deleteCategoryGalleryImageAction,
 } from "@/app/admin/actions";
 import { useUploadFormTrack } from "@/components/admin/UploadFormContext";
 import { useNotifyUploadingChange } from "@/components/admin/useUploadProgressTracker";
@@ -20,15 +20,15 @@ type GalleryImage = {
   url: string;
 };
 
-type SubcategoryGalleryFieldProps = {
-  subcategoryId: string;
+type CategoryGalleryFieldProps = {
+  categoryId: string;
   images: GalleryImage[];
 };
 
-export function SubcategoryGalleryField({
-  subcategoryId,
+export function CategoryGalleryField({
+  categoryId,
   images,
-}: Readonly<SubcategoryGalleryFieldProps>) {
+}: Readonly<CategoryGalleryFieldProps>) {
   const inputId = useId();
   const trackUpload = useUploadFormTrack();
   const notifyUploadingChange = useNotifyUploadingChange(trackUpload);
@@ -44,10 +44,10 @@ export function SubcategoryGalleryField({
   const removeImage = (image: GalleryImage) => {
     const formData = new FormData();
     formData.set("id", image.id);
-    formData.set("subcategoryId", subcategoryId);
+    formData.set("categoryId", categoryId);
     setPendingDeleteId(image.id);
     startTransition(() => {
-      void deleteSubcategoryGalleryImageAction(formData);
+      void deleteCategoryGalleryImageAction(formData);
     });
   };
 
@@ -82,7 +82,7 @@ export function SubcategoryGalleryField({
         supabase,
         file,
         "image",
-        "subcategory-gallery",
+        "category-gallery",
       );
       if (!result.ok) {
         setError(result.error);
@@ -93,12 +93,12 @@ export function SubcategoryGalleryField({
 
     if (uploadedUrls.length > 0) {
       const formData = new FormData();
-      formData.set("subcategoryId", subcategoryId);
+      formData.set("categoryId", categoryId);
       for (const url of uploadedUrls) {
         formData.append("url", url);
       }
       startTransition(() => {
-        void createSubcategoryGalleryImagesAction(formData);
+        void createCategoryGalleryImagesAction(formData);
       });
     }
 

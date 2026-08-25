@@ -7,18 +7,11 @@ import {
   uploadPortfolioMedia,
   validateMediaFile,
   type MediaKind,
+  type MediaScope,
 } from "@/lib/storage/media";
 import { useUploadFormTrack } from "@/components/admin/UploadFormContext";
 import { useNotifyUploadingChange } from "@/components/admin/useUploadProgressTracker";
 import { cn } from "@/lib/cn";
-
-type MediaScope =
-  | "categories"
-  | "subcategories"
-  | "plans"
-  | "sections"
-  | "gallery"
-  | "subcategory-gallery";
 
 type MediaUploadFieldProps = {
   urlFieldName: string;
@@ -47,7 +40,7 @@ export function MediaUploadField({
   const limits = MEDIA_LIMITS[kind];
   const defaultHelper =
     kind === "image"
-      ? `JPEG, PNG, WebP o GIF · máximo ${limits.label}`
+      ? `JPEG, PNG, WebP o GIF · máximo ${limits.label} · se convierte a WebP al subir`
       : `MP4, WebM o MOV · máximo ${limits.label}`;
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -164,7 +157,7 @@ export function MediaUploadField({
         />
 
         {uploading && (
-          <p className="mt-3 text-sm text-primary">Subiendo a Storage…</p>
+          <p className="mt-3 text-sm text-primary">Optimizando y subiendo…</p>
         )}
 
         {file && !uploading && (

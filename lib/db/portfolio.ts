@@ -64,6 +64,10 @@ export async function getCategoryBySlug(slug: string) {
   const category = await prisma.category.findFirst({
     where: { slug, published: true },
     include: {
+      gallery: {
+        orderBy: { sortOrder: "asc" },
+        select: { id: true, url: true },
+      },
       plans: {
         where: { published: true, subcategoryId: null },
         orderBy: { sortOrder: "asc" },

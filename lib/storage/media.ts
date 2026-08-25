@@ -5,7 +5,8 @@ export const MEDIA_BUCKET = "media-files";
 export const MEDIA_LIMITS = {
   image: {
     maxBytes: 5 * 1024 * 1024,
-    label: "5 MB",
+    originalMaxBytes: 25 * 1024 * 1024,
+    label: "25 MB",
     mimeTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"] as const,
     accept: "image/jpeg,image/png,image/webp,image/gif",
   },
@@ -18,6 +19,15 @@ export const MEDIA_LIMITS = {
 } as const;
 
 export type MediaKind = keyof typeof MEDIA_LIMITS;
+
+export type MediaScope =
+  | "categories"
+  | "subcategories"
+  | "plans"
+  | "sections"
+  | "gallery"
+  | "subcategory-gallery"
+  | "category-gallery";
 
 type UploadResult =
   | { ok: true; url: string; path: string }
@@ -56,7 +66,17 @@ export function validateMediaFile(file: File, kind: MediaKind): string | null {
     return `Formato no permitido. Usa ${labels}.`;
   }
 
-  if (file.size > limits.maxBytes) {
+  if (kind === "image") {
+    const originalLimit =
+      file.type === "image/gif"
+        ? limits.maxBytes
+        : "originalMaxBytes" in limits
+          ? limits.originalMaxBytes
+          : limits.maxBytes;
+    if (file.size > originalLimit) {
+      return `El archivo supera el límite de ${limits.label}.`;
+    }
+  } else if (file.size > limits.maxBytes) {
     return `El archivo supera el límite de ${limits.label}.`;
   }
 
@@ -73,29 +93,34 @@ export async function uploadPortfolioMedia(
   supabase: SupabaseClient,
   file: File,
   kind: MediaKind,
-  scope:
-    | "categories"
-    | "subcategories"
-    | "plans"
-    | "sections"
-    | "gallery"
-    | "subcategory-gallery" = "plans",
+  scope: MediaScope = "plans",
 ): Promise<UploadResult> {
   const validationError = validateMediaFile(file, kind);
   if (validationError) {
     return { ok: false, error: validationError };
   }
 
+  const prepared =
+    kind === "image"
+      ? await (await import("@/lib/storage/compress-image")).compressImageForUpload(file)
+      : file;
+  if (prepared.size > MEDIA_LIMITS[kind].maxBytes) {
+    return {
+      ok: false,
+      error: `La imagen sigue siendo muy pesada después de optimizarla. Prueba con otra de menor resolución.`,
+    };
+  }
+
   const folder = crypto.randomUUID();
   const safeName = sanitizeFileName(
-    file.name || `${kind}.${extensionForMime(file.type)}`,
+    prepared.name || `${kind}.${extensionForMime(prepared.type)}`,
   );
   const path = `portfolio/${scope}/${folder}/${kind}-${Date.now()}-${safeName}`;
 
-  const { error } = await supabase.storage.from(MEDIA_BUCKET).upload(path, file, {
-    cacheControl: "3600",
+  const { error } = await supabase.storage.from(MEDIA_BUCKET).upload(path, prepared, {
+    cacheControl: "31536000",
     upsert: false,
-    contentType: file.type,
+    contentType: prepared.type,
   });
 
   if (error) {

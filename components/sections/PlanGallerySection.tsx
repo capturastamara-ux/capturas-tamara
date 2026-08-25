@@ -169,6 +169,7 @@ function GalleryLightbox({
                 src={current.url}
                 alt={galleryImageAlt(planTitle, activeIndex)}
                 fill
+                quality={75}
                 className="pointer-events-none object-contain"
                 sizes="100vw"
                 priority
@@ -268,6 +269,7 @@ export function PlanGallerySection({
                 alt={galleryImageAlt(planTitle, index)}
                 fill
                 draggable={false}
+                quality={70}
                 className="pointer-events-none object-cover transition-transform duration-700 group-hover:scale-105"
                 sizes="(max-width: 640px) 50vw, 33vw"
               />

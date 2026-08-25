@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AdminPageHeader } from "@/components/admin/AdminUi";
 import { getAdminDashboardStats, getAdminCategories, getAdminPlans } from "@/lib/db/admin";
+import { formatPlanPrice } from "@/lib/format/price";
 
 export default async function AdminDashboardPage() {
   const stats = await getAdminDashboardStats();
@@ -18,6 +19,17 @@ export default async function AdminDashboardPage() {
       <div className="mb-4 text-sm text-muted">Auth: Supabase</div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-sm border border-catalog/15 bg-background px-5 py-6 sm:col-span-2">
+          <p className="text-xs uppercase tracking-[0.14em] text-muted">
+            Valor reservado
+          </p>
+          <p className="mt-3 font-display text-4xl italic text-catalog-ink">
+            {formatPlanPrice(stats.reservedValue) ?? "$ 0"}
+          </p>
+          <p className="mt-2 text-xs text-muted">
+            Suma del valor de reservas pendientes y confirmadas
+          </p>
+        </div>
         {[
           { label: "Categorías", value: stats.categories },
           { label: "Subcategorías", value: stats.subcategories },

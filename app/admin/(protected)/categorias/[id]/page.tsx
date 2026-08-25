@@ -12,6 +12,7 @@ import {
 } from "@/components/admin/UploadFormContext";
 import { AdminRichText } from "@/components/admin/AdminRichText";
 import { MediaUploadField } from "@/components/admin/MediaUploadField";
+import { CategoryGalleryField } from "@/components/admin/CategoryGalleryField";
 import {
   deleteCategoryAction,
   updateCategoryAction,
@@ -34,7 +35,7 @@ export default async function EditCategoryPage({ params }: PageProps) {
       <AdminPageHeader
         eyebrow="Categorías"
         title={category.title}
-        description="Edita la categoría y revisa sus subcategorías."
+        description="Edita la categoría, su galería y revisa sus subcategorías."
       />
 
       <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
@@ -61,6 +62,10 @@ export default async function EditCategoryPage({ params }: PageProps) {
             scope="categories"
             label="Imagen de portada"
             defaultUrl={category.coverUrl}
+          />
+          <CategoryGalleryField
+            categoryId={category.id}
+            images={category.gallery}
           />
           <AdminCheckbox
             label="Publicada"

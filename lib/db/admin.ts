@@ -10,6 +10,7 @@ export async function getAdminDashboardStats() {
       plans: bigint;
       published_plans: bigint;
       reservations: bigint;
+      reserved_value: bigint;
     }>
   >`
     SELECT
@@ -17,7 +18,15 @@ export async function getAdminDashboardStats() {
       (SELECT COUNT(*) FROM "Subcategory") AS subcategories,
       (SELECT COUNT(*) FROM "Plan") AS plans,
       (SELECT COUNT(*) FROM "Plan" WHERE "published" = true) AS published_plans,
-      (SELECT COUNT(*) FROM "Reservation") AS reservations
+      (SELECT COUNT(*) FROM "Reservation") AS reservations,
+      (
+        SELECT COALESCE(
+          SUM(COALESCE("amountPaid", 0) + COALESCE("amountRemaining", 0)),
+          0
+        )
+        FROM "Reservation"
+        WHERE "status" <> 'cancelled'
+      ) AS reserved_value
   `;
 
   return {
@@ -26,6 +35,7 @@ export async function getAdminDashboardStats() {
     plans: Number(row.plans),
     publishedPlans: Number(row.published_plans),
     reservations: Number(row.reservations),
+    reservedValue: Number(row.reserved_value),
   };
 }
 
@@ -42,6 +52,7 @@ export async function getAdminCategoryById(id: string) {
   return prisma.category.findUnique({
     where: { id },
     include: {
+      gallery: { orderBy: { sortOrder: "asc" } },
       subcategories: {
         orderBy: [{ parentId: "asc" }, { sortOrder: "asc" }],
         include: { _count: { select: { plans: true } } },

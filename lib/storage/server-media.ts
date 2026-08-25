@@ -25,6 +25,8 @@ type SubcategoryWithMedia = {
 
 type CategoryWithMedia = {
   coverUrl: string | null;
+  gallery?: Array<{ url: string }>;
+  plans?: PlanWithMedia[];
   subcategories: SubcategoryWithMedia[];
 };
 
@@ -47,6 +49,8 @@ export function collectSubcategoryMediaUrls(subcategory: SubcategoryWithMedia) {
 export function collectCategoryMediaUrls(category: CategoryWithMedia) {
   return collectMediaUrls(
     category.coverUrl,
+    category.gallery?.map((image) => image.url),
+    ...(category.plans ?? []).map((plan) => collectPlanMediaUrls(plan)),
     ...category.subcategories.map((subcategory) =>
       collectSubcategoryMediaUrls(subcategory),
     ),
