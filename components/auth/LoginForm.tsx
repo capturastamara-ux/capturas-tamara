@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { signInAdmin, type SignInState } from "@/app/auth/actions";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/cn";
@@ -10,7 +11,15 @@ import { PasswordField } from "@/components/ui/PasswordField";
 const initialState: SignInState = null;
 
 export function LoginForm() {
+  const router = useRouter();
   const [state, formAction, pending] = useActionState(signInAdmin, initialState);
+  const busy = pending || Boolean(state?.ok);
+
+  useEffect(() => {
+    if (!state?.ok) return;
+    router.replace("/admin");
+    router.refresh();
+  }, [router, state]);
 
   return (
     <form action={formAction} className="mx-auto w-full max-w-md space-y-6">
@@ -42,13 +51,13 @@ export function LoginForm() {
 
       <button
         type="submit"
-        disabled={pending}
+        disabled={busy}
         className={cn(
           "inline-flex w-full items-center justify-center rounded-full bg-catalog px-8 py-3 text-xs uppercase tracking-[0.14em] text-white transition-all hover:-translate-y-0.5 hover:bg-catalog-ink sm:text-sm",
-          pending && "cursor-wait opacity-70",
+          busy && "cursor-wait opacity-70",
         )}
       >
-        {pending ? "Entrando…" : siteConfig.login.submitLabel}
+        {busy ? "Entrando…" : siteConfig.login.submitLabel}
       </button>
 
       <p className="text-center">

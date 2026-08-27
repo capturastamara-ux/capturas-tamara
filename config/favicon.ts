@@ -1,10 +1,8 @@
-const base = "/images/favicon";
-
 export const faviconConfig = {
   ico: "/favicon.ico",
-  icon16: `${base}/favicon-16x16.png`,
-  icon32: `${base}/favicon-32x32.png`,
-  appleTouch: `${base}/apple-touch-icon.png`,
-  android192: `${base}/android-chrome-192x192.png`,
-  android512: `${base}/android-chrome-512x512.png`,
+  icon16: "/favicon.ico",
+  icon32: "/favicon.ico",
+  appleTouch: "/apple-touch-icon.png",
+  android192: "/apple-touch-icon.png",
+  android512: "/images/logo/logo-3.png",
 } as const;

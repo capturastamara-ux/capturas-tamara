@@ -108,6 +108,8 @@ export const siteConfig = {
       "Otro",
     ],
     privacyLabel: "Acepto las Políticas de privacidad de CapturasTamara.",
+    privacyPrefix: "Acepto las",
+    privacySuffix: "de CapturasTamara.",
     submitLabel: "Quiero agendar",
     image: galleryAssetPaths.gallery01,
     imageAlt: "Detalle de celebración de boda",

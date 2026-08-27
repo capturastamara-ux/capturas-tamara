@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { siteConfig } from "@/config/site";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
@@ -119,7 +120,14 @@ export function ContactSection() {
             <label className="flex items-start gap-3 sm:col-span-2">
               <input type="checkbox" required className="mt-1 accent-primary" />
               <span className="text-xs leading-relaxed text-muted">
-                {siteConfig.contact.privacyLabel}
+                {siteConfig.contact.privacyPrefix}{" "}
+                <Link
+                  href={siteConfig.footer.privacyHref}
+                  className="underline decoration-primary/30 underline-offset-2 hover:text-primary"
+                >
+                  {siteConfig.footer.privacyLabel}
+                </Link>{" "}
+                {siteConfig.contact.privacySuffix}
               </span>
             </label>
 
