@@ -54,6 +54,7 @@ export const reservationConfig = {
     stepHorario: "Horario",
     stepDatos: "Datos",
     stripTitle: "Horas del día",
+    clientWhatsAppAria: (phone: string) => `Abrir WhatsApp de ${phone}`,
   },
   form: {
     clientIdNumberLabel: "Cédula",

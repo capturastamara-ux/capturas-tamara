@@ -20,6 +20,7 @@ export default async function AdminReservationsPage({ searchParams }: Readonly<P
     eventDate: toDayKey(reservation.eventDate),
     startTime: reservation.startTime,
     clientName: reservation.clientName,
+    clientPhone: reservation.clientPhone,
     eventTitle: reservation.eventTitle,
     status: reservation.status,
     category: reservation.category,

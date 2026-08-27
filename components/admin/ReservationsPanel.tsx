@@ -29,12 +29,14 @@ import { ReservationStatusBadge } from "@/lib/admin/reservations";
 import { formatTimeRangeLabel, isDayFullyBooked } from "@/lib/admin/time-slots";
 import type { AdminClientRow } from "@/lib/admin/clients";
 import { cn } from "@/lib/cn";
+import { clientWhatsAppHref } from "@/lib/whatsapp";
 
 export type CalendarReservation = {
   id: string;
   eventDate: string;
   startTime: string | null;
   clientName: string;
+  clientPhone: string;
   eventTitle: string | null;
   status: "pending" | "confirmed" | "cancelled";
   category: { id: string; title: string; slug: string } | null;
@@ -477,22 +479,44 @@ export function ReservationsPanel({
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      {selectedReservations.map((reservation) => (
+                      {selectedReservations.map((reservation) => {
+                        const timeLabel =
+                          formatTimeRangeLabel(reservation.startTime) ||
+                          reservation.startTime ||
+                          reservationConfig.hours.allDayLabel;
+                        const whatsappHref = clientWhatsAppHref(reservation.clientPhone);
+
+                        return (
                         <div
                           key={reservation.id}
                           className="rounded-sm border border-primary/10 px-4 py-4"
                         >
                           <div className="flex items-start justify-between gap-3">
-                            <div>
+                            <div className="min-w-0 flex-1">
                               <p className="font-medium">
                                 {reservation.eventTitle || reservation.clientName}
                               </p>
                               <p className="mt-1 text-sm text-muted">{reservation.clientName}</p>
-                              <p className="mt-1 text-sm text-muted">
-                                {formatTimeRangeLabel(reservation.startTime) ||
-                                  reservation.startTime ||
-                                  reservationConfig.hours.allDayLabel}
+                              <p className="mt-1 whitespace-nowrap text-[0.7rem] leading-none text-muted sm:text-xs">
+                                {timeLabel}
                               </p>
+                              {whatsappHref ? (
+                                <a
+                                  href={whatsappHref}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="mt-1.5 inline-block text-xs text-primary hover:opacity-70"
+                                  aria-label={reservationConfig.hours.clientWhatsAppAria(
+                                    reservation.clientPhone,
+                                  )}
+                                >
+                                  {reservation.clientPhone}
+                                </a>
+                              ) : reservation.clientPhone ? (
+                                <p className="mt-1.5 text-xs text-muted">
+                                  {reservation.clientPhone}
+                                </p>
+                              ) : null}
                               {reservation.category && (
                                 <p className="mt-2 text-xs uppercase tracking-[0.12em] text-muted">
                                   {reservation.category.title}
@@ -514,7 +538,8 @@ export function ReservationsPanel({
                             />
                           </div>
                         </div>
-                      ))}
+                        );
+                      })}
                       {selectedAvailability.isOpen &&
                         !selectedIsPast &&
                         !isDayFullyBooked(selectedReservations) && (

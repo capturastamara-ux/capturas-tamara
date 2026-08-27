@@ -276,6 +276,7 @@ export async function getAdminCalendarData() {
       eventDate: true,
       startTime: true,
       clientName: true,
+      clientPhone: true,
       eventTitle: true,
       status: true,
       category: { select: { id: true, title: true, slug: true } },

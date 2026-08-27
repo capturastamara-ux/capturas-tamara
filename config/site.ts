@@ -119,6 +119,8 @@ export const siteConfig = {
   whatsapp: {
     label: "Agendar sesión",
     href: "https://wa.me/573044711872",
+    chatBase: "https://wa.me",
+    countryCode: "57",
   },
   pwa: {
     themeColor: "#1a1a1a",
