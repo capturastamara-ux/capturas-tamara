@@ -1,6 +1,8 @@
 import { formatDayLabel } from "@/lib/admin/availability";
 import type { AdminClientRow } from "@/lib/admin/clients";
+import { reservationConfig } from "@/config/reservations";
 import { formatPlanPrice } from "@/lib/format/price";
+import { clientWhatsAppHref } from "@/lib/whatsapp";
 
 type ClientsTableProps = {
   clients: AdminClientRow[];
@@ -33,6 +35,7 @@ export function ClientsTable({ clients }: Readonly<ClientsTableProps>) {
             const lastEventLabel = client.lastEventTitle || "Sin título";
             const paidLabel = formatPlanPrice(client.totalAmountPaid) ?? "—";
             const remainingLabel = formatPlanPrice(client.totalAmountRemaining) ?? "—";
+            const whatsappHref = clientWhatsAppHref(client.clientPhone);
 
             return (
               <tr
@@ -41,7 +44,21 @@ export function ClientsTable({ clients }: Readonly<ClientsTableProps>) {
               >
                 <td className="px-4 py-4 align-top">
                   <p className="font-medium">{client.clientName}</p>
-                  <p className="mt-1 text-xs text-muted">{client.clientPhone}</p>
+                  {whatsappHref ? (
+                    <a
+                      href={whatsappHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-1 inline-block text-xs text-primary hover:opacity-70"
+                      aria-label={reservationConfig.hours.clientWhatsAppAria(
+                        client.clientPhone,
+                      )}
+                    >
+                      {client.clientPhone}
+                    </a>
+                  ) : client.clientPhone ? (
+                    <p className="mt-1 text-xs text-muted">{client.clientPhone}</p>
+                  ) : null}
                   {client.clientEmail && (
                     <p className="mt-1 text-xs text-muted">{client.clientEmail}</p>
                   )}
