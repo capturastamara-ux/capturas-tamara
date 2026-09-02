@@ -9,6 +9,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteConfig.url),
   title: siteConfig.title,
   description: siteConfig.description,
   icons: {
@@ -17,6 +18,7 @@ export const metadata: Metadata = {
       { url: faviconConfig.icon16, sizes: "16x16", type: "image/png" },
       { url: faviconConfig.icon32, sizes: "32x32", type: "image/png" },
       { url: faviconConfig.android192, sizes: "192x192", type: "image/png" },
+      { url: faviconConfig.android512, sizes: "512x512", type: "image/png" },
     ],
     shortcut: faviconConfig.ico,
     apple: [
