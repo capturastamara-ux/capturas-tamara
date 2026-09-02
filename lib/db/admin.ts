@@ -460,3 +460,9 @@ export async function getAdminComparisonCategories() {
     ],
   }));
 }
+
+export async function getAdminCatalogPrintRows() {
+  return prisma.catalogPrintRow.findMany({
+    orderBy: [{ productId: "asc" }, { sortOrder: "asc" }],
+  });
+}

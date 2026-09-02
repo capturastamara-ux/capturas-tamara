@@ -1,9 +1,5 @@
 import Image from "next/image";
-import {
-  catalogConfig,
-  formatCop,
-  type CatalogProduct,
-} from "@/config/catalog";
+import { formatCop, type CatalogProduct } from "@/config/catalog";
 import { CatalogBand, CatalogHeading } from "@/components/sections/catalog-ui";
 import { Reveal } from "@/components/ui/Reveal";
 import { cn } from "@/lib/cn";
@@ -14,6 +10,7 @@ type ProductImage = {
 };
 
 type CatalogProductsSectionProps = {
+  products: ReadonlyArray<CatalogProduct>;
   imagesByProduct: Readonly<Record<string, ReadonlyArray<ProductImage>>>;
 };
 
@@ -62,9 +59,9 @@ function PriceTable({ product }: Readonly<{ product: CatalogProduct }>) {
       <table className="w-full border-collapse text-white">
         <caption className="sr-only">{product.subtitle}</caption>
         <tbody>
-          {product.rows.map((row) => (
+          {product.rows.map((row, index) => (
             <tr
-              key={row.size}
+              key={`${row.size}-${index}`}
               className="border-b border-white/10 last:border-b-0 transition-colors hover:bg-white/5"
             >
               <th
@@ -88,11 +85,12 @@ function PriceTable({ product }: Readonly<{ product: CatalogProduct }>) {
 }
 
 export function CatalogProductsSection({
+  products,
   imagesByProduct,
 }: Readonly<CatalogProductsSectionProps>) {
   return (
     <div id="productos">
-      {catalogConfig.products.map((product, index) => {
+      {products.map((product, index) => {
         const images = imagesByProduct[product.id] ?? product.images;
 
         return (

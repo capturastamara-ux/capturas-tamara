@@ -413,3 +413,18 @@ export async function getPublicComparisonBySlug(slug: string) {
     ],
   };
 }
+
+export async function getCatalogPrintRowsByProduct() {
+  const rows = await prisma.catalogPrintRow.findMany({
+    orderBy: [{ productId: "asc" }, { sortOrder: "asc" }],
+    select: { productId: true, name: true, price: true },
+  });
+
+  const byProduct: Record<string, Array<{ size: string; price: number }>> = {};
+  for (const row of rows) {
+    const current = byProduct[row.productId] ?? [];
+    current.push({ size: row.name, price: row.price });
+    byProduct[row.productId] = current;
+  }
+  return byProduct;
+}

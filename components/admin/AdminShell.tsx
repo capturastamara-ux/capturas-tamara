@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOutAdmin } from "@/app/auth/actions";
 import { siteConfig } from "@/config/site";
+import { adminConfig } from "@/config/admin";
 import { cn } from "@/lib/cn";
 
 const links = [
@@ -11,6 +12,7 @@ const links = [
   { href: "/admin/categorias", label: "Categorías" },
   { href: "/admin/subcategorias", label: "Subcategorías" },
   { href: "/admin/planes", label: "Planes" },
+  { href: adminConfig.printLists.href, label: adminConfig.printLists.navLabel },
   { href: "/admin/reservas", label: "Reservas" },
 ] as const;
 

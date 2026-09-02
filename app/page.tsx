@@ -8,6 +8,7 @@ import { CatalogConditionsSection } from "@/components/sections/CatalogCondition
 import { AboutIntro } from "@/components/sections/AboutIntro";
 import { catalogConfig } from "@/config/catalog";
 import {
+  getCatalogPrintRowsByProduct,
   getPublishedCategories,
   getPublishedPlanImages,
   pickRandomPlanImages,
@@ -16,10 +17,18 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [categories, planImages] = await Promise.all([
+  const [categories, planImages, printRowsByProduct] = await Promise.all([
     getPublishedCategories(),
     getPublishedPlanImages(),
+    getCatalogPrintRowsByProduct(),
   ]);
+  const products = catalogConfig.products.map((product) => {
+    const rows = printRowsByProduct[product.id];
+    return {
+      ...product,
+      rows: rows && rows.length > 0 ? rows : product.rows,
+    };
+  });
   const imagesByProduct = Object.fromEntries(
     catalogConfig.products.map((product) => [
       product.id,
@@ -44,7 +53,10 @@ export default async function Home() {
             coverUrl: category.coverUrl,
           }))}
         />
-        <CatalogProductsSection imagesByProduct={imagesByProduct} />
+        <CatalogProductsSection
+          products={products}
+          imagesByProduct={imagesByProduct}
+        />
         <CatalogConditionsSection />
         <AboutIntro />
       </main>

@@ -16,6 +16,7 @@ import {
   nextSubcategoryGallerySortOrder,
   nextCategoryGallerySortOrder,
   nextSubcategorySortOrder,
+  parseCatalogPrintRowsJson,
   parseOptionalString,
   parseOptionalPrice,
   parseRichTextOptional,
@@ -43,6 +44,7 @@ import { buildReservationContractData } from "@/lib/admin/reservation-contract";
 import { getAdminReservationById } from "@/lib/db/admin";
 import { redirectAfterSave } from "@/lib/admin/return-to";
 import { reservationConfig } from "@/config/reservations";
+import { catalogConfig } from "@/config/catalog";
 import { isRangeAvailable, parseTimeRange } from "@/lib/admin/time-slots";
 import {
   deleteReservationFromGoogleCalendar,
@@ -70,6 +72,7 @@ function revalidatePortfolio() {
   revalidatePath("/admin/planes");
   revalidatePath("/admin/reservas");
   revalidatePath("/admin/cotizador");
+  revalidatePath("/admin/impresiones");
 }
 
 export async function createCategoryAction(formData: FormData) {
@@ -1224,4 +1227,35 @@ export async function getReservationContractAction(id: string) {
     category: reservation.category,
     plan: reservation.plan,
   });
+}
+
+export async function updateCatalogPrintRowsAction(formData: FormData) {
+  const productIds = catalogConfig.products.map((product) => product.id);
+
+  const lists = productIds.map((productId) => ({
+    productId,
+    rows: parseCatalogPrintRowsJson(formData.get(`rows-${productId}`)),
+  }));
+
+  await prisma.$transaction(async (tx) => {
+    await tx.catalogPrintRow.deleteMany({
+      where: { productId: { in: [...productIds] } },
+    });
+
+    const data = lists.flatMap((list) =>
+      list.rows.map((row, index) => ({
+        productId: list.productId,
+        name: row.name,
+        price: row.price,
+        sortOrder: index,
+      })),
+    );
+
+    if (data.length > 0) {
+      await tx.catalogPrintRow.createMany({ data });
+    }
+  });
+
+  revalidatePortfolio();
+  redirectAfterSave(formData, "/admin/impresiones", "updated");
 }

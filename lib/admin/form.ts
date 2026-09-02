@@ -215,3 +215,38 @@ export function parsePriceTiersJson(value: FormDataEntryValue | null) {
     return { guestCount, price };
   });
 }
+
+export function parseCatalogPrintRowsJson(value: FormDataEntryValue | null) {
+  const text = String(value ?? "").trim();
+  if (!text) return [];
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new Error("La lista de impresiones no es válida.");
+  }
+
+  if (!Array.isArray(parsed)) {
+    throw new Error("La lista de impresiones debe ser un arreglo.");
+  }
+
+  return parsed.map((entry, index) => {
+    if (!entry || typeof entry !== "object") {
+      throw new Error(`Fila ${index + 1} no es válida.`);
+    }
+
+    const name = String((entry as { name?: unknown }).name ?? "").trim();
+    const price = Number.parseInt(String((entry as { price?: unknown }).price ?? ""), 10);
+
+    if (!name) {
+      throw new Error(`Indica un nombre en la fila ${index + 1}.`);
+    }
+
+    if (!Number.isFinite(price) || price < 0) {
+      throw new Error(`Indica un valor válido en la fila ${index + 1}.`);
+    }
+
+    return { name, price };
+  });
+}
