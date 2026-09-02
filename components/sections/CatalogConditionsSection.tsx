@@ -1,7 +1,5 @@
 import { catalogConfig } from "@/config/catalog";
-import { siteConfig } from "@/config/site";
 import { CatalogBand, CatalogHeading } from "@/components/sections/catalog-ui";
-import { Button } from "@/components/ui/Button";
 import { Reveal, RevealItem, RevealStagger } from "@/components/ui/Reveal";
 
 function formatIndex(index: number) {
@@ -42,16 +40,6 @@ export function CatalogConditionsSection() {
               </RevealItem>
             ))}
           </RevealStagger>
-
-          <Reveal className="mt-14 flex justify-center">
-            <Button
-              href={siteConfig.whatsapp.href}
-              variant="catalog"
-              external
-            >
-              Enviar reserva por WhatsApp
-            </Button>
-          </Reveal>
         </div>
       </CatalogBand>
 
