@@ -8,28 +8,31 @@ export const reservationConfig = {
       indicator: "#16a34a",
       bg: "#ffffff",
     },
+    partial: {
+      indicator: "#d97706",
+      bg: "#fff7ed",
+      text: "#9a3412",
+    },
+    complete: {
+      indicator: "#2f4858",
+      bg: "#2f4858",
+      text: "#ffffff",
+    },
     closed: {
       indicator: "#c4bdb5",
       bg: "#f5f0eb",
     },
   },
-  categoryColors: {
-    bodas: {
-      bg: "#1a1a1a",
-      text: "#ffffff",
-      ring: "#1a1a1a33",
-    },
-    quinceaneras: {
-      bg: "#8b2635",
-      text: "#ffffff",
-      ring: "#8b263533",
-    },
+  calendarDayLabels: {
+    available: "Disponible",
+    partial: "Parcial",
+    complete: "Completo",
+    closed: "Cerrado",
+    parametrizationOpen: "Abierto",
   },
-  fallbackPalette: [
-    { bg: "#4a5568", text: "#ffffff", ring: "#4a556833" },
-    { bg: "#7c6a4f", text: "#ffffff", ring: "#7c6a4f33" },
-    { bg: "#2f4858", text: "#ffffff", ring: "#2f485833" },
-  ],
+  categoryLegend: {
+    indicator: "#4a5568",
+  },
   hours: {
     startHour: 0,
     endHour: 24,
@@ -140,20 +143,3 @@ export const reservationConfig = {
     footerNote: "Con cariño, CapturasTamara",
   },
 } as const;
-
-export type CategoryColor = {
-  bg: string;
-  text: string;
-  ring: string;
-};
-
-export function getCategoryColor(slug: string | null | undefined, index = 0): CategoryColor {
-  if (slug && slug in reservationConfig.categoryColors) {
-    return reservationConfig.categoryColors[
-      slug as keyof typeof reservationConfig.categoryColors
-    ];
-  }
-
-  const palette = reservationConfig.fallbackPalette;
-  return palette[index % palette.length] ?? palette[0];
-}

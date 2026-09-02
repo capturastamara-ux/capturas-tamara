@@ -78,7 +78,7 @@ export const catalogConfig = {
     id: "condiciones",
     eyebrow: "Reserva",
     title: "Condiciones",
-    planLinkLabel: "Antes de escribirnos, te invitamos a leer las condiciones",
+    planLinkLabel: "Antes de reservar, recuerda leer nuestras condiciones",
     items: [
       {
         title: "Galería",

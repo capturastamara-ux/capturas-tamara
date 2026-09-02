@@ -14,7 +14,7 @@ import {
   type ReservationPlanOption,
   type ReservationSubcategoryOption,
 } from "@/components/admin/ReservationFormFields";
-import { getCategoryColor, reservationConfig } from "@/config/reservations";
+import { reservationConfig } from "@/config/reservations";
 import {
   formatCalendarMonthLabel,
   formatDayLabel,
@@ -26,7 +26,11 @@ import {
   toDayKey,
 } from "@/lib/admin/availability";
 import { ReservationStatusBadge } from "@/lib/admin/reservations";
-import { formatTimeRangeLabel, isDayFullyBooked } from "@/lib/admin/time-slots";
+import {
+  formatTimeRangeLabel,
+  isDayFullyBooked,
+  resolveDayOccupancy,
+} from "@/lib/admin/time-slots";
 import type { AdminClientRow } from "@/lib/admin/clients";
 import { cn } from "@/lib/cn";
 import { clientWhatsAppHref } from "@/lib/whatsapp";
@@ -160,11 +164,16 @@ export function ReservationsPanel({
     setViewMonth(next.getUTCMonth());
   }
 
-  function handleDayClick(dayKey: string, hasReservation: boolean, isOpen: boolean) {
+  function handleDayClick(
+    dayKey: string,
+    hasReservation: boolean,
+    isOpen: boolean,
+    isFullyBooked: boolean,
+  ) {
     const isPast = isPastDayKey(dayKey, todayKey);
     if (isPast && !(activeTab === "reservas" && hasReservation)) return;
     setSelectedDay(dayKey);
-    if (activeTab === "reservas" && isOpen && !isPast) {
+    if (activeTab === "reservas" && isOpen && !isPast && !isFullyBooked) {
       openReservationModal(dayKey);
     }
   }
@@ -230,42 +239,49 @@ export function ReservationsPanel({
         </p>
       )}
 
-      {activeTab === "reservas" && categories.length > 0 && (
+      {activeTab === "reservas" && (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-sm border border-primary/10 bg-background px-3 py-2">
-          <span className="text-xs uppercase tracking-[0.12em] text-muted">Categorías</span>
-          {categories.map((category, index) => {
-            const color = getCategoryColor(category.slug, index);
-            return (
-              <span key={category.id} className="inline-flex items-center gap-2 text-sm">
-                <span
-                  className="h-3 w-3 rounded-full"
-                  style={{ backgroundColor: color.bg }}
-                  aria-hidden
-                />
-                {category.title}
+          <span className="text-xs uppercase tracking-[0.12em] text-muted">Horario</span>
+          {(
+            [
+              ["available", "open"],
+              ["partial", "partial"],
+              ["complete", "complete"],
+              ["closed", "closed"],
+            ] as const
+          ).map(([labelKey, colorKey]) => (
+            <span key={labelKey} className="inline-flex items-center gap-2 text-sm">
+              <span
+                className="h-3 w-3 rounded-full"
+                style={{
+                  backgroundColor:
+                    reservationConfig.calendarStatusColors[colorKey].indicator,
+                }}
+                aria-hidden
+              />
+              {reservationConfig.calendarDayLabels[labelKey]}
+            </span>
+          ))}
+          {categories.length > 0 && (
+            <>
+              <span className="hidden h-4 w-px bg-primary/15 sm:block" aria-hidden />
+              <span className="text-xs uppercase tracking-[0.12em] text-muted">
+                Categorías
               </span>
-            );
-          })}
-          <span className="inline-flex items-center gap-2 text-sm text-muted">
-            <span
-              className="h-3 w-3 rounded-full"
-              style={{
-                backgroundColor: reservationConfig.calendarStatusColors.open.indicator,
-              }}
-              aria-hidden
-            />
-            Disponible
-          </span>
-          <span className="inline-flex items-center gap-2 text-sm text-muted">
-            <span
-              className="h-3 w-3 rounded-full"
-              style={{
-                backgroundColor: reservationConfig.calendarStatusColors.closed.indicator,
-              }}
-              aria-hidden
-            />
-            Cerrado
-          </span>
+              {categories.map((category) => (
+                <span key={category.id} className="inline-flex items-center gap-2 text-sm">
+                  <span
+                    className="h-3 w-3 rounded-full"
+                    style={{
+                      backgroundColor: reservationConfig.categoryLegend.indicator,
+                    }}
+                    aria-hidden
+                  />
+                  {category.title}
+                </span>
+              ))}
+            </>
+          )}
         </div>
       )}
 
@@ -333,48 +349,55 @@ export function ReservationsPanel({
               const isSelected = selectedDay === dayKey;
               const isToday = dayKey === todayKey;
               const isPast = isPastDayKey(dayKey, todayKey);
-              const primaryReservation = dayReservations[0];
-              const categoryColor = primaryReservation?.category
-                ? getCategoryColor(
-                    primaryReservation.category.slug,
-                    categories.findIndex((item) => item.id === primaryReservation.category?.id),
-                  )
-                : null;
-
+              const occupancy = resolveDayOccupancy(
+                availability.isOpen,
+                dayReservations,
+              );
               const isReserved = dayReservations.length > 0;
+              const isFullyBooked = occupancy === "complete";
               const canSelectDay =
                 !isPast || (activeTab === "reservas" && isReserved);
               const isPastLocked = isPast && !canSelectDay;
-              const showReservedStyle = activeTab === "reservas" && isReserved && categoryColor;
+              const showPartialStyle =
+                activeTab === "reservas" && occupancy === "partial";
+              const showCompleteStyle =
+                activeTab === "reservas" && occupancy === "complete";
               const showOpenStyle =
-                activeTab === "reservas" && availability.isOpen && !isReserved;
+                activeTab === "reservas" && occupancy === "available";
               const showClosedStyle =
-                activeTab === "reservas" && !availability.isOpen && !isReserved;
+                activeTab === "reservas" && occupancy === "closed";
+              const labels = reservationConfig.calendarDayLabels;
+              const colors = reservationConfig.calendarStatusColors;
 
               const statusLabel =
                 activeTab === "reservas"
-                  ? isReserved
-                    ? primaryReservation?.category?.title ?? "Reservado"
-                    : availability.isOpen
-                      ? "Disponible"
-                      : "Cerrado"
+                  ? labels[occupancy]
                   : availability.isOpen
-                    ? "Abierto"
-                    : "Cerrado";
+                    ? labels.parametrizationOpen
+                    : labels.closed;
 
-              const mobileIndicatorColor = showReservedStyle
-                ? categoryColor.bg
-                : showClosedStyle ||
-                    (activeTab === "parametrizacion" && !availability.isOpen)
-                  ? reservationConfig.calendarStatusColors.closed.indicator
-                  : reservationConfig.calendarStatusColors.open.indicator;
+              const mobileIndicatorColor = showCompleteStyle
+                ? colors.complete.text
+                : showPartialStyle
+                  ? colors.partial.indicator
+                  : showClosedStyle ||
+                      (activeTab === "parametrizacion" && !availability.isOpen)
+                    ? colors.closed.indicator
+                    : colors.open.indicator;
 
               return (
                 <button
                   key={dayKey}
                   type="button"
                   disabled={isPending || !canSelectDay}
-                  onClick={() => handleDayClick(dayKey, isReserved, availability.isOpen)}
+                  onClick={() =>
+                    handleDayClick(
+                      dayKey,
+                      isReserved,
+                      availability.isOpen,
+                      isFullyBooked,
+                    )
+                  }
                   className={cn(
                     "relative flex min-h-11 flex-col rounded-sm border p-1 text-left transition-all sm:min-h-20 sm:p-2",
                     canSelectDay &&
@@ -384,7 +407,8 @@ export function ReservationsPanel({
                     isToday && !isSelected && !isPastLocked && "ring-1 ring-primary/30",
                     showClosedStyle && "border-primary/10 bg-surface/80 text-muted",
                     showOpenStyle && "border-emerald-600/20 bg-background",
-                    showReservedStyle && "border-transparent text-white",
+                    showPartialStyle && "border-amber-600/25",
+                    showCompleteStyle && "border-transparent",
                     activeTab === "parametrizacion" &&
                       availability.isOpen &&
                       "border-emerald-600/20 bg-background",
@@ -396,9 +420,17 @@ export function ReservationsPanel({
                       "ring-1 ring-accent/40",
                   )}
                   style={
-                    showReservedStyle
-                      ? { backgroundColor: categoryColor.bg, color: categoryColor.text }
-                      : undefined
+                    showPartialStyle
+                      ? {
+                          backgroundColor: colors.partial.bg,
+                          color: colors.partial.text,
+                        }
+                      : showCompleteStyle
+                        ? {
+                            backgroundColor: colors.complete.bg,
+                            color: colors.complete.text,
+                          }
+                        : undefined
                   }
                   aria-pressed={isSelected && canSelectDay}
                   aria-disabled={!canSelectDay}
@@ -407,22 +439,27 @@ export function ReservationsPanel({
                   <span className="text-xs font-medium sm:text-sm">{date.getUTCDate()}</span>
 
                   {(activeTab === "reservas" || activeTab === "parametrizacion") && (
-                    <span className="mt-auto flex items-center justify-center gap-1 sm:justify-start">
-                      {!showReservedStyle && (
-                        <span
-                          className="h-1.5 w-1.5 shrink-0 rounded-full"
-                          style={{ backgroundColor: mobileIndicatorColor }}
-                          aria-hidden
-                        />
-                      )}
-                      <span className="hidden text-[10px] uppercase tracking-[0.1em] opacity-80 sm:inline">
+                    <span className="mt-auto flex min-w-0 items-center justify-center gap-1 sm:justify-start">
+                      <span
+                        className="h-1.5 w-1.5 shrink-0 rounded-full"
+                        style={{ backgroundColor: mobileIndicatorColor }}
+                        aria-hidden
+                      />
+                      <span className="hidden truncate text-[10px] uppercase tracking-[0.1em] opacity-80 sm:inline">
                         {statusLabel}
                       </span>
                     </span>
                   )}
 
                   {dayReservations.length > 1 && (
-                    <span className="absolute right-0.5 top-0.5 rounded-full bg-white/90 px-1 py-0.5 text-[8px] font-medium text-primary sm:right-1.5 sm:top-1.5 sm:px-1.5 sm:text-[9px]">
+                    <span
+                      className={cn(
+                        "absolute right-0.5 top-0.5 rounded-full px-1 py-0.5 text-[8px] font-medium sm:right-1.5 sm:top-1.5 sm:px-1.5 sm:text-[9px]",
+                        showCompleteStyle
+                          ? "bg-white/90 text-primary"
+                          : "bg-primary/10 text-primary",
+                      )}
+                    >
                       +{dayReservations.length - 1}
                     </span>
                   )}

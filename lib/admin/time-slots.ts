@@ -139,6 +139,16 @@ export function isDayFullyBooked(occupied: readonly OccupiedReservation[]) {
   return listHourSlots().every((slot) => findSlotOccupant(slot, occupied));
 }
 
+export type DayOccupancy = "available" | "partial" | "complete" | "closed";
+
+export function resolveDayOccupancy(
+  isOpen: boolean,
+  occupied: readonly OccupiedReservation[],
+): DayOccupancy {
+  if (occupied.length === 0) return isOpen ? "available" : "closed";
+  return isDayFullyBooked(occupied) ? "complete" : "partial";
+}
+
 export function isAllDayAvailable(occupied: readonly OccupiedReservation[]) {
   return occupied.length === 0;
 }
