@@ -22,12 +22,14 @@ function padHour(value: number) {
 }
 
 export function minutesToClock(minutes: number) {
+  if (minutes >= 24 * 60) return "24:00";
   const hours = Math.floor(minutes / 60);
   const rest = minutes % 60;
   return `${padHour(hours)}:${padHour(rest)}`;
 }
 
 export function minutesToSpoken(minutes: number) {
+  if (minutes >= 24 * 60) return "12:00 a. m.";
   const hours = Math.floor(minutes / 60);
   const rest = minutes % 60;
   const period = hours >= 12 ? "p. m." : "a. m.";
@@ -78,7 +80,7 @@ export function parseTimeRange(value: string | null | undefined): TimeRange | nu
   if (rangeMatch) {
     const startMinutes = Number(rangeMatch[1]) * 60 + Number(rangeMatch[2]);
     const endMinutes = Number(rangeMatch[3]) * 60 + Number(rangeMatch[4]);
-    if (endMinutes <= startMinutes) return null;
+    if (endMinutes <= startMinutes || endMinutes > 24 * 60) return null;
     return { kind: "range", startMinutes, endMinutes };
   }
 

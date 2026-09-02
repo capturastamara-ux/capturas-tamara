@@ -53,6 +53,7 @@ type ReservationSummary = {
   location: string;
   amountPaid: string;
   amountRemaining: string;
+  imageAuthorized: string;
 };
 
 function buildReservationSummary(
@@ -68,6 +69,9 @@ function buildReservationSummary(
   const amountPaidRaw = String(formData.get("amountPaid") ?? "").replace(/\D/g, "");
   const amountRemainingRaw = String(formData.get("amountRemaining") ?? "").replace(/\D/g, "");
   const guestCountRaw = String(formData.get("guestCount") ?? "").trim();
+
+  const imageAuthorized = String(formData.get("imageAuthorized") ?? "").trim();
+  const { imageAuth } = reservationConfig.form;
 
   return {
     eventDate: String(formData.get("eventDate") ?? ""),
@@ -86,6 +90,12 @@ function buildReservationSummary(
     amountRemaining: amountRemainingRaw
       ? (formatPlanPrice(Number(amountRemainingRaw)) ?? amountRemainingRaw)
       : "—",
+    imageAuthorized:
+      imageAuthorized === "yes"
+        ? imageAuth.summaryYes
+        : imageAuthorized === "no"
+          ? imageAuth.summaryNo
+          : "—",
   };
 }
 
@@ -439,6 +449,10 @@ export function NewReservationModal({
             <SummaryRow label="Lugar" value={summary.location} />
             <SummaryRow label="Abona" value={summary.amountPaid} />
             <SummaryRow label="Resta" value={summary.amountRemaining} />
+            <SummaryRow
+              label={reservationConfig.form.imageAuth.legend}
+              value={summary.imageAuthorized}
+            />
           </dl>
         )}
 

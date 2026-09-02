@@ -126,6 +126,7 @@ model Reservation {
   notes       String?
   amountPaid  Int?
   amountRemaining Int?
+  imageAuthorized Boolean        @default(false)
   status      ReservationStatus @default(pending)
   categoryId     String?
   category       Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)

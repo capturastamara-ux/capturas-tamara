@@ -74,7 +74,10 @@ function buildEventTimes(eventDate: Date, startTime: string | null) {
       timeZone,
     },
     end: {
-      dateTime: `${dateKey}T${minutesToClock(range.endMinutes)}:00`,
+      dateTime:
+        range.endMinutes >= 24 * 60
+          ? `${nextDateKey(dateKey)}T00:00:00`
+          : `${dateKey}T${minutesToClock(range.endMinutes)}:00`,
       timeZone,
     },
   };

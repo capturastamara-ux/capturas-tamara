@@ -53,6 +53,7 @@ export type ReservationFormDefaults = {
   status?: string;
   amountPaid?: number | null;
   amountRemaining?: number | null;
+  imageAuthorized?: boolean;
 };
 
 type ReservationFormFieldsProps = {
@@ -97,6 +98,13 @@ export function ReservationFormFields({
     defaults.amountPaid != null ? String(defaults.amountPaid) : "",
   );
   const [startTime, setStartTime] = useState(defaults.startTime ?? "");
+  const [imageAuthorized, setImageAuthorized] = useState<"yes" | "no" | "">(
+    defaults.imageAuthorized == null
+      ? ""
+      : defaults.imageAuthorized
+        ? "yes"
+        : "no",
+  );
 
   const filteredSubcategories = useMemo(
     () =>
@@ -325,6 +333,46 @@ export function ReservationFormFields({
       <div className="sm:col-span-2">
         <AdminField label="Lugar" name="location" defaultValue={defaults.location} />
       </div>
+
+      <fieldset className="sm:col-span-2">
+        <legend className="text-xs uppercase tracking-[0.12em] text-muted">
+          {reservationConfig.form.imageAuth.legend}
+        </legend>
+        <p className="mt-2 text-xs text-muted">{reservationConfig.form.imageAuth.hint}</p>
+        <input type="hidden" name="imageAuthorized" value={imageAuthorized} />
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          {(
+            [
+              { value: "yes" as const, label: reservationConfig.form.imageAuth.yesLabel },
+              { value: "no" as const, label: reservationConfig.form.imageAuth.noLabel },
+            ] as const
+          ).map((option) => {
+            const selected = imageAuthorized === option.value;
+            return (
+              <label
+                key={option.value}
+                className={cn(
+                  "flex cursor-pointer items-center gap-3 rounded-sm border px-3 py-3 text-sm transition-colors",
+                  selected
+                    ? "border-catalog bg-catalog/5 text-primary"
+                    : "border-primary/15 text-primary hover:border-primary/40",
+                  fieldErrors?.imageAuthorized && !imageAuthorized && "border-accent/50",
+                )}
+              >
+                <input
+                  type="checkbox"
+                  checked={selected}
+                  onChange={() => setImageAuthorized(option.value)}
+                  className="accent-catalog"
+                />
+                <span>{option.label}</span>
+              </label>
+            );
+          })}
+        </div>
+        <FieldError message={fieldErrors?.imageAuthorized} />
+      </fieldset>
+
       <div className="sm:col-span-2">
         <AdminRichText
           label="Notas"

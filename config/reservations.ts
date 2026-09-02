@@ -31,8 +31,8 @@ export const reservationConfig = {
     { bg: "#2f4858", text: "#ffffff", ring: "#2f485833" },
   ],
   hours: {
-    startHour: 8,
-    endHour: 21,
+    startHour: 0,
+    endHour: 24,
     stepMinutes: 60,
     allDayValue: "Todo el día",
     pickerEyebrow: "Horario",
@@ -63,6 +63,19 @@ export const reservationConfig = {
     amountPaidLabel: "Lo que abona",
     amountRemainingLabel: "Lo que resta",
     priceHint: "Valor en pesos colombianos (COP).",
+    imageAuth: {
+      legend: "Autorización de imagen",
+      hint: "El cliente autoriza el uso de las fotografías en el portafolio y en los medios de CapturasTamara.",
+      yesLabel: "Autoriza",
+      noLabel: "No autoriza",
+      requiredError: "Indica si el cliente autoriza el uso de las imágenes.",
+      summaryYes: "Autoriza uso en medios",
+      summaryNo: "No autoriza uso en medios",
+      contractYes:
+        "El cliente autoriza el uso de las imágenes en el portafolio y en contenido publicitario de la marca.",
+      contractNo:
+        "El cliente no autoriza el uso de las imágenes en el portafolio ni en contenido publicitario de la marca.",
+    },
     validation: {
       phone: "El teléfono debe tener solo números (máximo 10 dígitos).",
       email: "Ingresa un correo electrónico válido.",

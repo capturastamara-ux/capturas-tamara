@@ -453,6 +453,12 @@ export async function downloadReservationContractPdf(data: ReservationContractDa
   writer.addKeyValue("Valor del plan", formatMoney(data.planPrice));
   writer.addKeyValue("Abono recibido", formatMoney(data.amountPaid));
   writer.addKeyValue("Saldo pendiente", formatMoney(data.amountRemaining));
+  writer.addKeyValue(
+    reservationConfig.form.imageAuth.legend,
+    data.imageAuthorized
+      ? reservationConfig.form.imageAuth.contractYes
+      : reservationConfig.form.imageAuth.contractNo,
+  );
   if (data.notes) {
     writer.addKeyValue("Notas", stripHtml(data.notes));
   }

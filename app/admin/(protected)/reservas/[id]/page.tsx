@@ -51,6 +51,7 @@ export default async function EditReservationPage({ params }: Readonly<PageProps
     amountPaid: reservation.amountPaid,
     amountRemaining: reservation.amountRemaining,
     notes: reservation.notes,
+    imageAuthorized: reservation.imageAuthorized,
     category: reservation.category,
     plan: reservation.plan,
   });
@@ -108,6 +109,7 @@ export default async function EditReservationPage({ params }: Readonly<PageProps
                 status: reservation.status,
                 amountPaid: reservation.amountPaid,
                 amountRemaining: reservation.amountRemaining,
+                imageAuthorized: reservation.imageAuthorized,
               }}
               submitLabel="Guardar cambios"
               extraActions={<PrintReservationContractButton data={contractData} />}

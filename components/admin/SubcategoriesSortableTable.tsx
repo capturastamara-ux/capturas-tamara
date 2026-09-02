@@ -8,7 +8,11 @@ import {
 } from "@/app/admin/actions";
 import { AdminConfirmDeleteForm } from "@/components/admin/AdminConfirmDeleteForm";
 import { StatusBadge } from "@/components/admin/AdminUi";
-import { flattenTree, nestByParent } from "@/lib/admin/subcategory-tree";
+import {
+  flattenTree,
+  nestByParent,
+  type TreeNode,
+} from "@/lib/admin/subcategory-tree";
 import { cn } from "@/lib/cn";
 
 export type SortableSubcategory = {
@@ -24,6 +28,91 @@ export type SortableSubcategory = {
   parentTitle: string | null;
   depth: number;
 };
+
+function sameSiblingGroup(
+  left: SortableSubcategory,
+  right: SortableSubcategory,
+) {
+  return (
+    left.categoryId === right.categoryId && left.parentId === right.parentId
+  );
+}
+
+function findSameLevelTarget(
+  items: SortableSubcategory[],
+  source: SortableSubcategory,
+  target: SortableSubcategory,
+) {
+  const byId = new Map(items.map((item) => [item.id, item]));
+  let current: SortableSubcategory | undefined = target;
+
+  while (current) {
+    if (current.id === source.id) return null;
+    if (sameSiblingGroup(source, current)) return current;
+    current = current.parentId ? byId.get(current.parentId) : undefined;
+  }
+
+  return null;
+}
+
+function applySiblingOrder(
+  current: SortableSubcategory[],
+  siblings: SortableSubcategory[],
+) {
+  const categoryId = siblings[0]?.categoryId;
+  const parentId = siblings[0]?.parentId ?? null;
+  if (!categoryId) return current;
+
+  const orderedIds = siblings.map((item) => item.id);
+  const tree = nestByParent(current);
+
+  const reorderNodes = (
+    nodes: Array<TreeNode<SortableSubcategory>>,
+  ): Array<TreeNode<SortableSubcategory>> => {
+    if (parentId === null) {
+      const byId = new Map(
+        nodes
+          .filter((node) => node.categoryId === categoryId)
+          .map((node) => [node.id, node]),
+      );
+      if (byId.size === 0) return nodes;
+
+      const ordered = orderedIds.flatMap((id) => {
+        const node = byId.get(id);
+        return node ? [node] : [];
+      });
+      let inserted = false;
+      const next: Array<TreeNode<SortableSubcategory>> = [];
+
+      for (const node of nodes) {
+        if (node.categoryId === categoryId) {
+          if (!inserted) {
+            next.push(...ordered);
+            inserted = true;
+          }
+          continue;
+        }
+        next.push(node);
+      }
+
+      return next;
+    }
+
+    return nodes.map((node) => {
+      if (node.id === parentId) {
+        const byId = new Map(node.children.map((child) => [child.id, child]));
+        const ordered = orderedIds.flatMap((id) => {
+          const child = byId.get(id);
+          return child ? [child] : [];
+        });
+        return { ...node, children: ordered };
+      }
+      return { ...node, children: reorderNodes(node.children) };
+    });
+  };
+
+  return flattenTree(reorderNodes(tree));
+}
 
 function GripIcon() {
   return (
@@ -62,11 +151,8 @@ export function SubcategoriesSortableTable({
   }, [initialSubcategories]);
 
   const persistOrder = (siblings: SortableSubcategory[]) => {
-    const parentId = siblings[0]?.parentId ?? null;
-    setSubcategories((current) => {
-      const others = current.filter((item) => item.parentId !== parentId);
-      return flattenTree(nestByParent([...others, ...siblings]));
-    });
+    if (siblings.length === 0) return;
+    setSubcategories((current) => applySiblingOrder(current, siblings));
     startTransition(async () => {
       await reorderSubcategoriesAction(siblings.map((item) => item.id));
     });
@@ -80,8 +166,21 @@ export function SubcategoriesSortableTable({
 
   const onDragOver = (event: DragEvent<HTMLTableRowElement>, id: string) => {
     event.preventDefault();
+    const source = draggingId
+      ? subcategories.find((item) => item.id === draggingId)
+      : undefined;
+    const target = subcategories.find((item) => item.id === id);
+    if (!source || !target) return;
+
+    const sameLevel = findSameLevelTarget(subcategories, source, target);
+    if (!sameLevel) {
+      event.dataTransfer.dropEffect = "none";
+      if (overId) setOverId(null);
+      return;
+    }
+
     event.dataTransfer.dropEffect = "move";
-    if (overId !== id) setOverId(id);
+    if (overId !== sameLevel.id) setOverId(sameLevel.id);
   };
 
   const onDrop = (event: DragEvent<HTMLTableRowElement>, targetId: string) => {
@@ -92,23 +191,21 @@ export function SubcategoriesSortableTable({
 
     if (!sourceId || sourceId === targetId) return;
 
-    const fromIndex = subcategories.findIndex((item) => item.id === sourceId);
-    const toIndex = subcategories.findIndex((item) => item.id === targetId);
-    if (fromIndex < 0 || toIndex < 0) return;
+    const source = subcategories.find((item) => item.id === sourceId);
+    const target = subcategories.find((item) => item.id === targetId);
+    if (!source || !target) return;
 
-    const source = subcategories[fromIndex];
-    const target = subcategories[toIndex];
-    if (!source || !target || source.parentId !== target.parentId) return;
+    const sameLevelTarget = findSameLevelTarget(subcategories, source, target);
+    if (!sameLevelTarget) return;
 
-    const siblingIds = new Set(
-      subcategories
-        .filter((item) => item.parentId === source.parentId)
-        .map((item) => item.id),
+    const siblings = subcategories.filter((item) =>
+      sameSiblingGroup(item, source),
     );
-    const siblings = subcategories.filter((item) => siblingIds.has(item.id));
     const fromSibling = siblings.findIndex((item) => item.id === sourceId);
-    const toSibling = siblings.findIndex((item) => item.id === targetId);
-    if (fromSibling < 0 || toSibling < 0) return;
+    const toSibling = siblings.findIndex(
+      (item) => item.id === sameLevelTarget.id,
+    );
+    if (fromSibling < 0 || toSibling < 0 || fromSibling === toSibling) return;
 
     const nextSiblings = [...siblings];
     const [movedSibling] = nextSiblings.splice(fromSibling, 1);
@@ -138,8 +235,9 @@ export function SubcategoriesSortableTable({
       )}
     >
       <p className="border-b border-catalog/15 px-4 py-3 text-xs text-muted">
-        Arrastra para ordenar hermanas del mismo nivel. Puedes anidar una
-        subcategoría dentro de otra al editarla.
+        Arrastra para ordenar hermanas del mismo nivel y la misma categoría.
+        Las hijas se mueven junto a su padre. Para anidar, edita la
+        subcategoría.
       </p>
       <table className="w-full text-left text-sm" aria-busy={isPending}>
         <thead className="border-b border-catalog/15 text-xs uppercase tracking-[0.12em] text-muted">

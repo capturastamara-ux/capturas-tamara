@@ -14,6 +14,7 @@ export type ReservationContractData = {
   planPrice: number | null;
   amountPaid: number | null;
   amountRemaining: number | null;
+  imageAuthorized: boolean;
   notes: string | null;
   issuedAtLabel: string;
 };
@@ -29,6 +30,7 @@ export function buildReservationContractData(input: {
   amountPaid: number | null;
   amountRemaining: number | null;
   notes: string | null;
+  imageAuthorized?: boolean;
   category: { title: string } | null;
   plan: {
     title: string;
@@ -70,6 +72,7 @@ export function buildReservationContractData(input: {
     planPrice,
     amountPaid: input.amountPaid,
     amountRemaining: input.amountRemaining,
+    imageAuthorized: Boolean(input.imageAuthorized),
     notes: input.notes,
     issuedAtLabel,
   };

@@ -339,29 +339,66 @@ export async function reorderSubcategoriesAction(orderedIds: string[]) {
     where: { id: { in: orderedIds } },
     select: { id: true, parentId: true, categoryId: true },
   });
-  if (existing.length !== orderedIds.length) {
-    throw new Error("El orden de subcategorías no es válido.");
+  if (existing.length === 0) return;
+
+  const byId = new Map(existing.map((item) => [item.id, item]));
+  const groups = new Map<
+    string,
+    { categoryId: string; parentId: string | null; ids: string[] }
+  >();
+
+  for (const id of orderedIds) {
+    const item = byId.get(id);
+    if (!item) continue;
+    const key = `${item.categoryId}:${item.parentId ?? ""}`;
+    const group = groups.get(key);
+    if (group) {
+      group.ids.push(id);
+    } else {
+      groups.set(key, {
+        categoryId: item.categoryId,
+        parentId: item.parentId,
+        ids: [id],
+      });
+    }
   }
 
-  const parentId = existing[0]?.parentId ?? null;
-  const categoryId = existing[0]?.categoryId;
-  if (
-    existing.some(
+  const groupList = [...groups.values()];
+  if (groupList.length === 0) return;
+
+  const siblings = await prisma.subcategory.findMany({
+    where: {
+      OR: groupList.map((group) => ({
+        categoryId: group.categoryId,
+        parentId: group.parentId,
+      })),
+    },
+    select: { id: true, categoryId: true, parentId: true },
+    orderBy: { sortOrder: "asc" },
+  });
+
+  const updates = groupList.flatMap((group) => {
+    const incoming = new Set(group.ids);
+    const current = siblings.filter(
       (item) =>
-        item.parentId !== parentId || item.categoryId !== categoryId,
-    )
-  ) {
-    throw new Error("Solo puedes reordenar subcategorías del mismo nivel.");
-  }
-
-  await prisma.$transaction(
-    orderedIds.map((id, index) =>
+        item.categoryId === group.categoryId &&
+        item.parentId === group.parentId,
+    );
+    const nextIds = [
+      ...group.ids.filter((id) => current.some((item) => item.id === id)),
+      ...current.filter((item) => !incoming.has(item.id)).map((item) => item.id),
+    ];
+    return nextIds.map((id, index) =>
       prisma.subcategory.update({
         where: { id },
         data: { sortOrder: index },
       }),
-    ),
-  );
+    );
+  });
+
+  if (updates.length === 0) return;
+
+  await prisma.$transaction(updates);
 
   revalidatePortfolio();
   revalidatePath("/admin/subcategorias");
@@ -804,6 +841,10 @@ function parseReservationStatus(value: FormDataEntryValue | null): ReservationSt
   return "pending";
 }
 
+function parseImageAuthorized(value: FormDataEntryValue | null) {
+  return String(value ?? "").trim() === "yes";
+}
+
 function parseEventDate(value: FormDataEntryValue | null) {
   const text = String(value ?? "").trim();
   if (!text) {
@@ -962,6 +1003,7 @@ async function createReservationFromFormData(formData: FormData) {
       notes: parseRichTextOptional(formData.get("notes")),
       amountPaid: parseOptionalPrice(formData.get("amountPaid")),
       amountRemaining: parseOptionalPrice(formData.get("amountRemaining")),
+      imageAuthorized: parseImageAuthorized(formData.get("imageAuthorized")),
       status: parseReservationStatus(formData.get("status")),
       categoryId,
       subcategoryId,
@@ -1131,6 +1173,7 @@ export async function updateReservationAction(formData: FormData) {
       amountPaid: parseOptionalPrice(formData.get("amountPaid")),
       amountRemaining: parseOptionalPrice(formData.get("amountRemaining")),
       status: parseReservationStatus(formData.get("status")),
+      imageAuthorized: parseImageAuthorized(formData.get("imageAuthorized")),
       categoryId: parseOptionalId(formData.get("categoryId")),
       subcategoryId: parseOptionalId(formData.get("subcategoryId")),
       planId: parseOptionalId(formData.get("planId")),
@@ -1177,6 +1220,7 @@ export async function getReservationContractAction(id: string) {
     amountPaid: reservation.amountPaid,
     amountRemaining: reservation.amountRemaining,
     notes: reservation.notes,
+    imageAuthorized: reservation.imageAuthorized,
     category: reservation.category,
     plan: reservation.plan,
   });

@@ -14,7 +14,8 @@ export type ReservationFormField =
   | "planId"
   | "guestCount"
   | "eventDate"
-  | "startTime";
+  | "startTime"
+  | "imageAuthorized";
 
 export type ReservationFormErrors = Partial<Record<ReservationFormField, string>>;
 
@@ -74,6 +75,11 @@ export function validateReservationFormData(
   const planId = String(formData.get("planId") ?? "").trim();
   if (!planId) {
     errors.planId = validation.plan;
+  }
+
+  const imageAuthorized = String(formData.get("imageAuthorized") ?? "").trim();
+  if (imageAuthorized !== "yes" && imageAuthorized !== "no") {
+    errors.imageAuthorized = reservationConfig.form.imageAuth.requiredError;
   }
 
   const guestCountRaw = String(formData.get("guestCount") ?? "").trim();

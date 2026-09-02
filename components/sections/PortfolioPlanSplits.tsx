@@ -7,8 +7,10 @@ import { PortfolioSplitGrid } from "@/components/ui/PortfolioSplitGrid";
 import { PortfolioSplitMedia } from "@/components/ui/PortfolioSplitMedia";
 import { Reveal } from "@/components/ui/Reveal";
 import { siteConfig } from "@/config/site";
+import { catalogConfig } from "@/config/catalog";
 import { cn } from "@/lib/cn";
 import Image from "next/image";
+import Link from "next/link";
 
 export type PortfolioPlanCard = {
   id: string;
@@ -172,7 +174,18 @@ export function PortfolioPlanSplits({
                     </ul>
                   )}
 
-                  <div className="mt-5 sm:mt-6">
+                  <div className="mt-5 flex flex-col items-start gap-3 sm:mt-6">
+                    <Link
+                      href={`/#${catalogConfig.conditions.id}`}
+                      className={cn(
+                        "inline-flex max-w-md text-left text-[0.65rem] uppercase leading-relaxed tracking-[0.14em] underline-offset-[0.22em] transition-colors hover:underline sm:text-xs",
+                        isCatalog
+                          ? "text-catalog-gold hover:text-white"
+                          : "text-catalog hover:text-catalog-ink",
+                      )}
+                    >
+                      {catalogConfig.conditions.planLinkLabel}
+                    </Link>
                     <Button
                       href={reserveHref(plan.title)}
                       external
