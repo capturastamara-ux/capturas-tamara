@@ -13,6 +13,7 @@ const links = [
   { href: "/admin/subcategorias", label: "Subcategorías" },
   { href: "/admin/planes", label: "Planes" },
   { href: adminConfig.printLists.href, label: adminConfig.printLists.navLabel },
+  { href: adminConfig.conditions.href, label: adminConfig.conditions.navLabel },
   { href: "/admin/reservas", label: "Reservas" },
 ] as const;
 

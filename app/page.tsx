@@ -8,20 +8,21 @@ import { CatalogConditionsSection } from "@/components/sections/CatalogCondition
 import { AboutIntro } from "@/components/sections/AboutIntro";
 import { catalogConfig } from "@/config/catalog";
 import {
+  getCatalogConditions,
   getCatalogPrintRowsByProduct,
-  getPublishedCategories,
+  getPublishedCategorySummaries,
   getPublishedPlanImages,
   pickRandomPlanImages,
 } from "@/lib/db/portfolio";
 
-export const dynamic = "force-dynamic";
-
 export default async function Home() {
-  const [categories, planImages, printRowsByProduct] = await Promise.all([
-    getPublishedCategories(),
-    getPublishedPlanImages(),
-    getCatalogPrintRowsByProduct(),
-  ]);
+  const [categories, planImages, printRowsByProduct, conditionItems] =
+    await Promise.all([
+      getPublishedCategorySummaries(),
+      getPublishedPlanImages(),
+      getCatalogPrintRowsByProduct(),
+      getCatalogConditions(),
+    ]);
   const products = catalogConfig.products.map((product) => {
     const rows = printRowsByProduct[product.id];
     return {
@@ -46,18 +47,12 @@ export default async function Home() {
       </div>
       <main>
         <RegionsTicker />
-        <CatalogCategoriesSection
-          categories={categories.map((category) => ({
-            slug: category.slug,
-            title: category.title,
-            coverUrl: category.coverUrl,
-          }))}
-        />
+        <CatalogCategoriesSection categories={categories} />
         <CatalogProductsSection
           products={products}
           imagesByProduct={imagesByProduct}
         />
-        <CatalogConditionsSection />
+        <CatalogConditionsSection items={conditionItems} />
         <AboutIntro />
       </main>
       <Footer />

@@ -20,6 +20,11 @@ export type CatalogProduct = {
   rows: ReadonlyArray<CatalogPriceRow>;
 };
 
+export type CatalogConditionItem = {
+  title: string;
+  body: string;
+};
+
 export const catalogConfig = {
   categories: {
     id: "categorias",

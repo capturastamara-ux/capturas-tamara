@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
 import {
@@ -17,6 +17,7 @@ import {
   nextCategoryGallerySortOrder,
   nextSubcategorySortOrder,
   parseCatalogPrintRowsJson,
+  parseCatalogConditionsJson,
   parseOptionalString,
   parseOptionalPrice,
   parseRichTextOptional,
@@ -45,6 +46,7 @@ import { getAdminReservationById } from "@/lib/db/admin";
 import { redirectAfterSave } from "@/lib/admin/return-to";
 import { reservationConfig } from "@/config/reservations";
 import { catalogConfig } from "@/config/catalog";
+import { PORTFOLIO_CACHE_TAG } from "@/lib/db/portfolio";
 import { isRangeAvailable, parseTimeRange } from "@/lib/admin/time-slots";
 import {
   deleteReservationFromGoogleCalendar,
@@ -63,8 +65,10 @@ export type CreateReservationModalResult =
   | { ok: false; message: string; fieldErrors?: ReservationFormErrors };
 
 function revalidatePortfolio() {
+  updateTag(PORTFOLIO_CACHE_TAG);
+  revalidateTag(PORTFOLIO_CACHE_TAG, "max");
   revalidatePath("/");
-  revalidatePath("/portafolio");
+  revalidatePath("/portafolio", "layout");
   revalidatePath("/cotizador");
   revalidatePath("/admin");
   revalidatePath("/admin/categorias");
@@ -73,6 +77,7 @@ function revalidatePortfolio() {
   revalidatePath("/admin/reservas");
   revalidatePath("/admin/cotizador");
   revalidatePath("/admin/impresiones");
+  revalidatePath("/admin/condiciones");
 }
 
 export async function createCategoryAction(formData: FormData) {
@@ -1258,4 +1263,25 @@ export async function updateCatalogPrintRowsAction(formData: FormData) {
 
   revalidatePortfolio();
   redirectAfterSave(formData, "/admin/impresiones", "updated");
+}
+
+export async function updateCatalogConditionsAction(formData: FormData) {
+  const items = parseCatalogConditionsJson(formData.get("conditions"));
+
+  await prisma.$transaction(async (tx) => {
+    await tx.catalogCondition.deleteMany();
+
+    if (items.length > 0) {
+      await tx.catalogCondition.createMany({
+        data: items.map((item, index) => ({
+          title: item.title,
+          body: item.body,
+          sortOrder: index,
+        })),
+      });
+    }
+  });
+
+  revalidatePortfolio();
+  redirectAfterSave(formData, "/admin/condiciones", "updated");
 }

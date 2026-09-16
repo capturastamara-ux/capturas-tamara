@@ -124,6 +124,18 @@ model CatalogPrintRow {
   @@index([productId, sortOrder])
 }
 
+/// Condición de reserva que se muestra en la landing
+model CatalogCondition {
+  id        String   @id @default(cuid())
+  title     String
+  body      String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sortOrder])
+}
+
 /// Reserva / evento en la agenda del negocio
 model Reservation {
   id          String            @id @default(cuid())

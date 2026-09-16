@@ -466,3 +466,9 @@ export async function getAdminCatalogPrintRows() {
     orderBy: [{ productId: "asc" }, { sortOrder: "asc" }],
   });
 }
+
+export async function getAdminCatalogConditions() {
+  return prisma.catalogCondition.findMany({
+    orderBy: { sortOrder: "asc" },
+  });
+}

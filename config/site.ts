@@ -77,6 +77,11 @@ export const siteConfig = {
     planPriceTiersTitle: "Nuestros precios",
     planGuestSuffix: "invitados",
     galleryHeading: "Galería",
+    galleryMore: {
+      heading: "Mira más de lo que hacemos",
+      instagramLabel: "Instagram",
+      facebookLabel: "Facebook",
+    },
     reserveLabel: "Reservar por WhatsApp",
     reserveMessage: (planTitle: string) =>
       `Hola, quiero reservar el plan ${planTitle}.`,

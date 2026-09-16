@@ -250,3 +250,38 @@ export function parseCatalogPrintRowsJson(value: FormDataEntryValue | null) {
     return { name, price };
   });
 }
+
+export function parseCatalogConditionsJson(value: FormDataEntryValue | null) {
+  const text = String(value ?? "").trim();
+  if (!text) return [];
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new Error("La lista de condiciones no es válida.");
+  }
+
+  if (!Array.isArray(parsed)) {
+    throw new Error("La lista de condiciones debe ser un arreglo.");
+  }
+
+  return parsed.map((entry, index) => {
+    if (!entry || typeof entry !== "object") {
+      throw new Error(`Condición ${index + 1} no es válida.`);
+    }
+
+    const title = String((entry as { title?: unknown }).title ?? "").trim();
+    const body = String((entry as { body?: unknown }).body ?? "").trim();
+
+    if (!title) {
+      throw new Error(`Indica un título en la condición ${index + 1}.`);
+    }
+
+    if (!body) {
+      throw new Error(`Indica un texto en la condición ${index + 1}.`);
+    }
+
+    return { title, body };
+  });
+}

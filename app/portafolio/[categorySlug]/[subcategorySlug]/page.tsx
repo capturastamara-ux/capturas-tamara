@@ -13,8 +13,6 @@ import { siteConfig } from "@/config/site";
 import { getPublishedSubcategoryBranch } from "@/lib/db/portfolio";
 import { richTextToPlainText } from "@/lib/sanitize-rich-text";
 
-export const dynamic = "force-dynamic";
-
 type PageProps = {
   params: Promise<{ categorySlug: string; subcategorySlug: string }>;
 };

@@ -1,4 +1,7 @@
-import { catalogConfig } from "@/config/catalog";
+import {
+  catalogConfig,
+  type CatalogConditionItem,
+} from "@/config/catalog";
 import { CatalogBand, CatalogHeading } from "@/components/sections/catalog-ui";
 import { Reveal, RevealItem, RevealStagger } from "@/components/ui/Reveal";
 
@@ -6,8 +9,16 @@ function formatIndex(index: number) {
   return String(index + 1).padStart(2, "0");
 }
 
-export function CatalogConditionsSection() {
+type CatalogConditionsSectionProps = {
+  items?: ReadonlyArray<CatalogConditionItem>;
+};
+
+export function CatalogConditionsSection({
+  items,
+}: Readonly<CatalogConditionsSectionProps>) {
   const { conditions, payments } = catalogConfig;
+  const conditionItems =
+    items && items.length > 0 ? items : conditions.items;
 
   return (
     <>
@@ -27,8 +38,8 @@ export function CatalogConditionsSection() {
             stagger={0.06}
             className="mt-12 grid gap-x-10 gap-y-8 sm:grid-cols-2"
           >
-            {conditions.items.map((item, index) => (
-              <RevealItem key={item.title}>
+            {conditionItems.map((item, index) => (
+              <RevealItem key={`${index}-${item.title}`}>
                 <article className="border-t border-white/15 pt-5 text-center sm:text-left">
                   <p className="text-[0.62rem] uppercase tracking-[0.26em] text-catalog-gold">
                     {formatIndex(index)} — {item.title}

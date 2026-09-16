@@ -1,24 +1,83 @@
-import { nestByParent } from "@/lib/admin/subcategory-tree";
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
+import { nestByParent, type TreeNode } from "@/lib/admin/subcategory-tree";
 import { prisma } from "@/lib/db/prisma";
 import { landingGallerySlots } from "@/config/gallery";
+import type { PortfolioSubcategoryCoverNode } from "@/components/sections/PortfolioSubcategoryTree";
 
-const planInclude = {
+export const PORTFOLIO_CACHE_TAG = "portfolio";
+
+const galleryOrder = { sortOrder: "asc" as const };
+
+const planCardSelect = {
+  id: true,
+  slug: true,
+  title: true,
+  tagline: true,
+  price: true,
+  coverUrl: true,
+  description: true,
   sections: {
-    orderBy: { sortOrder: "asc" as const },
-  },
-  gallery: {
-    orderBy: { sortOrder: "asc" as const },
-  },
-  priceTiers: {
-    orderBy: { sortOrder: "asc" as const },
+    orderBy: galleryOrder,
     select: {
       id: true,
-      guestCount: true,
-      price: true,
-      sortOrder: true,
+      title: true,
+      intro: true,
+      note: true,
     },
   },
+} as const;
+
+const coverSubcategorySelect = {
+  id: true,
+  slug: true,
+  title: true,
+  parentId: true,
+  coverUrl: true,
+  gallery: {
+    orderBy: galleryOrder,
+    take: 1,
+    select: { url: true },
+  },
+  plans: {
+    where: { published: true },
+    orderBy: galleryOrder,
+    take: 1,
+    select: { coverUrl: true },
+  },
+} as const;
+
+type SlimSubcategory = {
+  id: string;
+  slug: string;
+  title: string;
+  parentId: string | null;
+  coverUrl: string | null;
+  gallery: Array<{ url: string }>;
+  plans: Array<{ coverUrl: string | null }>;
 };
+
+function cachedPortfolio<T>(key: string, loader: () => Promise<T>) {
+  return unstable_cache(loader, [key], {
+    tags: [PORTFOLIO_CACHE_TAG],
+    revalidate: 120,
+  })();
+}
+
+function toCoverNodes(items: SlimSubcategory[]): PortfolioSubcategoryCoverNode[] {
+  const mapNode = (
+    node: TreeNode<SlimSubcategory>,
+  ): PortfolioSubcategoryCoverNode => ({
+    slug: node.slug,
+    title: node.title,
+    coverUrl: node.coverUrl,
+    gallery: node.gallery,
+    plans: node.plans,
+    children: node.children.map(mapNode),
+  });
+
+  return nestByParent(items).map(mapNode);
+}
 
 const publishedPlanWhere = {
   published: true,
@@ -32,61 +91,72 @@ const publishedPlanOrderBy = [
   { sortOrder: "asc" as const },
 ];
 
-export async function getPublishedCategories() {
-  return prisma.category.findMany({
-    where: { published: true },
-    orderBy: { sortOrder: "asc" },
-    include: {
-      subcategories: {
-        where: { published: true },
-        orderBy: { sortOrder: "asc" },
-        include: {
-          plans: {
-            where: { published: true },
-            orderBy: { sortOrder: "asc" },
-            select: {
-              id: true,
-              slug: true,
-              title: true,
-              tagline: true,
-              coverUrl: true,
-              description: true,
-              sortOrder: true,
+export const getPublishedCategorySummaries = cache(() =>
+  cachedPortfolio("category-summaries", () =>
+    prisma.category.findMany({
+      where: { published: true },
+      orderBy: { sortOrder: "asc" },
+      select: {
+        slug: true,
+        title: true,
+        coverUrl: true,
+      },
+    }),
+  ),
+);
+
+export const getPublishedCategories = cache(() =>
+  cachedPortfolio("published-categories", () =>
+    prisma.category.findMany({
+      where: { published: true },
+      orderBy: { sortOrder: "asc" },
+      select: {
+        slug: true,
+        title: true,
+        subtitle: true,
+        description: true,
+        coverUrl: true,
+        subcategories: {
+          where: { published: true },
+          orderBy: { sortOrder: "asc" },
+          select: {
+            id: true,
+            slug: true,
+            title: true,
+            coverUrl: true,
+            plans: {
+              where: { published: true },
+              orderBy: { sortOrder: "asc" },
+              take: 1,
+              select: { coverUrl: true, title: true, slug: true },
             },
           },
         },
       },
-    },
-  });
-}
+    }),
+  ),
+);
 
-export async function getCategoryBySlug(slug: string) {
+async function loadCategoryBySlug(slug: string) {
   const category = await prisma.category.findFirst({
     where: { slug, published: true },
-    include: {
+    select: {
+      slug: true,
+      title: true,
+      description: true,
       gallery: {
-        orderBy: { sortOrder: "asc" },
+        orderBy: galleryOrder,
         select: { id: true, url: true },
       },
       plans: {
         where: { published: true, subcategoryId: null },
-        orderBy: { sortOrder: "asc" },
-        include: planInclude,
+        orderBy: galleryOrder,
+        select: planCardSelect,
       },
       subcategories: {
         where: { published: true },
-        orderBy: { sortOrder: "asc" },
-        include: {
-          gallery: {
-            orderBy: { sortOrder: "asc" },
-            select: { id: true, url: true },
-          },
-          plans: {
-            where: { published: true },
-            orderBy: { sortOrder: "asc" },
-            include: planInclude,
-          },
-        },
+        orderBy: galleryOrder,
+        select: coverSubcategorySelect,
       },
     },
   });
@@ -94,12 +164,22 @@ export async function getCategoryBySlug(slug: string) {
   if (!category) return null;
 
   return {
-    ...category,
-    subcategories: nestByParent(category.subcategories),
+    slug: category.slug,
+    title: category.title,
+    description: category.description,
+    gallery: category.gallery,
+    plans: category.plans,
+    subcategories: toCoverNodes(category.subcategories),
   };
 }
 
-function findSubcategoryNode<T extends { slug: string; title: string; children: T[] }>(
+export const getCategoryBySlug = cache((slug: string) =>
+  cachedPortfolio(`category-by-slug:${slug}`, () => loadCategoryBySlug(slug)),
+);
+
+function findSubcategoryNode<
+  T extends { slug: string; title: string; children: T[] },
+>(
   nodes: T[],
   slug: string,
   parent: T | null = null,
@@ -112,18 +192,75 @@ function findSubcategoryNode<T extends { slug: string; title: string; children: 
   return null;
 }
 
-export async function getPublishedSubcategoryBranch(
+async function loadSubcategoryBranch(
   categorySlug: string,
   subcategorySlug: string,
 ) {
-  const category = await getCategoryBySlug(categorySlug);
+  const category = await prisma.category.findFirst({
+    where: { slug: categorySlug, published: true },
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      description: true,
+    },
+  });
   if (!category) return null;
 
-  const match = findSubcategoryNode(category.subcategories, subcategorySlug);
+  const relatives = await prisma.subcategory.findMany({
+    where: { categoryId: category.id, published: true },
+    orderBy: { sortOrder: "asc" },
+    select: coverSubcategorySelect,
+  });
+
+  const tree = toCoverNodes(relatives);
+  const match = findSubcategoryNode(tree, subcategorySlug);
   if (!match) return null;
 
-  return { category, node: match.node, parent: match.parent };
+  const currentId = relatives.find((item) => item.slug === subcategorySlug)?.id;
+  if (!currentId) return null;
+
+  const current = await prisma.subcategory.findFirst({
+    where: { id: currentId },
+    select: {
+      gallery: {
+        orderBy: galleryOrder,
+        select: { id: true, url: true },
+      },
+      plans: {
+        where: { published: true },
+        orderBy: galleryOrder,
+        select: planCardSelect,
+      },
+    },
+  });
+
+  return {
+    category: {
+      slug: category.slug,
+      title: category.title,
+      description: category.description,
+    },
+    parent: match.parent
+      ? { slug: match.parent.slug, title: match.parent.title }
+      : null,
+    node: {
+      slug: match.node.slug,
+      title: match.node.title,
+      children: match.node.children,
+      gallery: current?.gallery ?? [],
+      plans: current?.plans ?? [],
+    },
+  };
 }
+
+export const getPublishedSubcategoryBranch = cache(
+  (categorySlug: string, subcategorySlug: string) =>
+    cachedPortfolio(
+      `subcategory-branch:${categorySlug}:${subcategorySlug}`,
+      () => loadSubcategoryBranch(categorySlug, subcategorySlug),
+    ),
+);
 
 export async function getSubcategoryBySlugs(
   categorySlug: string,
@@ -146,7 +283,7 @@ export async function getSubcategoryBySlugs(
       plans: {
         where: { published: true },
         orderBy: { sortOrder: "asc" },
-        include: planInclude,
+        select: planCardSelect,
       },
     },
   });
@@ -173,7 +310,15 @@ export async function getPlanBySlugs(
           category: true,
         },
       },
-      ...planInclude,
+      sections: {
+        orderBy: galleryOrder,
+      },
+      gallery: {
+        orderBy: galleryOrder,
+      },
+      priceTiers: {
+        orderBy: galleryOrder,
+      },
     },
   });
 }
@@ -275,7 +420,11 @@ function shuffle<T>(items: T[]) {
   return pool;
 }
 
-export async function getPublishedPlanImages(): Promise<PlanMediaImage[]> {
+export const getPublishedPlanImages = cache(() =>
+  cachedPortfolio("published-plan-images", loadPublishedPlanImages),
+);
+
+async function loadPublishedPlanImages(): Promise<PlanMediaImage[]> {
   const plans = await prisma.plan.findMany({
     where: publishedPlanWhere,
     orderBy: publishedPlanOrderBy,
@@ -414,17 +563,28 @@ export async function getPublicComparisonBySlug(slug: string) {
   };
 }
 
-export async function getCatalogPrintRowsByProduct() {
-  const rows = await prisma.catalogPrintRow.findMany({
-    orderBy: [{ productId: "asc" }, { sortOrder: "asc" }],
-    select: { productId: true, name: true, price: true },
-  });
+export const getCatalogPrintRowsByProduct = cache(() =>
+  cachedPortfolio("catalog-print-rows", async () => {
+    const rows = await prisma.catalogPrintRow.findMany({
+      orderBy: [{ productId: "asc" }, { sortOrder: "asc" }],
+      select: { productId: true, name: true, price: true },
+    });
 
-  const byProduct: Record<string, Array<{ size: string; price: number }>> = {};
-  for (const row of rows) {
-    const current = byProduct[row.productId] ?? [];
-    current.push({ size: row.name, price: row.price });
-    byProduct[row.productId] = current;
-  }
-  return byProduct;
-}
+    const byProduct: Record<string, Array<{ size: string; price: number }>> = {};
+    for (const row of rows) {
+      const current = byProduct[row.productId] ?? [];
+      current.push({ size: row.name, price: row.price });
+      byProduct[row.productId] = current;
+    }
+    return byProduct;
+  }),
+);
+
+export const getCatalogConditions = cache(() =>
+  cachedPortfolio("catalog-conditions", async () => {
+    return prisma.catalogCondition.findMany({
+      orderBy: { sortOrder: "asc" },
+      select: { title: true, body: true },
+    });
+  }),
+);

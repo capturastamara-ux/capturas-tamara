@@ -1,13 +1,13 @@
 import { CatalogImageCards } from "@/components/sections/CatalogImageCards";
 import {
   subcategoryCoverUrl,
-  type PortfolioSubcategoryNode,
+  type PortfolioSubcategoryCoverNode,
 } from "@/components/sections/PortfolioSubcategoryTree";
 import { catalogConfig } from "@/config/catalog";
 
 type PortfolioLevelViewProps = {
   categorySlug: string;
-  nodes: PortfolioSubcategoryNode[];
+  nodes: PortfolioSubcategoryCoverNode[];
 };
 
 export function PortfolioLevelView({

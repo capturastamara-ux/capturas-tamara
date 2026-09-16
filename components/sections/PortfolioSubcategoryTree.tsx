@@ -35,7 +35,18 @@ export type PortfolioSubcategoryNode = {
   children: PortfolioSubcategoryNode[];
 };
 
-export function subcategoryCoverUrl(node: PortfolioSubcategoryNode): string | null {
+export type PortfolioSubcategoryCoverNode = {
+  slug: string;
+  title: string;
+  coverUrl: string | null;
+  gallery: Array<{ url: string }>;
+  plans: Array<{ coverUrl: string | null }>;
+  children: PortfolioSubcategoryCoverNode[];
+};
+
+export function subcategoryCoverUrl(
+  node: PortfolioSubcategoryCoverNode,
+): string | null {
   return (
     node.coverUrl ??
     node.plans[0]?.coverUrl ??

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/cn";
@@ -283,6 +284,38 @@ export function PlanGallerySection({
               />
             </button>
           ))}
+        </div>
+
+        <div
+          className={cn(
+            "mt-10 flex flex-col items-center text-center sm:mt-12",
+            isCatalog ? "text-white" : "text-catalog-ink",
+          )}
+        >
+          <p
+            className={cn(
+              "font-display text-[clamp(1.25rem,2.6vw,1.75rem)] italic",
+              isCatalog ? "text-white" : "text-catalog-ink",
+            )}
+          >
+            {siteConfig.portfolio.galleryMore.heading}
+          </p>
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+            <Button
+              href={siteConfig.social.instagram}
+              external
+              variant={isCatalog ? "catalog" : "outline"}
+            >
+              {siteConfig.portfolio.galleryMore.instagramLabel}
+            </Button>
+            <Button
+              href={siteConfig.social.facebook}
+              external
+              variant={isCatalog ? "catalog" : "outline"}
+            >
+              {siteConfig.portfolio.galleryMore.facebookLabel}
+            </Button>
+          </div>
         </div>
       </section>
 

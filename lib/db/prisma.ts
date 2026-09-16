@@ -20,7 +20,10 @@ function createPrismaClient() {
     new Pool({
       connectionString,
       // Vercel (serverless): 1 conexión por instancia. Sube DATABASE_POOL_MAX en local si hace falta.
-      max: Number(process.env.DATABASE_POOL_MAX ?? 1),
+      max: Number(
+        process.env.DATABASE_POOL_MAX ??
+          (process.env.NODE_ENV === "development" ? 10 : 1),
+      ),
       idleTimeoutMillis: 10_000,
       connectionTimeoutMillis: 15_000,
       allowExitOnIdle: true,

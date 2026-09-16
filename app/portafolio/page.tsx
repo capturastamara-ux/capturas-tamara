@@ -7,8 +7,6 @@ import { Reveal } from "@/components/ui/Reveal";
 import { siteConfig } from "@/config/site";
 import { getPublishedCategories } from "@/lib/db/portfolio";
 
-export const dynamic = "force-dynamic";
-
 export const metadata: Metadata = {
   title: `Portafolio | ${siteConfig.name}`,
   description: siteConfig.portfolio.pageIntro,

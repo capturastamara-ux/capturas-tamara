@@ -13,8 +13,6 @@ import { PortfolioLevelView } from "@/components/sections/PortfolioLevelView";
 import { PortfolioPlanSplits } from "@/components/sections/PortfolioPlanSplits";
 import { PlanGallerySection } from "@/components/sections/PlanGallerySection";
 
-export const dynamic = "force-dynamic";
-
 type PageProps = {
   params: Promise<{ categorySlug: string }>;
 };
