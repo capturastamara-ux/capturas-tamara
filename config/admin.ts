@@ -64,6 +64,8 @@ export const adminConfig = {
     editLabel: "Editar",
     tableTitle: "Título",
     tableSlug: "Enlace",
+    tableLinkLabel: "Ver página",
+    tableLinkDraft: "Aún no publicado",
     tableStatus: "Estado",
     tableActions: "Acciones",
   },

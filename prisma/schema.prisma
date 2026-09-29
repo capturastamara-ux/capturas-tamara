@@ -129,7 +129,7 @@ model LiveEvent {
   id          String   @id @default(cuid())
   slug        String   @unique
   title       String
-  description String
+  description String?
   buttonLabel String
   buttonUrl   String
   sortOrder   Int      @default(0)

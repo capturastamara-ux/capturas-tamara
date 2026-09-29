@@ -1295,7 +1295,6 @@ export async function updateCatalogConditionsAction(formData: FormData) {
 
 function parseLiveEventForm(formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
-  const description = String(formData.get("description") ?? "").trim();
   const buttonLabel =
     String(formData.get("buttonLabel") ?? "").trim() ||
     liveContentConfig.defaultButtonLabel;
@@ -1304,13 +1303,10 @@ function parseLiveEventForm(formData: FormData) {
   if (!title) {
     throw new Error("El título es obligatorio.");
   }
-  if (!description) {
-    throw new Error("La descripción es obligatoria.");
-  }
 
   return {
     title,
-    description,
+    description: parseOptionalString(formData.get("description")),
     buttonLabel,
     buttonUrl,
     published: parsePublished(formData.get("published")),

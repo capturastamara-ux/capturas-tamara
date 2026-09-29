@@ -57,7 +57,6 @@ export default async function EditLiveEventPage({ params }: PageProps) {
           <AdminTextarea
             label={copy.descriptionLabel}
             name="description"
-            required
             rows={5}
             defaultValue={event.description}
           />

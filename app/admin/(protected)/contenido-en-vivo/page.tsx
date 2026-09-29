@@ -51,10 +51,36 @@ export default async function AdminLiveEventsPage() {
                       >
                         {event.title}
                       </Link>
-                      <p className="mt-1 text-xs text-muted sm:hidden">{href}</p>
+                      <p className="mt-1 sm:hidden">
+                        {event.published ? (
+                          <Link
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-primary hover:opacity-70"
+                          >
+                            {copy.tableLinkLabel}
+                          </Link>
+                        ) : (
+                          <span className="text-xs text-muted">
+                            {copy.tableLinkDraft}
+                          </span>
+                        )}
+                      </p>
                     </td>
-                    <td className="hidden px-4 py-4 text-muted sm:table-cell">
-                      {href}
+                    <td className="hidden px-4 py-4 sm:table-cell">
+                      {event.published ? (
+                        <Link
+                          href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:opacity-70"
+                        >
+                          {copy.tableLinkLabel}
+                        </Link>
+                      ) : (
+                        <span className="text-muted">{copy.tableLinkDraft}</span>
+                      )}
                     </td>
                     <td className="px-4 py-4">
                       <StatusBadge published={event.published} />

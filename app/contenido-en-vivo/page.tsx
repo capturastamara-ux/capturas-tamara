@@ -48,9 +48,11 @@ export default async function LiveContentPage() {
                       <h2 className="font-display text-2xl italic text-catalog-ink">
                         {event.title}
                       </h2>
-                      <p className="mt-3 line-clamp-4 flex-1 text-sm leading-relaxed text-muted">
-                        {event.description}
-                      </p>
+                      {event.description ? (
+                        <p className="mt-3 line-clamp-4 flex-1 text-sm leading-relaxed text-muted">
+                          {event.description}
+                        </p>
+                      ) : null}
                       <Link
                         href={liveEventPath(event.slug)}
                         className="mt-6 inline-flex self-start rounded-full bg-catalog px-5 py-2.5 text-xs uppercase tracking-[0.12em] text-white transition-transform hover:-translate-y-0.5 hover:bg-catalog-ink"

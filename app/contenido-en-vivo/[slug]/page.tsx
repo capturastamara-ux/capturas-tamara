@@ -23,7 +23,7 @@ export async function generateMetadata({
 
   return {
     title: `${event.title} | ${liveContentConfig.pageTitle} | ${siteConfig.name}`,
-    description: event.description,
+    description: event.description ?? liveContentConfig.pageIntro,
   };
 }
 
@@ -48,9 +48,11 @@ export default async function LiveEventPage({ params }: PageProps) {
             >
               {event.title}
             </SectionHeading>
-            <p className="mt-6 whitespace-pre-line text-sm leading-relaxed text-muted sm:text-base">
-              {event.description}
-            </p>
+            {event.description ? (
+              <p className="mt-6 whitespace-pre-line text-sm leading-relaxed text-muted sm:text-base">
+                {event.description}
+              </p>
+            ) : null}
             <a
               href={event.buttonUrl}
               target="_blank"
