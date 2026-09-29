@@ -11,6 +11,7 @@ import {
 import {
   nextCategorySortOrder,
   nextGallerySortOrder,
+  nextLiveEventSortOrder,
   nextPlanSortOrder,
   nextSectionSortOrder,
   nextSubcategoryGallerySortOrder,
@@ -18,12 +19,14 @@ import {
   nextSubcategorySortOrder,
   parseCatalogPrintRowsJson,
   parseCatalogConditionsJson,
+  parseExternalHttpUrl,
   parseOptionalString,
   parseOptionalPrice,
   parseRichTextOptional,
   parsePublished,
   parseSortOrder,
   uniqueCategorySlug,
+  uniqueLiveEventSlug,
   uniquePlanSlug,
   uniqueSubcategorySlug,
 } from "@/lib/admin/form";
@@ -43,9 +46,11 @@ import {
 import { sendReservationConfirmationEmail } from "@/lib/email/send-reservation-confirmation";
 import { buildReservationContractData } from "@/lib/admin/reservation-contract";
 import { getAdminReservationById } from "@/lib/db/admin";
-import { redirectAfterSave } from "@/lib/admin/return-to";
+import { redirectAfterSave, withSavedQuery } from "@/lib/admin/return-to";
 import { reservationConfig } from "@/config/reservations";
 import { catalogConfig } from "@/config/catalog";
+import { liveContentConfig } from "@/config/live-content";
+import { adminConfig } from "@/config/admin";
 import { PORTFOLIO_CACHE_TAG } from "@/lib/db/portfolio";
 import { isRangeAvailable, parseTimeRange } from "@/lib/admin/time-slots";
 import {
@@ -78,6 +83,8 @@ function revalidatePortfolio() {
   revalidatePath("/admin/cotizador");
   revalidatePath("/admin/impresiones");
   revalidatePath("/admin/condiciones");
+  revalidatePath(adminConfig.liveEvents.href);
+  revalidatePath(liveContentConfig.path, "layout");
 }
 
 export async function createCategoryAction(formData: FormData) {
@@ -1284,4 +1291,74 @@ export async function updateCatalogConditionsAction(formData: FormData) {
 
   revalidatePortfolio();
   redirectAfterSave(formData, "/admin/condiciones", "updated");
+}
+
+function parseLiveEventForm(formData: FormData) {
+  const title = String(formData.get("title") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
+  const buttonLabel =
+    String(formData.get("buttonLabel") ?? "").trim() ||
+    liveContentConfig.defaultButtonLabel;
+  const buttonUrl = parseExternalHttpUrl(formData.get("buttonUrl"));
+
+  if (!title) {
+    throw new Error("El título es obligatorio.");
+  }
+  if (!description) {
+    throw new Error("La descripción es obligatoria.");
+  }
+
+  return {
+    title,
+    description,
+    buttonLabel,
+    buttonUrl,
+    published: parsePublished(formData.get("published")),
+  };
+}
+
+export async function createLiveEventAction(formData: FormData) {
+  const data = parseLiveEventForm(formData);
+  const slug = await uniqueLiveEventSlug(data.title);
+
+  await prisma.liveEvent.create({
+    data: {
+      ...data,
+      slug,
+      sortOrder: await nextLiveEventSortOrder(),
+    },
+  });
+
+  revalidatePortfolio();
+  redirect(withSavedQuery(adminConfig.liveEvents.href, "created"));
+}
+
+export async function updateLiveEventAction(formData: FormData) {
+  const id = String(formData.get("id") ?? "");
+  if (!id) {
+    throw new Error("Datos incompletos.");
+  }
+
+  const data = parseLiveEventForm(formData);
+  const slug = await uniqueLiveEventSlug(data.title, id);
+
+  await prisma.liveEvent.update({
+    where: { id },
+    data: {
+      ...data,
+      slug,
+    },
+  });
+
+  revalidatePortfolio();
+  redirectAfterSave(formData, adminConfig.liveEvents.href, "updated");
+}
+
+export async function deleteLiveEventAction(formData: FormData) {
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+
+  await prisma.liveEvent.delete({ where: { id } });
+  revalidatePortfolio();
+  redirect(adminConfig.liveEvents.href);
 }

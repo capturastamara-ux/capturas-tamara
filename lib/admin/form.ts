@@ -12,6 +12,53 @@ export function slugify(value: string) {
     .slice(0, 80);
 }
 
+export async function uniqueLiveEventSlug(title: string, excludeId?: string) {
+  const base = slugify(title) || "evento";
+  let candidate = base;
+  let suffix = 2;
+
+  while (true) {
+    const existing = await prisma.liveEvent.findFirst({
+      where: {
+        slug: candidate,
+        ...(excludeId ? { NOT: { id: excludeId } } : {}),
+      },
+      select: { id: true },
+    });
+
+    if (!existing) return candidate;
+    candidate = `${base}-${suffix}`;
+    suffix += 1;
+  }
+}
+
+export async function nextLiveEventSortOrder() {
+  const result = await prisma.liveEvent.aggregate({ _max: { sortOrder: true } });
+  return (result._max.sortOrder ?? -1) + 1;
+}
+
+export function parseExternalHttpUrl(value: FormDataEntryValue | null) {
+  const text = String(value ?? "").trim();
+  if (!text) {
+    throw new Error("El enlace del botón es obligatorio.");
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(text);
+  } catch {
+    throw new Error(
+      "El enlace del botón no es válido. Usa una URL completa (https://…).",
+    );
+  }
+
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    throw new Error("El enlace del botón debe empezar por http:// o https://.");
+  }
+
+  return parsed.toString();
+}
+
 export async function uniqueCategorySlug(title: string, excludeId?: string) {
   const base = slugify(title) || "categoria";
   let candidate = base;

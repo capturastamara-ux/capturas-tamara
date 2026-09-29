@@ -472,3 +472,15 @@ export async function getAdminCatalogConditions() {
     orderBy: { sortOrder: "asc" },
   });
 }
+
+export async function getAdminLiveEvents() {
+  return prisma.liveEvent.findMany({
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+  });
+}
+
+export async function getAdminLiveEventById(id: string) {
+  return prisma.liveEvent.findUnique({
+    where: { id },
+  });
+}

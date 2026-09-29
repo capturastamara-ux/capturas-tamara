@@ -588,3 +588,31 @@ export const getCatalogConditions = cache(() =>
     });
   }),
 );
+
+const liveEventSelect = {
+  id: true,
+  slug: true,
+  title: true,
+  description: true,
+  buttonLabel: true,
+  buttonUrl: true,
+} as const;
+
+export const getPublishedLiveEvents = cache(() =>
+  cachedPortfolio("live-events", async () => {
+    return prisma.liveEvent.findMany({
+      where: { published: true },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+      select: liveEventSelect,
+    });
+  }),
+);
+
+export const getPublishedLiveEventBySlug = cache((slug: string) =>
+  cachedPortfolio(`live-event-${slug}`, async () => {
+    return prisma.liveEvent.findFirst({
+      where: { slug, published: true },
+      select: liveEventSelect,
+    });
+  }),
+);
