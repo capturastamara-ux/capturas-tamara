@@ -5,12 +5,15 @@ import {
   updateLiveEventAction,
 } from "@/app/admin/actions";
 import { AdminConfirmDeleteForm } from "@/components/admin/AdminConfirmDeleteForm";
-import { AdminForm } from "@/components/admin/AdminForm";
+import { AdminLiveEventImagesField } from "@/components/admin/AdminLiveEventImagesField";
+import {
+  AdminMediaForm,
+  AdminMediaSubmitButton,
+} from "@/components/admin/UploadFormContext";
 import {
   AdminCheckbox,
   AdminField,
   AdminPageHeader,
-  AdminSubmitButton,
   AdminTextarea,
 } from "@/components/admin/AdminUi";
 import { AdminReturnToField } from "@/components/admin/AdminReturnToField";
@@ -41,7 +44,7 @@ export default async function EditLiveEventPage({ params }: PageProps) {
       />
 
       <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-        <AdminForm
+        <AdminMediaForm
           action={updateLiveEventAction}
           className="space-y-5 rounded-sm border border-primary/10 bg-background p-5 sm:p-6"
         >
@@ -59,6 +62,9 @@ export default async function EditLiveEventPage({ params }: PageProps) {
             name="description"
             rows={5}
             defaultValue={event.description}
+          />
+          <AdminLiveEventImagesField
+            defaultUrls={event.images.map((image) => image.url)}
           />
           <AdminField
             label={copy.buttonLabelLabel}
@@ -80,8 +86,8 @@ export default async function EditLiveEventPage({ params }: PageProps) {
             name="published"
             defaultChecked={event.published}
           />
-          <AdminSubmitButton label={copy.saveLabel} />
-        </AdminForm>
+          <AdminMediaSubmitButton label={copy.saveLabel} />
+        </AdminMediaForm>
 
         <div className="space-y-6">
           <section className="rounded-sm border border-primary/10 bg-background p-5">

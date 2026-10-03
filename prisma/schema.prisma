@@ -126,18 +126,31 @@ model CatalogPrintRow {
 
 /// Página pública de un evento (álbum o transmisión externa)
 model LiveEvent {
-  id          String   @id @default(cuid())
-  slug        String   @unique
+  id          String           @id @default(cuid())
+  slug        String           @unique
   title       String
   description String?
   buttonLabel String
   buttonUrl   String
-  sortOrder   Int      @default(0)
-  published   Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  sortOrder   Int              @default(0)
+  published   Boolean          @default(true)
+  images      LiveEventImage[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 
   @@index([published, sortOrder])
+}
+
+/// Foto pequeña del evento (máximo 5)
+model LiveEventImage {
+  id          String    @id @default(cuid())
+  liveEventId String
+  liveEvent   LiveEvent @relation(fields: [liveEventId], references: [id], onDelete: Cascade)
+  url         String
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  @@index([liveEventId, sortOrder])
 }
 
 /// Condición de reserva que se muestra en la landing

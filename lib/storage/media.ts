@@ -27,7 +27,8 @@ export type MediaScope =
   | "sections"
   | "gallery"
   | "subcategory-gallery"
-  | "category-gallery";
+  | "category-gallery"
+  | "live-events";
 
 type UploadResult =
   | { ok: true; url: string; path: string }
@@ -102,7 +103,14 @@ export async function uploadPortfolioMedia(
 
   const prepared =
     kind === "image"
-      ? await (await import("@/lib/storage/compress-image")).compressImageForUpload(file)
+      ? await (
+          await import("@/lib/storage/compress-image")
+        ).compressImageForUpload(
+          file,
+          scope === "live-events"
+            ? { maxEdge: 1280, targetBytes: 160 * 1024 }
+            : undefined,
+        )
       : file;
   if (prepared.size > MEDIA_LIMITS[kind].maxBytes) {
     return {

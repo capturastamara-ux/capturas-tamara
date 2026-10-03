@@ -1,10 +1,13 @@
 import { createLiveEventAction } from "@/app/admin/actions";
-import { AdminForm } from "@/components/admin/AdminForm";
+import { AdminLiveEventImagesField } from "@/components/admin/AdminLiveEventImagesField";
+import {
+  AdminMediaForm,
+  AdminMediaSubmitButton,
+} from "@/components/admin/UploadFormContext";
 import {
   AdminCheckbox,
   AdminField,
   AdminPageHeader,
-  AdminSubmitButton,
   AdminTextarea,
 } from "@/components/admin/AdminUi";
 import { AdminReturnToField } from "@/components/admin/AdminReturnToField";
@@ -22,7 +25,7 @@ export default function NewLiveEventPage() {
         description={copy.newDescription}
       />
 
-      <AdminForm
+      <AdminMediaForm
         action={createLiveEventAction}
         className="max-w-2xl space-y-5 rounded-sm border border-primary/10 bg-background p-5 sm:p-6"
       >
@@ -38,6 +41,7 @@ export default function NewLiveEventPage() {
           name="description"
           rows={5}
         />
+        <AdminLiveEventImagesField />
         <AdminField
           label={copy.buttonLabelLabel}
           name="buttonLabel"
@@ -56,8 +60,8 @@ export default function NewLiveEventPage() {
           name="published"
           defaultChecked
         />
-        <AdminSubmitButton label={copy.createLabel} />
-      </AdminForm>
+        <AdminMediaSubmitButton label={copy.createLabel} />
+      </AdminMediaForm>
     </>
   );
 }

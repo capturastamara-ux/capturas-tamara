@@ -1,18 +1,50 @@
 import Link from "next/link";
 import { cn } from "@/lib/cn";
 
+type AdminPageHeaderAction = {
+  href: string;
+  label: string;
+  variant?: "primary" | "outline";
+  external?: boolean;
+};
+
 type AdminPageHeaderProps = {
   eyebrow?: string;
   title: string;
   description?: string;
-  action?: { href: string; label: string };
+  action?: AdminPageHeaderAction;
+  secondaryAction?: AdminPageHeaderAction;
 };
+
+function HeaderActionLink({
+  href,
+  label,
+  variant = "primary",
+  external,
+}: AdminPageHeaderAction) {
+  return (
+    <Link
+      href={href}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noopener noreferrer" : undefined}
+      className={cn(
+        "inline-flex items-center justify-center rounded-full px-5 py-2.5 text-xs uppercase tracking-[0.12em] transition-transform hover:-translate-y-0.5",
+        variant === "outline"
+          ? "border border-catalog/25 text-catalog hover:bg-catalog hover:text-white"
+          : "bg-catalog text-white hover:bg-catalog-ink",
+      )}
+    >
+      {label}
+    </Link>
+  );
+}
 
 export function AdminPageHeader({
   eyebrow,
   title,
   description,
   action,
+  secondaryAction,
 }: AdminPageHeaderProps) {
   return (
     <div className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
@@ -35,13 +67,13 @@ export function AdminPageHeader({
           </p>
         )}
       </div>
-      {action && (
-        <Link
-          href={action.href}
-          className="inline-flex items-center justify-center rounded-full bg-catalog px-5 py-2.5 text-xs uppercase tracking-[0.12em] text-white transition-transform hover:-translate-y-0.5 hover:bg-catalog-ink"
-        >
-          {action.label}
-        </Link>
+      {(secondaryAction || action) && (
+        <div className="flex flex-wrap items-center gap-3">
+          {secondaryAction && (
+            <HeaderActionLink {...secondaryAction} variant="outline" />
+          )}
+          {action && <HeaderActionLink {...action} />}
+        </div>
       )}
     </div>
   );

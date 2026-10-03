@@ -20,6 +20,7 @@ import {
   parseCatalogPrintRowsJson,
   parseCatalogConditionsJson,
   parseExternalHttpUrl,
+  parseLiveEventImageUrls,
   parseOptionalString,
   parseOptionalPrice,
   parseRichTextOptional,
@@ -1310,20 +1311,32 @@ function parseLiveEventForm(formData: FormData) {
     buttonLabel,
     buttonUrl,
     published: parsePublished(formData.get("published")),
+    imageUrls: parseLiveEventImageUrls(formData.get("imageUrls")),
   };
 }
 
 export async function createLiveEventAction(formData: FormData) {
-  const data = parseLiveEventForm(formData);
+  const { imageUrls, ...data } = parseLiveEventForm(formData);
   const slug = await uniqueLiveEventSlug(data.title);
 
-  await prisma.liveEvent.create({
-    data: {
-      ...data,
-      slug,
-      sortOrder: await nextLiveEventSortOrder(),
-    },
-  });
+  try {
+    await prisma.liveEvent.create({
+      data: {
+        ...data,
+        slug,
+        sortOrder: await nextLiveEventSortOrder(),
+        images: {
+          create: imageUrls.map((url, index) => ({
+            url,
+            sortOrder: index,
+          })),
+        },
+      },
+    });
+  } catch (error) {
+    await deleteStoredMedia(imageUrls);
+    throw error;
+  }
 
   revalidatePortfolio();
   redirect(withSavedQuery(adminConfig.liveEvents.href, "created"));
@@ -1335,16 +1348,36 @@ export async function updateLiveEventAction(formData: FormData) {
     throw new Error("Datos incompletos.");
   }
 
-  const data = parseLiveEventForm(formData);
+  const { imageUrls, ...data } = parseLiveEventForm(formData);
   const slug = await uniqueLiveEventSlug(data.title, id);
-
-  await prisma.liveEvent.update({
+  const existing = await prisma.liveEvent.findUnique({
     where: { id },
-    data: {
-      ...data,
-      slug,
-    },
+    select: { images: { select: { url: true } } },
   });
+  const previousUrls = existing?.images.map((image) => image.url) ?? [];
+  const removedUrls = previousUrls.filter((url) => !imageUrls.includes(url));
+
+  await prisma.$transaction(async (tx) => {
+    await tx.liveEvent.update({
+      where: { id },
+      data: {
+        ...data,
+        slug,
+      },
+    });
+    await tx.liveEventImage.deleteMany({ where: { liveEventId: id } });
+    if (imageUrls.length > 0) {
+      await tx.liveEventImage.createMany({
+        data: imageUrls.map((url, index) => ({
+          liveEventId: id,
+          url,
+          sortOrder: index,
+        })),
+      });
+    }
+  });
+
+  await deleteStoredMedia(removedUrls);
 
   revalidatePortfolio();
   redirectAfterSave(formData, adminConfig.liveEvents.href, "updated");
@@ -1354,7 +1387,22 @@ export async function deleteLiveEventAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   if (!id) return;
 
-  await prisma.liveEvent.delete({ where: { id } });
+  const event = await prisma.liveEvent.findUnique({
+    where: { id },
+    select: { images: { select: { url: true } } },
+  });
+
+  if (event) {
+    await deleteStoredMedia(event.images.map((image) => image.url));
+    await prisma.liveEvent.delete({ where: { id } });
+  }
+
   revalidatePortfolio();
   redirect(adminConfig.liveEvents.href);
+}
+
+export async function deleteLiveEventDraftImageAction(formData: FormData) {
+  const url = String(formData.get("url") ?? "").trim();
+  if (!url.includes("/portfolio/live-events/")) return;
+  await deleteStoredMedia([url]);
 }

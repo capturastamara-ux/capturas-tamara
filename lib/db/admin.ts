@@ -482,5 +482,8 @@ export async function getAdminLiveEvents() {
 export async function getAdminLiveEventById(id: string) {
   return prisma.liveEvent.findUnique({
     where: { id },
+    include: {
+      images: { orderBy: { sortOrder: "asc" } },
+    },
   });
 }

@@ -46,6 +46,7 @@ export const adminConfig = {
     newDescription:
       "Al publicarlo se genera un enlace para compartir. No aparece en el menú del sitio.",
     newLabel: "Nuevo evento",
+    publicListLabel: "Contenido en vivo",
     titleLabel: "Título",
     titlePlaceholder: "Grados Colegio X",
     descriptionLabel: "Descripción",
@@ -57,7 +58,13 @@ export const adminConfig = {
     createLabel: "Crear evento",
     saveLabel: "Guardar cambios",
     deleteLabel: "Eliminar evento",
-    deleteHint: "Se quitará la página pública y el listado.",
+    deleteHint:
+      "Se quitará la página pública, el listado y las fotos del almacenamiento.",
+    imagesLabel: "Fotos del evento",
+    imagesHint:
+      "Máximo 5. Se optimizan a WebP liviano para la franja de la página pública.",
+    imagesRemoveLabel: "Quitar",
+    imagesMaxError: "Puedes subir máximo 5 fotos por evento.",
     empty: "Aún no hay eventos. Crea el primero.",
     publicLinkLabel: "Enlace para el cliente",
     openPublicLabel: "Abrir página",

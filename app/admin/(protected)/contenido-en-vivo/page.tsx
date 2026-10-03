@@ -3,7 +3,7 @@ import { deleteLiveEventAction } from "@/app/admin/actions";
 import { AdminConfirmDeleteForm } from "@/components/admin/AdminConfirmDeleteForm";
 import { AdminPageHeader, StatusBadge } from "@/components/admin/AdminUi";
 import { adminConfig } from "@/config/admin";
-import { liveEventPath } from "@/config/live-content";
+import { liveContentConfig, liveEventPath } from "@/config/live-content";
 import { getAdminLiveEvents } from "@/lib/db/admin";
 
 export default async function AdminLiveEventsPage() {
@@ -16,6 +16,11 @@ export default async function AdminLiveEventsPage() {
         eyebrow={copy.eyebrow}
         title={copy.title}
         description={copy.description}
+        secondaryAction={{
+          href: liveContentConfig.path,
+          label: copy.publicListLabel,
+          external: true,
+        }}
         action={{ href: copy.newHref, label: copy.newLabel }}
       />
 

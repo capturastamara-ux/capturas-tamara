@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
+import { LiveEventFollowSection } from "@/components/sections/LiveEventFollowSection";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { liveContentConfig } from "@/config/live-content";
 import { siteConfig } from "@/config/site";
@@ -63,6 +64,10 @@ export default async function LiveEventPage({ params }: PageProps) {
             </a>
           </div>
         </section>
+        <LiveEventFollowSection
+          images={event.images}
+          eventTitle={event.title}
+        />
       </main>
       <Footer />
     </>

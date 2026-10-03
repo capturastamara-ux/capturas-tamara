@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
 import { sanitizeRichText } from "@/lib/sanitize-rich-text";
+import { isStoredMediaUrl } from "@/lib/storage/media";
 
 export function slugify(value: string) {
   return value
@@ -35,6 +36,36 @@ export async function uniqueLiveEventSlug(title: string, excludeId?: string) {
 export async function nextLiveEventSortOrder() {
   const result = await prisma.liveEvent.aggregate({ _max: { sortOrder: true } });
   return (result._max.sortOrder ?? -1) + 1;
+}
+
+export function parseLiveEventImageUrls(value: FormDataEntryValue | null) {
+  const text = String(value ?? "").trim();
+  if (!text) return [];
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new Error("La lista de fotos no es válida.");
+  }
+
+  if (!Array.isArray(parsed)) {
+    throw new Error("La lista de fotos debe ser un arreglo.");
+  }
+
+  const urls = parsed.map((entry, index) => {
+    const url = String(entry ?? "").trim();
+    if (!url || !isStoredMediaUrl(url)) {
+      throw new Error(`La foto ${index + 1} no es válida.`);
+    }
+    return url;
+  });
+
+  if (urls.length > 5) {
+    throw new Error("Puedes subir máximo 5 fotos por evento.");
+  }
+
+  return urls;
 }
 
 export function parseExternalHttpUrl(value: FormDataEntryValue | null) {

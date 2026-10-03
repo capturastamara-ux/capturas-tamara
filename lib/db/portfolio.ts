@@ -596,6 +596,10 @@ const liveEventSelect = {
   description: true,
   buttonLabel: true,
   buttonUrl: true,
+  images: {
+    orderBy: { sortOrder: "asc" as const },
+    select: { id: true, url: true },
+  },
 } as const;
 
 export const getPublishedLiveEvents = cache(() =>
