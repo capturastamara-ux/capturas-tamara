@@ -65,6 +65,10 @@ export const adminConfig = {
       "Máximo 5. Se optimizan a WebP liviano para la franja de la página pública.",
     imagesRemoveLabel: "Quitar",
     imagesMaxError: "Puedes subir máximo 5 fotos por evento.",
+    imagesFeaturedBadge: "Principal",
+    imagesFeaturedAction: "Hacer principal",
+    imagesFeaturedHint:
+      "La foto principal se muestra en la tarjeta del listado público.",
     empty: "Aún no hay eventos. Crea el primero.",
     publicLinkLabel: "Enlace para el cliente",
     openPublicLabel: "Abrir página",

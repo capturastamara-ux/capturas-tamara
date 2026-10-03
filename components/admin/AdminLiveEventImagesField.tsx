@@ -141,12 +141,24 @@ export function AdminLiveEventImagesField({
     }
   };
 
+  const makeFeatured = (image: EditorImage) => {
+    setImages((current) => {
+      const next = [
+        image,
+        ...current.filter((item) => item.key !== image.key),
+      ];
+      syncHiddenValue(next);
+      return next;
+    });
+  };
+
   return (
     <div className="flex flex-col gap-2">
       <span className="text-xs uppercase tracking-[0.12em] text-muted">
         {copy.imagesLabel}
       </span>
       <p className="text-xs text-muted/80">{copy.imagesHint}</p>
+      <p className="text-xs text-muted/80">{copy.imagesFeaturedHint}</p>
 
       <div
         className={cn(
@@ -185,8 +197,26 @@ export function AdminLiveEventImagesField({
                     alt={`Foto ${index + 1} del evento`}
                     className="h-full w-full object-cover"
                   />
+                  {index === 0 && (
+                    <span className="absolute left-2 top-2 rounded-full bg-catalog px-2.5 py-1 text-[10px] uppercase tracking-[0.12em] text-white">
+                      {copy.imagesFeaturedBadge}
+                    </span>
+                  )}
                 </div>
-                <div className="flex justify-end px-2 py-2">
+                <div className="flex items-center justify-between gap-2 px-2 py-2">
+                  {index === 0 ? (
+                    <span className="text-xs uppercase tracking-[0.1em] text-muted">
+                      {copy.imagesFeaturedBadge}
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => makeFeatured(image)}
+                      className="text-xs uppercase tracking-[0.1em] text-primary hover:opacity-70"
+                    >
+                      {copy.imagesFeaturedAction}
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => removeImage(image)}
