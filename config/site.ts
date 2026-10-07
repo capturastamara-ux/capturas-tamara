@@ -37,6 +37,7 @@ export const siteConfig = {
   nav: [
     { type: "link", label: "Home", href: "/" },
     { type: "link", label: "Categorías", href: "/#categorias" },
+    { type: "link", label: "Equipo", href: "/equipo" },
     { type: "link", label: "Productos", href: "/#productos" },
     { type: "link", label: "Condiciones", href: "/#condiciones" },
     { type: "link", label: "Iniciar sesión", href: "/admin/login" },

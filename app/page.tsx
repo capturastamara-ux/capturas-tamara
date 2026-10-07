@@ -6,6 +6,7 @@ import { CatalogCategoriesSection } from "@/components/sections/CatalogCategorie
 import { CatalogProductsSection } from "@/components/sections/CatalogProductsSection";
 import { CatalogConditionsSection } from "@/components/sections/CatalogConditionsSection";
 import { AboutIntro } from "@/components/sections/AboutIntro";
+import { TeamSection } from "@/components/sections/TeamSection";
 import { catalogConfig } from "@/config/catalog";
 import {
   getCatalogConditions,
@@ -48,6 +49,7 @@ export default async function Home() {
       <main>
         <RegionsTicker />
         <CatalogCategoriesSection categories={categories} />
+        <TeamSection />
         <CatalogProductsSection
           products={products}
           imagesByProduct={imagesByProduct}
