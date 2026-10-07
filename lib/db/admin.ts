@@ -473,6 +473,16 @@ export async function getAdminCatalogConditions() {
   });
 }
 
+export async function getAdminTeamMembers() {
+  return prisma.teamMember.findMany({
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+  });
+}
+
+export async function getAdminTeamMemberById(id: string) {
+  return prisma.teamMember.findUnique({ where: { id } });
+}
+
 export async function getAdminLiveEvents() {
   return prisma.liveEvent.findMany({
     orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],

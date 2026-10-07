@@ -28,7 +28,8 @@ export type MediaScope =
   | "gallery"
   | "subcategory-gallery"
   | "category-gallery"
-  | "live-events";
+  | "live-events"
+  | "team";
 
 type UploadResult =
   | { ok: true; url: string; path: string }
@@ -109,7 +110,9 @@ export async function uploadPortfolioMedia(
           file,
           scope === "live-events"
             ? { maxEdge: 1280, targetBytes: 160 * 1024 }
-            : undefined,
+            : scope === "team"
+              ? { maxEdge: 960, targetBytes: 120 * 1024 }
+              : undefined,
         )
       : file;
   if (prepared.size > MEDIA_LIMITS[kind].maxBytes) {

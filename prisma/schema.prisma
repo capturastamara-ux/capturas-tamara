@@ -153,6 +153,21 @@ model LiveEventImage {
   @@index([liveEventId, sortOrder])
 }
 
+/// Miembro del equipo en la landing y /equipo
+model TeamMember {
+  id        String   @id @default(cuid())
+  name      String
+  role      String?
+  photoUrl  String
+  photoAlt  String?
+  sortOrder Int      @default(0)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published, sortOrder])
+}
+
 /// Condición de reserva que se muestra en la landing
 model CatalogCondition {
   id        String   @id @default(cuid())

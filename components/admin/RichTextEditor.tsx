@@ -4,11 +4,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 
 type RichTextEditorProps = {
-  name: string;
+  name?: string;
   id?: string;
   defaultValue?: string | null;
   placeholder?: string;
   compact?: boolean;
+  onHtmlChange?: (html: string) => void;
 };
 
 type ToolbarAction = {
@@ -41,14 +42,26 @@ export function RichTextEditor({
   defaultValue,
   placeholder = "Escribe aquí…",
   compact = false,
+  onHtmlChange,
 }: Readonly<RichTextEditorProps>) {
   const editorRef = useRef<HTMLDivElement>(null);
   const [html, setHtml] = useState(defaultValue ?? "");
 
   useEffect(() => {
-    if (!editorRef.current || !defaultValue) return;
-    editorRef.current.innerHTML = defaultValue;
-    setHtml(defaultValue);
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    const next = defaultValue ?? "";
+    const isEditing =
+      document.activeElement === editor ||
+      editor.contains(document.activeElement);
+
+    if (isEditing) return;
+
+    if (editor.innerHTML !== next) {
+      editor.innerHTML = next;
+      setHtml(next);
+    }
   }, [defaultValue]);
 
   useEffect(() => {
@@ -67,8 +80,10 @@ export function RichTextEditor({
 
   const sync = useCallback(() => {
     const next = editorRef.current?.innerHTML ?? "";
-    setHtml(isEmptyEditorHtml(next) ? "" : next);
-  }, []);
+    const value = isEmptyEditorHtml(next) ? "" : next;
+    setHtml(value);
+    onHtmlChange?.(value);
+  }, [onHtmlChange]);
 
   const runCommand = (command: string) => {
     editorRef.current?.focus();
@@ -127,18 +142,22 @@ export function RichTextEditor({
         suppressContentEditableWarning
         role="textbox"
         aria-multiline="true"
+        lang="es"
+        dir="ltr"
         data-placeholder={placeholder}
         onInput={sync}
         onBlur={sync}
         className={cn(
-          "min-w-0 px-3 py-2.5 text-sm leading-relaxed outline-none",
+          "min-w-0 px-3 py-2.5 text-left text-sm leading-relaxed outline-none [unicode-bidi:plaintext]",
           compact ? "min-h-[96px]" : "min-h-[160px]",
           "[&:empty:before]:text-muted/50 [&:empty:before]:content-[attr(data-placeholder)]",
           "[&_a]:text-primary [&_a]:underline [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:my-1 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5",
         )}
       />
 
-      <input type="hidden" name={name} value={html} data-rich-text-input="" />
+      {name ? (
+        <input type="hidden" name={name} value={html} data-rich-text-input="" />
+      ) : null}
     </div>
   );
 }

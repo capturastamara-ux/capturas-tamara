@@ -21,6 +21,8 @@ type MediaUploadFieldProps = {
   helper?: string;
   defaultUrl?: string | null;
   onUploadingChange?: (uploading: boolean) => void;
+  /** Borra en Storage un archivo subido pero aún no guardado en el formulario. */
+  onClearStoredUrl?: (url: string) => void;
 };
 
 export function MediaUploadField({
@@ -31,6 +33,7 @@ export function MediaUploadField({
   helper,
   defaultUrl = null,
   onUploadingChange,
+  onClearStoredUrl,
 }: MediaUploadFieldProps) {
   const inputId = useId();
   const trackUpload = useUploadFormTrack();
@@ -124,11 +127,16 @@ export function MediaUploadField({
   };
 
   const clearFile = () => {
+    const persisted = (defaultUrl ?? "").trim();
+    const current = uploadedUrl.trim();
+    if (current && current !== persisted && onClearStoredUrl) {
+      onClearStoredUrl(current);
+    }
     setFile(null);
     setError(null);
     setUploadedUrl("");
     setPreviewUrl(null);
-    setInputKey((current) => current + 1);
+    setInputKey((currentKey) => currentKey + 1);
   };
 
   const hasStoredMedia = Boolean(uploadedUrl);

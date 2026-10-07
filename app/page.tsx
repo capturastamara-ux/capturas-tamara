@@ -34,7 +34,7 @@ export default async function Home() {
   const imagesByProduct = Object.fromEntries(
     catalogConfig.products.map((product) => [
       product.id,
-      product.hero
+      product.id === "kit" || ("hero" in product && product.hero)
         ? []
         : pickRandomPlanImages(planImages, 3, product.images),
     ]),

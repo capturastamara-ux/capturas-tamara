@@ -1,3 +1,4 @@
+import { catalogConfig } from "@/config/catalog";
 import { prisma } from "@/lib/db/prisma";
 import { sanitizeRichText } from "@/lib/sanitize-rich-text";
 import { isStoredMediaUrl } from "@/lib/storage/media";
@@ -35,6 +36,11 @@ export async function uniqueLiveEventSlug(title: string, excludeId?: string) {
 
 export async function nextLiveEventSortOrder() {
   const result = await prisma.liveEvent.aggregate({ _max: { sortOrder: true } });
+  return (result._max.sortOrder ?? -1) + 1;
+}
+
+export async function nextTeamMemberSortOrder() {
+  const result = await prisma.teamMember.aggregate({ _max: { sortOrder: true } });
   return (result._max.sortOrder ?? -1) + 1;
 }
 
@@ -327,6 +333,56 @@ export function parseCatalogPrintRowsJson(value: FormDataEntryValue | null) {
 
     return { name, price };
   });
+}
+
+export function parseCatalogKitRowsJson(value: FormDataEntryValue | null) {
+  const text = String(value ?? "").trim();
+  if (!text) return [];
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new Error("La lista de kits no es válida.");
+  }
+
+  if (!Array.isArray(parsed)) {
+    throw new Error("La lista de kits debe ser un arreglo.");
+  }
+
+  return parsed.map((entry, index) => {
+    if (!entry || typeof entry !== "object") {
+      throw new Error(`Kit ${index + 1} no es válido.`);
+    }
+
+    const rawName = String((entry as { name?: unknown }).name ?? "");
+    const name = sanitizeRichText(rawName);
+    const price = Number.parseInt(String((entry as { price?: unknown }).price ?? ""), 10);
+
+    if (!name) {
+      throw new Error(`Indica el contenido del kit ${index + 1}.`);
+    }
+
+    if (!Number.isFinite(price) || price < 0) {
+      throw new Error(`Indica un valor válido en el kit ${index + 1}.`);
+    }
+
+    return { name, price };
+  });
+}
+
+export function catalogPrintProductIds() {
+  return catalogConfig.products
+    .filter((product) => product.id !== "kit")
+    .map((product) => product.id);
+}
+
+export function catalogKitProduct() {
+  const kit = catalogConfig.products.find((product) => product.id === "kit");
+  if (!kit) {
+    throw new Error("No hay producto Kit configurado.");
+  }
+  return kit;
 }
 
 export function parseCatalogConditionsJson(value: FormDataEntryValue | null) {

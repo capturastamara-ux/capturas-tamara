@@ -2,7 +2,12 @@ import Image from "next/image";
 import { formatCop, type CatalogProduct } from "@/config/catalog";
 import { CatalogBand, CatalogHeading } from "@/components/sections/catalog-ui";
 import { Reveal } from "@/components/ui/Reveal";
+import { RichTextContent } from "@/components/ui/RichTextContent";
 import { cn } from "@/lib/cn";
+
+function isKitProduct(product: CatalogProduct) {
+  return product.id === "kit" || product.layout === "kit";
+}
 
 type ProductImage = {
   src: string;
@@ -53,6 +58,29 @@ function PlaqueFan({
   );
 }
 
+function KitPriceTable({ product }: Readonly<{ product: CatalogProduct }>) {
+  return (
+    <div className="border-y border-white/15">
+      <ul className="divide-y divide-white/10">
+        {product.rows.map((row, index) => (
+          <li
+            key={`kit-${index}`}
+            className="flex flex-col gap-3 py-4 sm:flex-row sm:items-start sm:justify-between sm:gap-8 sm:py-5"
+          >
+            <RichTextContent
+              html={row.size}
+              className="min-w-0 flex-1 text-sm leading-relaxed text-white/85 sm:text-base [&_li]:text-white/80 [&_p]:text-white/85 [&_strong]:font-semibold [&_strong]:text-white [&_ul]:my-1"
+            />
+            <p className="shrink-0 font-display text-lg tabular-nums text-catalog-gold sm:text-xl">
+              {formatCop(row.price)}
+            </p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function PriceTable({ product }: Readonly<{ product: CatalogProduct }>) {
   return (
     <div className="border-y border-white/15">
@@ -92,6 +120,7 @@ export function CatalogProductsSection({
     <div id="productos">
       {products.map((product, index) => {
         const images = imagesByProduct[product.id] ?? product.images;
+        const kit = isKitProduct(product);
 
         return (
         <CatalogBand
@@ -109,36 +138,61 @@ export function CatalogProductsSection({
               <CatalogHeading eyebrow={product.eyebrow} title={product.title} />
             </Reveal>
 
-            <div
-              className={cn(
-                "mt-10 flex w-full flex-col items-center gap-8",
-                !product.hero &&
-                  "lg:grid lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-12",
-              )}
-            >
-              <Reveal className="flex w-full flex-col items-center lg:items-start">
-                {product.hero ? (
-                  <div className="relative w-full overflow-hidden">
-                    <Image
-                      src={product.hero.src}
-                      alt={product.hero.alt}
-                      width={1400}
-                      height={788}
-                      className="h-auto w-full object-contain"
-                      sizes="(max-width: 820px) 92vw, 820px"
-                    />
-                  </div>
-                ) : (
-                  <PlaqueFan images={images} />
+            {kit ? (
+              <div className="mt-10 flex w-full flex-col items-center gap-8">
+                <Reveal className="flex w-full flex-col items-center">
+                  {product.hero ? (
+                    <div className="relative w-full overflow-hidden">
+                      <Image
+                        src={product.hero.src}
+                        alt={product.hero.alt}
+                        width={1400}
+                        height={788}
+                        className="h-auto w-full object-contain"
+                        sizes="(max-width: 820px) 92vw, 820px"
+                      />
+                    </div>
+                  ) : null}
+                  <p className="mt-8 w-full text-center text-[0.68rem] uppercase tracking-[0.22em] text-white/70">
+                    {product.subtitle}
+                  </p>
+                </Reveal>
+                <Reveal delay={0.08} className="w-full max-w-md lg:max-w-none">
+                  <KitPriceTable product={product} />
+                </Reveal>
+              </div>
+            ) : (
+              <div
+                className={cn(
+                  "mt-10 flex w-full flex-col items-center gap-8",
+                  !product.hero &&
+                    "lg:grid lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-12",
                 )}
-                <p className="mt-8 w-full text-center text-[0.68rem] uppercase tracking-[0.22em] text-white/70">
-                  {product.subtitle}
-                </p>
-              </Reveal>
-              <Reveal delay={0.08} className="w-full max-w-md lg:max-w-none">
-                <PriceTable product={product} />
-              </Reveal>
-            </div>
+              >
+                <Reveal className="flex w-full flex-col items-center lg:items-start">
+                  {product.hero ? (
+                    <div className="relative w-full overflow-hidden">
+                      <Image
+                        src={product.hero.src}
+                        alt={product.hero.alt}
+                        width={1400}
+                        height={788}
+                        className="h-auto w-full object-contain"
+                        sizes="(max-width: 820px) 92vw, 820px"
+                      />
+                    </div>
+                  ) : (
+                    <PlaqueFan images={images} />
+                  )}
+                  <p className="mt-8 w-full text-center text-[0.68rem] uppercase tracking-[0.22em] text-white/70">
+                    {product.subtitle}
+                  </p>
+                </Reveal>
+                <Reveal delay={0.08} className="w-full max-w-md lg:max-w-none">
+                  <PriceTable product={product} />
+                </Reveal>
+              </div>
+            )}
           </div>
         </CatalogBand>
         );

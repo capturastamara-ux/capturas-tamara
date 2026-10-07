@@ -14,6 +14,7 @@ const links = [
   { href: "/admin/planes", label: "Planes" },
   { href: adminConfig.printLists.href, label: adminConfig.printLists.navLabel },
   { href: adminConfig.conditions.href, label: adminConfig.conditions.navLabel },
+  { href: adminConfig.team.href, label: adminConfig.team.navLabel },
   { href: adminConfig.liveEvents.href, label: adminConfig.liveEvents.navLabel },
   { href: "/admin/reservas", label: "Reservas" },
 ] as const;

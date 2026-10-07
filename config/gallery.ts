@@ -25,6 +25,7 @@ const planImages = {
   hero: "/images/hero/hero-desktop.jpeg",
   retablo: "/images/hero/retablo-1.jpeg",
   impresiones: "/images/hero/impresiones-1.png",
+  kit: "/images/hero/kit_1.png",
 } as const;
 
 export const portfolioCategories: PortfolioCategory[] = [

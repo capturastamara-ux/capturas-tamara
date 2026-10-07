@@ -12,12 +12,16 @@ import {
   nextCategorySortOrder,
   nextGallerySortOrder,
   nextLiveEventSortOrder,
+  nextTeamMemberSortOrder,
   nextPlanSortOrder,
   nextSectionSortOrder,
   nextSubcategoryGallerySortOrder,
   nextCategoryGallerySortOrder,
   nextSubcategorySortOrder,
   parseCatalogPrintRowsJson,
+  parseCatalogKitRowsJson,
+  catalogPrintProductIds,
+  catalogKitProduct,
   parseCatalogConditionsJson,
   parseExternalHttpUrl,
   parseLiveEventImageUrls,
@@ -84,6 +88,8 @@ function revalidatePortfolio() {
   revalidatePath("/admin/cotizador");
   revalidatePath("/admin/impresiones");
   revalidatePath("/admin/condiciones");
+  revalidatePath(adminConfig.team.href);
+  revalidatePath("/equipo");
   revalidatePath(adminConfig.liveEvents.href);
   revalidatePath(liveContentConfig.path, "layout");
 }
@@ -1243,26 +1249,37 @@ export async function getReservationContractAction(id: string) {
 }
 
 export async function updateCatalogPrintRowsAction(formData: FormData) {
-  const productIds = catalogConfig.products.map((product) => product.id);
+  const productIds = catalogPrintProductIds();
+  const kit = catalogKitProduct();
 
   const lists = productIds.map((productId) => ({
     productId,
     rows: parseCatalogPrintRowsJson(formData.get(`rows-${productId}`)),
   }));
+  const kitRows = parseCatalogKitRowsJson(formData.get(`rows-${kit.id}`));
+  const allProductIds = [...productIds, kit.id];
 
   await prisma.$transaction(async (tx) => {
     await tx.catalogPrintRow.deleteMany({
-      where: { productId: { in: [...productIds] } },
+      where: { productId: { in: allProductIds } },
     });
 
-    const data = lists.flatMap((list) =>
-      list.rows.map((row, index) => ({
-        productId: list.productId,
+    const data = [
+      ...lists.flatMap((list) =>
+        list.rows.map((row, index) => ({
+          productId: list.productId,
+          name: row.name,
+          price: row.price,
+          sortOrder: index,
+        })),
+      ),
+      ...kitRows.map((row, index) => ({
+        productId: kit.id,
         name: row.name,
         price: row.price,
         sortOrder: index,
       })),
-    );
+    ];
 
     if (data.length > 0) {
       await tx.catalogPrintRow.createMany({ data });
@@ -1270,7 +1287,7 @@ export async function updateCatalogPrintRowsAction(formData: FormData) {
   });
 
   revalidatePortfolio();
-  redirectAfterSave(formData, "/admin/impresiones", "updated");
+  redirectAfterSave(formData, adminConfig.printLists.href, "updated");
 }
 
 export async function updateCatalogConditionsAction(formData: FormData) {
@@ -1404,5 +1421,93 @@ export async function deleteLiveEventAction(formData: FormData) {
 export async function deleteLiveEventDraftImageAction(formData: FormData) {
   const url = String(formData.get("url") ?? "").trim();
   if (!url.includes("/portfolio/live-events/")) return;
+  await deleteStoredMedia([url]);
+}
+
+function parseTeamMemberForm(formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
+  const photoUrl = parseOptionalString(formData.get("photoUrl"));
+
+  if (!name) {
+    throw new Error("El nombre es obligatorio.");
+  }
+  if (!photoUrl) {
+    throw new Error("La foto es obligatoria.");
+  }
+
+  return {
+    name,
+    role: parseOptionalString(formData.get("role")),
+    photoUrl,
+    photoAlt: parseOptionalString(formData.get("photoAlt")),
+    published: parsePublished(formData.get("published")),
+  };
+}
+
+export async function createTeamMemberAction(formData: FormData) {
+  const data = parseTeamMemberForm(formData);
+
+  try {
+    await prisma.teamMember.create({
+      data: {
+        ...data,
+        sortOrder: await nextTeamMemberSortOrder(),
+      },
+    });
+  } catch (error) {
+    await deleteStoredMedia([data.photoUrl]);
+    throw error;
+  }
+
+  revalidatePortfolio();
+  redirect(withSavedQuery(adminConfig.team.href, "created"));
+}
+
+export async function updateTeamMemberAction(formData: FormData) {
+  const id = String(formData.get("id") ?? "");
+  if (!id) {
+    throw new Error("Datos incompletos.");
+  }
+
+  const data = parseTeamMemberForm(formData);
+  const existing = await prisma.teamMember.findUnique({
+    where: { id },
+    select: { photoUrl: true },
+  });
+
+  await prisma.teamMember.update({
+    where: { id },
+    data,
+  });
+
+  await deleteStoredMedia(
+    removedStorageUrls(existing?.photoUrl, data.photoUrl),
+  );
+
+  revalidatePortfolio();
+  redirectAfterSave(formData, adminConfig.team.href, "updated");
+}
+
+export async function deleteTeamMemberAction(formData: FormData) {
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+
+  const member = await prisma.teamMember.findUnique({
+    where: { id },
+    select: { photoUrl: true },
+  });
+
+  if (member) {
+    await deleteStoredMedia([member.photoUrl]);
+    await prisma.teamMember.delete({ where: { id } });
+  }
+
+  revalidatePortfolio();
+  redirect(adminConfig.team.href);
+}
+
+export async function deleteTeamMemberDraftImageAction(formData: FormData) {
+  const url = String(formData.get("url") ?? "").trim();
+  if (!url.includes("/portfolio/team/")) return;
   await deleteStoredMedia([url]);
 }

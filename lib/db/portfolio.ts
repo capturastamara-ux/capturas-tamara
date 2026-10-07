@@ -589,6 +589,22 @@ export const getCatalogConditions = cache(() =>
   }),
 );
 
+export const getPublishedTeamMembers = cache(() =>
+  cachedPortfolio("team-members", async () => {
+    return prisma.teamMember.findMany({
+      where: { published: true },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+      select: {
+        id: true,
+        name: true,
+        role: true,
+        photoUrl: true,
+        photoAlt: true,
+      },
+    });
+  }),
+);
+
 const liveEventSelect = {
   id: true,
   slug: true,

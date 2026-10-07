@@ -10,8 +10,11 @@ export type CatalogProductImage = {
   alt: string;
 };
 
+export type CatalogProductLayout = "prints" | "kit";
+
 export type CatalogProduct = {
   id: string;
+  layout?: CatalogProductLayout;
   eyebrow: string;
   title: string;
   subtitle: string;
@@ -76,6 +79,28 @@ export const catalogConfig = {
         { size: "20×30", price: 12_000 },
         { size: "30×45", price: 24_000 },
         { size: "40×60", price: 37_000 },
+      ],
+    },
+    {
+      id: "kit",
+      layout: "kit",
+      eyebrow: "Paquetes",
+      title: "Kit",
+      subtitle: "Opciones listas para tu sesión",
+      hero: {
+        src: galleryAssetPaths.kit,
+        alt: "Kits fotográficos con álbum, impresiones y retablos de Capturas Tamara",
+      },
+      images: [],
+      rows: [
+        {
+          size: `<p><strong>KIT UNO</strong></p><p>Incluye:</p><ul><li>Álbum fotográfico</li><li>100 fotos impresas 10×15</li><li>Retablo de madera 15×21</li></ul>`,
+          price: 50_000,
+        },
+        {
+          size: `<p><strong>KIT DOS</strong></p><p>Incluye:</p><ul><li>Álbum fotográfico premium</li><li>150 fotos impresas 10×15</li><li>Retablo de madera 20×30</li></ul>`,
+          price: 100_000,
+        },
       ],
     },
   ] as const satisfies ReadonlyArray<CatalogProduct>,
